@@ -108,6 +108,17 @@ class BoardState:
         snakes = sorted(self.all_snakes, key=c, reverse=reverse)
         return snakes
 
+    def to_json(self):
+        return {
+            "height": self.height,
+            "width": self.width,
+            "food": [f.export_json() for f in self.food],
+            "snakes": [s.export_json() for s in self.all_snakes]
+        }
+
+    def clone(self):
+        return copy.deepcopy(self)
+
     @staticmethod
     def is_obstacle(o: Occupant):
         if o == Occupant.Snake:

@@ -1,13 +1,14 @@
 import multiprocessing
 
 from agents.BaseAgent import BaseAgent
-from typing import List, Optional, Dict
+from typing import List, Optional
 import pygame
 import sys
 import time
 import traceback
 from copy import deepcopy
 
+from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.errors import AgentTimeoutError
 from environment.Battlesnake.modes.Standard import StandardGame
 from environment.Battlesnake.modes.AbstractGame import AbstractGame
@@ -42,6 +43,7 @@ class BattlesnakeEnvironment:
         self.snake_ids = None
         self.agents: List[BaseAgent] = agents
         self.game: Optional[AbstractGame] = None
+        self.board: Optional[BoardState] = None
         self.game_renderer = None
         self.act_timeout = act_timeout
         self.default_snake_colors = None
@@ -64,7 +66,7 @@ class BattlesnakeEnvironment:
         self.exporter = Exporter() if self.export_games else None
 
         self.game = StandardGame(timeout=int(self.act_timeout * 1000))
-        self.game.create_initial_board_state(width=self.width, height=self.height, snake_ids=self.snake_ids)
+        self.board = self.game.create_initial_board_state(width=self.width, height=self.height, snake_ids=self.snake_ids)
 
         self.update_snake_infos()
         self.game_renderer = GameRenderer(self.width, self.height, self.num_snakes)
@@ -74,12 +76,11 @@ class BattlesnakeEnvironment:
 
     def update_snake_infos(self):
 
-        board = self.game.state
         colors = self.default_snake_colors
 
         for idx, agent in enumerate(self.agents):
             snake_id = self.snake_ids[idx]
-            snake = board.get_snake_by_id(snake_id)
+            snake = self.board.get_snake_by_id(snake_id)
             name = agent.get_name()
             color = agent.get_color()
 
@@ -113,11 +114,11 @@ class BattlesnakeEnvironment:
         if self.paused:
             return
 
-        if self.game.is_game_over():
+        if self.game.is_game_over(self.board):
             return True
 
         actions = {}
-        board = self.game.state
+        board = self.board
         game_info = self.game.game_info
         turn = self.game.turn
 
@@ -144,12 +145,12 @@ class BattlesnakeEnvironment:
 
             actions[snake_id] = agent_action
 
-        self.game.create_next_board_state(actions)
+        self.game.create_next_board_state(board=self.board, moves=actions)
 
         if self.export_games:
             self.exporter.add_latest_game_step(self.game)
 
-        is_game_over = self.game.is_game_over()
+        is_game_over = self.game.is_game_over(self.board)
         for idx, snake_id in enumerate(self.snake_ids):
             agent = self.agents[idx]
             snake = board.get_snake_by_id(snake_id)
@@ -171,11 +172,11 @@ class BattlesnakeEnvironment:
         return is_game_over
 
     def render(self):
-        self.game_renderer.display(self.game.state)
+        self.game_renderer.display(self.board)
 
     def wait_after_step(self, action_time=0):
 
-        if self.game.is_game_over():
+        if self.game.is_game_over(self.board):
             wait_time = 100
         else:
 

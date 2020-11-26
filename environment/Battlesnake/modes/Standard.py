@@ -22,43 +22,53 @@ class CollisionElimination:
 
 
 class StandardGame(AbstractGame):
-
     BOARD_SIZE_SMALL = 7
     BOARD_SIZE_MEDIUM = 11
     BOARD_SIZE_LARGE = 19
 
-    def __init__(self, timeout=400):
+    def __init__(
+            self,
+            timeout: int = 400,
+            game_info: Optional[GameInfo] = None,
+            food_spawn_chance=0.15,
+            minimumFood=1
+    ):
 
-        game_id = Helper.generate_game_id()
-        game_info = GameInfo(game_id=game_id, ruleset_name='standard', ruleset_version='v1.0.0', timeout=timeout)
+        if game_info is None:
+            game_id = Helper.generate_game_id()
+            game_info = GameInfo(game_id=game_id, ruleset_name='standard', ruleset_version='v1.0.0', timeout=timeout)
+        else:
+            assert game_info.ruleset['name'] == 'standard'
 
         super().__init__(game_info)
 
-        self.food_spawn_chance = 0.15
+        self.food_spawn_chance = food_spawn_chance
+        self.minimumFood = minimumFood
         self.snake_max_health = 100
         self.snake_start_size = 3
         self.turn = 0
 
     def create_initial_board_state(self, width: int, height: int, snake_ids: List[str]):
 
-        self.state: BoardState = BoardState(width=width, height=height)
+        board: BoardState = BoardState(width=width, height=height)
 
         for snake_id in snake_ids:
-            self.state.add_snake(Snake(snake_id=snake_id))
+            board.add_snake(Snake(snake_id=snake_id))
 
-        self.place_snakes()
-        self.place_food()
+        self.place_snakes(board)
+        self.place_food(board)
 
-    def place_snakes(self):
-        if self.is_known_board_size():
-            self.place_snakes_fixed()
+        return board
+
+    def place_snakes(self, board: BoardState):
+        if self.is_known_board_size(board=board):
+            self.place_snakes_fixed(board=board)
         else:
-            self.place_snakes_randomly()
+            self.place_snakes_randomly(board=board)
 
-    def place_snakes_fixed(self):
-        b = self.state
+    def place_snakes_fixed(self, board: BoardState):
 
-        width = self.state.width
+        width = board.width
 
         starting_positions = [
             Position(1, 1),
@@ -71,7 +81,7 @@ class StandardGame(AbstractGame):
             Position(1, int((width - 1) / 2))
         ]
 
-        num_snakes = len(b.snakes)
+        num_snakes = len(board.snakes)
         if num_snakes > len(starting_positions):
             raise ValueError('too many snakes for fixed start positions')
 
@@ -79,29 +89,27 @@ class StandardGame(AbstractGame):
         random.shuffle(starting_positions)
 
         for i in range(num_snakes):
-            b.snakes[i].set_initial_position(starting_positions[i], n=self.snake_start_size)
+            board.snakes[i].set_initial_position(starting_positions[i], n=self.snake_start_size)
 
-    def place_snakes_randomly(self):
+    def place_snakes_randomly(self, board: BoardState):
 
-        b = self.state
-        num_snakes = len(b.snakes)
-        unoccupied_points = self.get_even_unoccupied_points()
+        num_snakes = len(board.snakes)
+        unoccupied_points = self.get_even_unoccupied_points(board)
         indices = np.random.choice(len(unoccupied_points), size=num_snakes, replace=False)
 
         for i in range(num_snakes):
-            b.snakes[i].set_initial_position(unoccupied_points[indices[i]], n=self.snake_start_size)
+            board.snakes[i].set_initial_position(unoccupied_points[indices[i]], n=self.snake_start_size)
 
-    def place_food(self):
-        if self.is_known_board_size():
-            self.place_food_fixed()
+    def place_food(self, board: BoardState):
+        if self.is_known_board_size(board=board):
+            self.place_food_fixed(board=board)
         else:
-            self.place_food_randomly()
+            self.place_food_randomly(board=board)
 
-    def place_food_fixed(self):
-        b = self.state
+    def place_food_fixed(self, board: BoardState):
 
         # Place 1 food within exactly 2 moves of each snake
-        for s in b.snakes:
+        for s in board.snakes:
             snake_head = s.get_head()
 
             possible_food_locations = [
@@ -114,7 +122,7 @@ class StandardGame(AbstractGame):
             available_food_locations = []
 
             for p in possible_food_locations:
-                if not b.is_occupied_by_food(p):
+                if not board.is_occupied_by_food(p):
                     available_food_locations.append(p)
 
             if len(available_food_locations) <= 0:
@@ -122,24 +130,24 @@ class StandardGame(AbstractGame):
 
             food_position = np.random.choice(available_food_locations)
             food = Food(position=food_position)
-            b.add_food(food)
+            board.add_food(food)
 
         # Finally, always place 1 food in center of board for dramatic purposes
 
-        center_position = Position(x=int((b.width - 1) / 2), y=int((b.height - 1) / 2))
+        center_position = Position(x=int((board.width - 1) / 2), y=int((board.height - 1) / 2))
 
-        if b.is_occupied(center_position):
+        if board.is_occupied(center_position):
             raise ValueError('not enough space to place food')
 
         center_food = Food(position=center_position)
-        b.add_food(center_food)
+        board.add_food(center_food)
 
-    def place_food_randomly(self):
-        self.spawn_food(len(self.state.snakes))
+    def place_food_randomly(self, board: BoardState):
+        self.spawn_food(board=board, n=len(board.snakes))
 
-    def is_known_board_size(self):
-        h = self.state.height
-        w = self.state.width
+    def is_known_board_size(self, board: BoardState):
+        h = board.height
+        w = board.width
 
         known_sizes = (StandardGame.BOARD_SIZE_SMALL, StandardGame.BOARD_SIZE_MEDIUM, StandardGame.BOARD_SIZE_LARGE)
 
@@ -148,29 +156,28 @@ class StandardGame(AbstractGame):
         else:
             return False
 
-    def create_next_board_state(self, moves: Dict[str, Direction]):
+    def create_next_board_state(self, board: BoardState, moves: Dict[str, Direction]):
 
         self.turn += 1
 
-        self.move_snakes(moves)
-        self.reduce_snake_health()
+        self.move_snakes(board=board, moves=moves)
+        self.reduce_snake_health(board=board)
 
-        self.maybeFeedSnakes()
-        self.maybeSpawnFood()
-        self.maybeEliminateSnakes()
+        self.maybeFeedSnakes(board=board)
+        self.maybeSpawnFood(board=board)
+        self.maybeEliminateSnakes(board=board)
 
         snakes_alive = []
 
-        for s in self.state.snakes:
+        for s in board.snakes:
             if s.is_alive():
                 snakes_alive.append(s)
 
-        self.state.snakes = snakes_alive
+        board.snakes = snakes_alive
 
-    def move_snakes(self, moves: Dict[str, Direction]):
-        b = self.state
+    def move_snakes(self, board: BoardState, moves: Dict[str, Direction]):
 
-        for i, snake in enumerate(b.snakes):
+        for i, snake in enumerate(board.snakes):
 
             if not snake.is_alive():
                 continue
@@ -196,21 +203,20 @@ class StandardGame(AbstractGame):
             snake.body.insert(0, new_head)
             snake.body.pop()
 
-    def reduce_snake_health(self):
+    def reduce_snake_health(self, board: BoardState):
 
-        for snake in self.state.snakes:
+        for snake in board.snakes:
             snake.health -= 1
 
-    def maybeEliminateSnakes(self):
-        b: BoardState = self.state
+    def maybeEliminateSnakes(self, board: BoardState):
 
         # First order snake indices by length.
         # In multi-collision scenarios we want to always attribute elimination to the longest snake.
-        snakes_by_length = sorted(b.snakes, key=lambda s: len(s.body))
+        snakes_by_length = sorted(board.snakes, key=lambda s: len(s.body))
 
         # First, iterate over all non-eliminated snakes and eliminate the ones
         # that are out of health or have moved out of bounds.
-        for snake in b.snakes:
+        for snake in board.snakes:
             if not snake.is_alive():
                 continue
 
@@ -223,7 +229,7 @@ class StandardGame(AbstractGame):
                 snake.elimination_event = ee
                 continue
 
-            if self.snake_is_out_of_bounds(snake, board_width=b.width, board_height=b.height):
+            if self.snake_is_out_of_bounds(snake, board_width=board.width, board_height=board.height):
                 # snake.eliminated_cause = EliminatedCause.EliminatedByOutOfBounds
                 ee = EliminationEvent(cause=EliminatedCause.EliminatedByOutOfBounds, turn=self.turn, by=None)
                 snake.elimination_event = ee
@@ -235,7 +241,7 @@ class StandardGame(AbstractGame):
 
         collision_eliminations: List[CollisionElimination] = []
 
-        for snake in b.snakes:
+        for snake in board.snakes:
             if not snake.is_alive():
                 continue
 
@@ -294,7 +300,7 @@ class StandardGame(AbstractGame):
 
         # Apply collision eliminations
         for elimination in collision_eliminations:
-            for snake in b.snakes:
+            for snake in board.snakes:
                 if snake.snake_id == elimination.snake_id:
                     ee = EliminationEvent(cause=elimination.cause, turn=self.turn, by=elimination.by)
                     snake.elimination_event = ee
@@ -336,13 +342,12 @@ class StandardGame(AbstractGame):
 
         return False
 
-    def maybeFeedSnakes(self):
-        b = self.state
+    def maybeFeedSnakes(self, board: BoardState):
 
-        for f in b.food:
+        for f in board.food:
 
             food_has_been_eaten = False
-            for snake in b.snakes:
+            for snake in board.snakes:
 
                 # Ignore eliminated and zero-length snakes, they can't eat.
                 if not snake.is_alive() or len(snake.body) == 0:
@@ -354,7 +359,7 @@ class StandardGame(AbstractGame):
                     food_has_been_eaten = True
 
             if food_has_been_eaten:
-                b.food.remove(f)
+                board.food.remove(f)
 
     def feed_snake(self, snake: Snake):
         self.grow_snake(snake)
@@ -365,18 +370,20 @@ class StandardGame(AbstractGame):
             tail = snake.get_tail()
             snake.body.append(tail)
 
-    def maybeSpawnFood(self):
-        b = self.state
+    def maybeSpawnFood(self, board: BoardState):
 
         # TODO implement https://github.com/BattlesnakeOfficial/rules/commit/c6d9ba12ab966380c78c366869428725e2288835
-        # TODO implement https://github.com/BattlesnakeOfficial/rules/commit/ca4b6c5dce7f8008ab7da44d1581b77ddef97609
 
-        if len(b.food) == 0 or np.random.uniform() <= self.food_spawn_chance:
-            return self.spawn_food(1)
+        num_current_food = len(board.food)
 
-    def spawn_food(self, n):
+        if num_current_food < self.minimumFood:
+            return self.spawn_food(board=board, n=self.minimumFood - num_current_food)
+        elif np.random.uniform() < self.food_spawn_chance:
+            return self.spawn_food(board=board, n=1)
 
-        unoccupied_points = self.get_unoccupied_points()
+    def spawn_food(self, board: BoardState, n):
+
+        unoccupied_points = self.get_unoccupied_points(board=board)
         n = min(n, len(unoccupied_points))
 
         if n > 0:
@@ -384,37 +391,37 @@ class StandardGame(AbstractGame):
 
             for i in range(n):
                 food = Food(position=unoccupied_points[point_indices[i]])
-                self.state.add_food(food)
+                board.add_food(food)
 
-    def get_unoccupied_points(self) -> List[Position]:
-        b = self.state
-        occupied: GridMap[bool] = GridMap(width=b.width, height=b.height)
+    def get_unoccupied_points(self, board: BoardState) -> List[Position]:
 
-        for f in b.food:
+        occupied: GridMap[bool] = GridMap(width=board.width, height=board.height)
+
+        for f in board.food:
             occupied.set_value_at_position(f, True)
 
-        for snake in b.snakes:
+        for snake in board.snakes:
             for p in snake.body:
                 occupied.set_value_at_position(p, True)
 
         unoccupied_points = []
-        for y in range(b.height):
-            for x in range(b.width):
+        for y in range(board.height):
+            for x in range(board.width):
                 if not occupied.get_value_at(x=x, y=y):
                     unoccupied_points.append(Position(x=x, y=y))
 
         return unoccupied_points
 
-    def get_even_unoccupied_points(self) -> List[Position]:
+    def get_even_unoccupied_points(self, board: BoardState) -> List[Position]:
 
-        unoccupied_points = self.get_unoccupied_points()
+        unoccupied_points = self.get_unoccupied_points(board=board)
         even_unoccupied_points = list(filter(lambda c: (c.x + c.y) % 2 == 0, unoccupied_points))
         return even_unoccupied_points
 
-    def is_game_over(self) -> bool:
+    def is_game_over(self, board: BoardState) -> bool:
         num_snakes_remaining = 0
 
-        for s in self.state.snakes:
+        for s in board.snakes:
             if s.is_alive():
                 num_snakes_remaining += 1
 

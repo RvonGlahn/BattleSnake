@@ -27,12 +27,7 @@ class Exporter:
         self.game_meta_info = game_info.export_json()
 
     def add_latest_game_step(self, game):
-        self.history.append({
-            "height": game.state.height,
-            "width": game.state.width,
-            "food": [f.export_json() for f in game.state.food],
-            "snakes": [s.export_json() for s in game.state.all_snakes]
-        })
+        self.history.append(game.state.to_json())
 
         if game.is_game_over():
             self.write_replay_to_file()

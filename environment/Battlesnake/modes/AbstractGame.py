@@ -11,18 +11,18 @@ class AbstractGame:
 
     def __init__(self, game_info: GameInfo):
 
-        self.state: Optional[BoardState] = None
+        # self.state: Optional[BoardState] = None
         self.game_info: GameInfo = game_info
         self.turn = None
 
     @abstractmethod
-    def create_initial_board_state(self, width: int, height: int, snake_ids: List[str]):
+    def create_initial_board_state(self, width: int, height: int, snake_ids: List[str]) -> BoardState:
         pass
 
     @abstractmethod
-    def create_next_board_state(self, moves: Dict[str, Direction]):
+    def create_next_board_state(self, board: BoardState, moves: Dict[str, Direction]):
         pass
 
     @abstractmethod
-    def is_game_over(self) -> bool:
+    def is_game_over(self, board: BoardState) -> bool:
         pass
