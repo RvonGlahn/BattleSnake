@@ -105,10 +105,11 @@ class KILabAgent(BaseAgent):
             current_position = best_position
 
         # Berechnung des Pfades anhand von came_from
+        cost = cost_so_far[str(current_position)]
         path: List[Tuple[Position, Direction]] = []
         while not current_position == start_field:
             path.append(came_from[current_position])
             current_position = came_from[current_position][0]
         path = path[::-1]
-        cost = cost_so_far[str(current_position)]
+
         return cost, path
