@@ -15,10 +15,40 @@ from environment.Battlesnake.model.Occupant import Occupant
 from util.kl_priority_queue import KLPriorityQueue
 import time
 
+
 class KILabAgent(BaseAgent):
 
+    def get_valid_action(self, possible_actions, snakes, my_snake, grid_map):
+        my_head = my_snake.get_head()
+        snake_tails =  []
+        for snake in snakes:
+            snake_tails.append(snake.get_tail())
+
+        for direction in possible_actions :
+            next_position = my_head.advanced(direction)
+            # outofbounds
+            if not grid_map.is_valid_at(next_position.x, next_position.y):
+                possible_actions.remove(direction)
+                continue
+            # body crash -> ganze Gegner Schlange minus letzten Teil
+            if grid_map.grid_cache[next_position.x][next_position.y] is Occupant.Snake:
+                if next_position in snake_tails:
+                    continue
+                possible_actions.remove(direction)
+                continue
+            # head crash -> Alle möglichen Richtungen des Heads der Gegner Schlange beachten
+            for snake in snakes:
+                if snake.snake_id is not my_snake.snake_id:
+                    if snake.get_length() < my_snake.get_length():
+                        head = snake.get_head()
+                        positions_enemy = [head.advanced(action) for action in snake.possible_actions()]
+                        if next_position in positions_enemy:
+                            possible_actions.remove(direction)
+
+        return possible_actions
+
     def get_name(self):
-        return 'Rettan'
+        return 'Jürgen'
 
     def start(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):
         pass
@@ -26,13 +56,15 @@ class KILabAgent(BaseAgent):
     def move(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake) -> MoveResult:
 
         grid_map: GridMap[Occupant] = board.generate_grid_map()
-
+        # if health, lenght, usw. < X: -> A-Star Search nur im Notfall
         food_action = self.follow_food(you, board, grid_map)
         if food_action is not None:
             return MoveResult(direction=food_action)
 
         possible_actions = you.possible_actions()
-        random_action = np.random.choice(possible_actions)
+        valid_actions = self.get_valid_action(possible_actions, board.snakes, you, grid_map)
+        random_action = np.random.choice(valid_actions)
+        # random durch Strategien ersetzen
         return MoveResult(direction=random_action)
 
     def end(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):
@@ -43,9 +75,13 @@ class KILabAgent(BaseAgent):
         head = snake.get_head()
 
         for food in board.food:
+            # bei zu viel food und zu weiter Entfernung gibt es timeouts bzw. nach häufiger Wiederholung
             start_time = time.time()
+            # Kill thread if it takes too long
             distance, path = KILabAgent.a_star_search(head, food, board, grid_map)
             print("--- %s seconds ---" % (time.time() - start_time))
+
+        return distance, path
 
     @staticmethod
     def reverse_direction(d):
@@ -88,17 +124,23 @@ class KILabAgent(BaseAgent):
             for direction in Direction:
                 next_position = current_position.advanced(direction)
                 if grid_map.is_valid_at(next_position.x, next_position.y):
+
                     # check if state wasnt visited or cost of visited state is lower
-                    if (str(next_position) not in cost_so_far.keys()) or (cost_so_far[str(current_position)] < cost_so_far[str(next_position)]):
+                    if (str(next_position) not in cost_so_far.keys()) \
+                            or (cost_so_far[str(current_position)] < cost_so_far[str(next_position)]):
                         cost_so_far[str(next_position)] = cost_so_far[str(current_position)] + 1
-                        cost = KILabAgent.euclidean_heuristic(search_field, next_position) + cost_so_far[str(next_position)]
+                        cost = KILabAgent.euclidean_heuristic(search_field, next_position) \
+                               + cost_so_far[str(next_position)]
                         queue.put(cost, (next_position, direction))
+
             # Get best position from Priority Queue
             pos_dir_tuple = queue.get()
             best_position = pos_dir_tuple[0]
             best_direction = pos_dir_tuple[1]
+
             # reverse direction to get poistion where we came from
             opposite_direction = KILabAgent.reverse_direction(best_direction)
+
             # only use undiscovered nodes
             if best_position not in came_from:
                 came_from[best_position] = (best_position.advanced(opposite_direction), best_direction)
