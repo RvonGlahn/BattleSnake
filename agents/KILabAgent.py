@@ -32,19 +32,22 @@ class KILabAgent(BaseAgent):
     def get_valid_actions(self, board, possible_actions, snakes, my_snake, grid_map):
         my_head = my_snake.get_head()
         snake_tails = []
+        valid_actions = []
+
         for snake in snakes:
             snake_tails.append(snake.get_tail())
 
         for direction in possible_actions:
             next_position = my_head.advanced(direction)
+
             # outofbounds
             if board.is_out_of_bounds(next_position):
-                possible_actions.remove(direction)
                 continue
+
             # body crash -> ganze Gegner Schlange minus letzten Teil
             if grid_map.get_value_at_position(next_position) is Occupant.Snake and next_position not in snake_tails:
-                possible_actions.remove(direction)
                 continue
+
             # head crash -> Alle möglichen Richtungen des Heads der Gegner Schlange beachten
             for snake in snakes:
                 if snake.snake_id is not my_snake.snake_id:
@@ -52,9 +55,11 @@ class KILabAgent(BaseAgent):
                         head = snake.get_head()
                         positions_enemy = [head.advanced(action) for action in snake.possible_actions()]
                         if next_position in positions_enemy:
-                            possible_actions.remove(direction)
+                            continue
 
-        return possible_actions
+            valid_actions.append(direction)
+
+        return valid_actions
 
     def get_name(self):
         return 'Jürgen'
@@ -70,10 +75,14 @@ class KILabAgent(BaseAgent):
 
         possible_actions = you.possible_actions()
         valid_actions = self.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
-
+        if not valid_actions:
+            print("Keine validen ACtions!!!!!!!!!!!!")
         random_action = np.random.choice(valid_actions)
         # random durch Strategien ersetzen
-
+        #for line in grid_map.grid_cache:
+        #    print(line)
+        #print(valid_actions)
+        print(random_action)
         return MoveResult(direction=random_action)
 
     def end(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):
@@ -97,11 +106,10 @@ class KILabAgent(BaseAgent):
 
         dist_path_array = []
         for food in relevant_food:
-            # bei zu viel food und zu weiter Entfernung gibt es timeouts bzw. nach häufiger Wiederholung
-            start_time = time.time()
+            # start_time = time.time()
             # Kill thread if it takes too long
             dist_path_array.append(KILabAgent.a_star_search(head, food, board, grid_map))
-            print("--- %s seconds ---" % (time.time() - start_time))
+            # print("--- %s seconds ---" % (time.time() - start_time))
         return dist_path_array
 
     @staticmethod
