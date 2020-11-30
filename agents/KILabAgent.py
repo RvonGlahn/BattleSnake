@@ -15,31 +15,34 @@ from environment.Battlesnake.model.Occupant import Occupant
 from util.kl_priority_queue import KLPriorityQueue
 import time
 
+"""
+A-Star nur auswählen wenn health kleiner als X sonst chase tail, oder große Schlangen provozieren
+Wahrscheinlichkeit ein Food zu bekommen beachten
+Für A-star nur Path zu den nächsten und wahrscheinlichsten Foods berechnen Grenze für zu große Abstände
+"""
 
 class KILabAgent(BaseAgent):
 
-    def get_valid_action(self, possible_actions, snakes, my_snake, grid_map):
+    def get_valid_actions(self, possible_actions, snakes, my_snake, grid_map):
         my_head = my_snake.get_head()
-        snake_tails =  []
+        snake_tails = []
         for snake in snakes:
             snake_tails.append(snake.get_tail())
 
-        for direction in possible_actions :
+        for direction in possible_actions:
             next_position = my_head.advanced(direction)
             # outofbounds
             if not grid_map.is_valid_at(next_position.x, next_position.y):
                 possible_actions.remove(direction)
                 continue
             # body crash -> ganze Gegner Schlange minus letzten Teil
-            if grid_map.grid_cache[next_position.x][next_position.y] is Occupant.Snake:
-                if next_position in snake_tails:
-                    continue
+            if grid_map.grid_cache[next_position.x][next_position.y] is Occupant.Snake and next_position not in snake_tails:
                 possible_actions.remove(direction)
                 continue
             # head crash -> Alle möglichen Richtungen des Heads der Gegner Schlange beachten
             for snake in snakes:
                 if snake.snake_id is not my_snake.snake_id:
-                    if snake.get_length() < my_snake.get_length():
+                    if snake.get_length() >= my_snake.get_length():
                         head = snake.get_head()
                         positions_enemy = [head.advanced(action) for action in snake.possible_actions()]
                         if next_position in positions_enemy:
@@ -62,7 +65,7 @@ class KILabAgent(BaseAgent):
             return MoveResult(direction=food_action)
 
         possible_actions = you.possible_actions()
-        valid_actions = self.get_valid_action(possible_actions, board.snakes, you, grid_map)
+        valid_actions = self.get_valid_actions(possible_actions, board.snakes, you, grid_map)
         random_action = np.random.choice(valid_actions)
         # random durch Strategien ersetzen
         return MoveResult(direction=random_action)
@@ -80,8 +83,9 @@ class KILabAgent(BaseAgent):
             # Kill thread if it takes too long
             distance, path = KILabAgent.a_star_search(head, food, board, grid_map)
             print("--- %s seconds ---" % (time.time() - start_time))
+            break
 
-        return distance, path
+        # return distance, path
 
     @staticmethod
     def reverse_direction(d):
