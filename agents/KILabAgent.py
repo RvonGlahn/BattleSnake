@@ -64,16 +64,16 @@ class KILabAgent(BaseAgent):
     def get_state(self, my_snake, snakes):
         if my_snake.get_length() % 2 == 1:
             for snake in snakes:
-                if snake.get_length() >= my_snake.get_length():
+                if snake.get_length >= my_snake.get_length:
                     return SnakeState.INFERIORHUNGRY  # hungry but inferior
-            return SnakeState.HUNGRY  # hungry and the largest snake
-        if my_snake.get_health() <= 20:
+            return SnakeState.HUNGRY    # hungry and the largest snake
+        if my_snake.get_health <= 20:
             for snake in snakes:
-                if snake.get_length() >= my_snake.get_length():
+                if snake.get_length >= my_snake.get_length:
                     return SnakeState.INFERIORHUNGRY  # hungry but inferior
-            return SnakeState.HUNGRY  # hungry and the largest snake
+            return SnakeState.HUNGRY    # hungry and the largest snake
         for snake in snakes:
-            if snake.get_length() >= my_snake.get_length():
+            if snake.get_length >= my_snake.get_length:
                 return SnakeState.INFERIOR
             else:
                 return SnakeState.SUPERIOR
@@ -162,10 +162,10 @@ class KILabAgent(BaseAgent):
         pass
 
     def get_relevant_Corner(self, my_head, snakes, board):
-        bottom_left, bottom_right, top_left, top_right = (Position(1, 1)), \
-                                                         (Position(1, board.height - 1)), \
-                                                         (Position(board.width - 1, 1)), \
-                                                         (Position(board.width - 1, board.height - 1))
+        bottom_left, bottom_right, top_left, top_right = (Position(2, 2)), \
+                                                         (Position(2, board.height - 2)), \
+                                                         (Position(board.width - 2, 2)), \
+                                                         (Position(board.width - 2, board.height - 2))
         corners = []
         corners.extend((bottom_left, bottom_right, top_left, top_right))
         enemy_heads = [snake.get_head() for snake in snakes if snake.get_head() is not my_head]
@@ -183,7 +183,7 @@ class KILabAgent(BaseAgent):
         enemy_heads = [snake.get_head() for snake in snakes if snake.get_head() is not my_head]
         my_close_food = []
         for food in all_food:
-            enemy_dist_to_food = min([manhattan_dist(food, head) for head in enemy_heads])
+            enemy_dist_to_food = min([manhattan_dist(food, head)for head in enemy_heads])
             my_dist_to_food = manhattan_dist(food, my_head)
             if my_dist_to_food <= enemy_dist_to_food and my_dist_to_food <= 10:
                 my_close_food.append(food)
@@ -195,15 +195,13 @@ class KILabAgent(BaseAgent):
 
         relevant_food = self.get_relevant_food(head, board.snakes, board.food)
 
-        path_array = []
-        old_cost = 999
-
+        dist_path_array = []
         for food in relevant_food:
-            cost, path = KILabAgent.a_star_search(head, food, board, grid_map)
-            if cost < old_cost:
-                path_array = path
-
-        return path_array
+            # start_time = time.time()
+            # Kill thread if it takes too long
+            dist_path_array.append(KILabAgent.a_star_search(head, food, board, grid_map))
+            # print("--- %s seconds ---" % (time.time() - start_time))
+        return dist_path_array
 
     @staticmethod
     def reverse_direction(d):
@@ -229,13 +227,13 @@ class KILabAgent(BaseAgent):
         print(start_field, search_field, "\n")
 
         queue = KLPriorityQueue()
-        came_from = {}  # current node ist key parent ist value
-        cost_so_far = {str(start_field): 0}  # summierte Kosten
+        came_from = {}                  # current node ist key parent ist value
+        cost_so_far = {str(start_field): 0}                # summierte Kosten
 
         current_position = start_field
 
         first = True
-
+        
         while not queue.empty() or first:
             first = False
             # Check if Current Position is goal state
