@@ -136,8 +136,8 @@ class KILabAgent(BaseAgent):
         my_head = my_snake.get_head()
         best_action = None
         corners = [Position(1, 1), Position(1, 13), Position(13, 1), Position(13, 13)]
-        alpha = 3
-        beta = 30
+        alpha = 1
+        beta = 4
 
         for action in valid_actions:
             next_position = my_head.advanced(action)
@@ -164,17 +164,9 @@ class KILabAgent(BaseAgent):
         possible_actions = you.possible_actions()
         valid_actions = self.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
         next_action = None
-        if not valid_actions:
-            print("Ohoh - Keine validen Actions!")
 
         enemy_head_dist = min([manhattan_dist(snake.get_head(), you.get_head())
                                for snake in board.snakes if snake.snake_id is not you.snake_id])
-
-        ########################################
-        #
-        # Hier kommt die Strategie
-        #
-        ########################################
 
         if enemy_head_dist < 10:
             next_action = self.avoid_enemy(valid_actions, you, board.snakes)
@@ -182,15 +174,12 @@ class KILabAgent(BaseAgent):
             next_action = self.hide_in_corner(board, you, grid_map)
         if you.health < 25:
             if not self.food_path:
-                food_path = self.follow_food(you, board, grid_map)
-            if food_path[0][1] in valid_actions:
-                next_action = food_path[0][1]
-                food_path.pop(0)
+                self.food_path = self.follow_food(you, board, grid_map)
+            if self.food_path[0][1] in valid_actions:
+                next_action = self.food_path[0][1]
+                self.food_path.pop(0)
             else:
-                food_path = []
-
-
-
+                self.food_path = []
 
         return MoveResult(direction=next_action)
 
@@ -228,15 +217,19 @@ class KILabAgent(BaseAgent):
     def follow_food(self, snake: Snake, board: BoardState, grid_map: GridMap):
 
         head = snake.get_head()
-        relevant_food = self.get_relevant_food(head, board.snakes, board.food)
+        relevant_foods = self.get_relevant_food(head, board.snakes, board.food)
 
+        start_distance = 0
+        for relevant_food in relevant_foods:
+            distance = min([manhattan_dist(enemy.get_head(), relevant_food) for enemy in board.snakes if enemy.get_head() is not head])
+            if distance > start_distance:
+                food = relevant_food
         path_array = []
         old_cost = 999
-
-        for food in relevant_food:
-            cost, path = KILabAgent.a_star_search(head, food, board, grid_map)
-            if cost < old_cost:
-                path_array = path
+        # for food in relevant_food:
+        cost, path = KILabAgent.a_star_search(head, food, board, grid_map)
+        #    if cost < old_cost:
+        path_array = path
 
         return path_array
 
