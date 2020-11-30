@@ -28,6 +28,9 @@ class Snake:
         self.squad = squad
         self.elimination_event: Optional[EliminationEvent] = None
 
+    def get_health(self):
+        return self.health
+        
     def is_alive(self):
         return self.elimination_event is None
 

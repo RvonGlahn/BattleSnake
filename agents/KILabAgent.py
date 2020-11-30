@@ -14,6 +14,7 @@ from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.Occupant import Occupant
 from util.kl_priority_queue import KLPriorityQueue
 import time
+from environment.Battlesnake.model.SnakeState import SnakeState
 
 """
 möglichst in der Mitte bleiben
@@ -57,9 +58,20 @@ class KILabAgent(BaseAgent):
                         if next_position in positions_enemy:
                             continue
 
-            valid_actions.append(direction)
-
-        return valid_actions
+        return possible_actions
+    
+    def get_state(self, my_snake, snakes):
+        if (my_snake.get_health <=20):
+            for snake in snakes:
+                if snake.get_length >= my_snake.get_length:
+                    return SnakeState.INFERIORHUNGRY #hungry but inferior
+            return SnakeState.HUNGRY #hungry and the largest snake
+        for snake in snakes:
+            if snake.get_length >= my_snake.get_length:
+                return SnakeState.INFERIOR
+            else:
+                return SnakeState.SUPERIOR
+    
 
     def get_name(self):
         return 'Jürgen'
