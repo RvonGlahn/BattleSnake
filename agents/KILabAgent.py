@@ -61,6 +61,11 @@ class KILabAgent(BaseAgent):
         return possible_actions
     
     def get_state(self, my_snake, snakes):
+        if (my_snake.get_length % 2 == 1):
+            for snake in snakes:
+                if snake.get_length >= my_snake.get_length:
+                    return SnakeState.INFERIORHUNGRY #hungry but inferior
+            return SnakeState.HUNGRY #hungry and the largest snake
         if (my_snake.get_health <=20):
             for snake in snakes:
                 if snake.get_length >= my_snake.get_length:
@@ -83,7 +88,8 @@ class KILabAgent(BaseAgent):
 
         grid_map: GridMap[Occupant] = board.generate_grid_map()
         # if health, lenght, usw. < X: -> A-Star Search nur im Notfall
-        food_action = self.follow_food(you, board, grid_map)
+        if (you.get_state(you, board.snakes) == SnakeState.HUNGRY or you.get_state(you, board.snakes) == SnakeState.INFERIORHUNGRY):
+            food_action = self.follow_food(you, board, grid_map)
 
         possible_actions = you.possible_actions()
         valid_actions = self.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
