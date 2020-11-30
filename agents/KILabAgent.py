@@ -16,14 +16,20 @@ from util.kl_priority_queue import KLPriorityQueue
 import time
 
 """
+möglichst in der Mitte bleiben
 A-Star nur auswählen wenn health kleiner als X sonst chase tail, oder große Schlangen provozieren
 Wahrscheinlichkeit ein Food zu bekommen beachten
 Für A-star nur Path zu den nächsten und wahrscheinlichsten Foods berechnen Grenze für zu große Abstände
 """
 
+
+def manhattan_dist(pos1, pos2):
+    return abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y)
+
+
 class KILabAgent(BaseAgent):
 
-    def get_valid_actions(self, possible_actions, snakes, my_snake, grid_map):
+    def get_valid_actions(self, board, possible_actions, snakes, my_snake, grid_map):
         my_head = my_snake.get_head()
         snake_tails = []
         for snake in snakes:
@@ -32,11 +38,11 @@ class KILabAgent(BaseAgent):
         for direction in possible_actions:
             next_position = my_head.advanced(direction)
             # outofbounds
-            if not grid_map.is_valid_at(next_position.x, next_position.y):
+            if board.is_out_of_bounds(next_position):
                 possible_actions.remove(direction)
                 continue
             # body crash -> ganze Gegner Schlange minus letzten Teil
-            if grid_map.grid_cache[next_position.x][next_position.y] is Occupant.Snake and next_position not in snake_tails:
+            if grid_map.get_value_at_position(next_position) is Occupant.Snake and next_position not in snake_tails:
                 possible_actions.remove(direction)
                 continue
             # head crash -> Alle möglichen Richtungen des Heads der Gegner Schlange beachten
@@ -61,31 +67,42 @@ class KILabAgent(BaseAgent):
         grid_map: GridMap[Occupant] = board.generate_grid_map()
         # if health, lenght, usw. < X: -> A-Star Search nur im Notfall
         food_action = self.follow_food(you, board, grid_map)
-        if food_action is not None:
-            return MoveResult(direction=food_action)
 
         possible_actions = you.possible_actions()
-        valid_actions = self.get_valid_actions(possible_actions, board.snakes, you, grid_map)
+        valid_actions = self.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
+
         random_action = np.random.choice(valid_actions)
         # random durch Strategien ersetzen
+
         return MoveResult(direction=random_action)
 
     def end(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):
         pass
 
+    def get_relevant_food(self, my_head, snakes, all_food):
+        enemy_heads = [snake.get_head() for snake in snakes if snake.get_head() is not my_head]
+        my_close_food = []
+        for food in all_food:
+            enemy_dist_to_food = min([manhattan_dist(food, head)for head in enemy_heads])
+            my_dist_to_food = manhattan_dist(food, my_head)
+            if my_dist_to_food <= enemy_dist_to_food and my_dist_to_food <= 10:
+                my_close_food.append(food)
+        return my_close_food
+
     def follow_food(self, snake: Snake, board: BoardState, grid_map: GridMap):
 
         head = snake.get_head()
 
-        for food in board.food:
+        relevant_food = self.get_relevant_food(head, board.snakes, board.food)
+
+        dist_path_array = []
+        for food in relevant_food:
             # bei zu viel food und zu weiter Entfernung gibt es timeouts bzw. nach häufiger Wiederholung
             start_time = time.time()
             # Kill thread if it takes too long
-            distance, path = KILabAgent.a_star_search(head, food, board, grid_map)
+            dist_path_array.append(KILabAgent.a_star_search(head, food, board, grid_map))
             print("--- %s seconds ---" % (time.time() - start_time))
-            break
-
-        # return distance, path
+        return dist_path_array
 
     @staticmethod
     def reverse_direction(d):
