@@ -29,6 +29,7 @@ def manhattan_dist(pos1, pos2):
 
 
 class KILabAgent(BaseAgent):
+    food_path = []
 
     def get_valid_actions(self, board: BoardState,
                           possible_actions: List[Position],
@@ -135,15 +136,15 @@ class KILabAgent(BaseAgent):
         my_head = my_snake.get_head()
         best_action = None
         corners = [Position(1, 1), Position(1, 13), Position(13, 1), Position(13, 13)]
-        alpha = 1
-        beta = 2
+        alpha = 3
+        beta = 30
 
         for action in valid_actions:
             next_position = my_head.advanced(action)
-            distance_food = 0
+
             distance_snakes = sum([manhattan_dist(next_position, enemy_head) for enemy_head in enemy_heads])
             distance_corners = sum([manhattan_dist(next_position, corner) for corner in corners])
-            distance = alpha * distance_snakes + beta * distance_corners - distance_food
+            distance = alpha * distance_snakes + beta * distance_corners
             if distance > cost:
                 cost = distance
                 best_action = action
@@ -176,14 +177,18 @@ class KILabAgent(BaseAgent):
         ########################################
 
         if enemy_head_dist < 10:
-
             next_action = self.avoid_enemy(valid_actions, you, board.snakes)
         else:
             next_action = self.hide_in_corner(board, you, grid_map)
         if you.health < 25:
-            food_action = self.follow_food(you, board, grid_map)
-            if food_action[0][1] in valid_actions:
-                next_action = food_action[0][1]
+            if not self.food_path:
+                food_path = self.follow_food(you, board, grid_map)
+            if food_path[0][1] in valid_actions:
+                next_action = food_path[0][1]
+                food_path.pop(0)
+            else:
+                food_path = []
+
 
 
 
