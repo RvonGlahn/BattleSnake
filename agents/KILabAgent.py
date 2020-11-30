@@ -88,19 +88,21 @@ class KILabAgent(BaseAgent):
 
         grid_map: GridMap[Occupant] = board.generate_grid_map()
         # if health, lenght, usw. < X: -> A-Star Search nur im Notfall
-        if (you.get_state(you, board.snakes) == SnakeState.HUNGRY or you.get_state(you, board.snakes) == SnakeState.INFERIORHUNGRY):
-            food_action = self.follow_food(you, board, grid_map)
+        # if self.get_state(you, board.snakes) == SnakeState.HUNGRY or self.get_state(you, board.snakes) == SnakeState.INFERIORHUNGRY:
+        #    food_action = self.follow_food(you, board, grid_map)
 
         possible_actions = you.possible_actions()
         valid_actions = self.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
         if not valid_actions:
-            print("Keine validen ACtions!!!!!!!!!!!!")
+            print("Keine validen Actions!!!!!!!!!!!!")
         random_action = np.random.choice(valid_actions)
-        # random durch Strategien ersetzen
-        #for line in grid_map.grid_cache:
-        #    print(line)
-        #print(valid_actions)
-        print(random_action)
+
+        ########################################
+        #
+        # Hier kommt die Strategie
+        #
+        ########################################
+
         return MoveResult(direction=random_action)
 
     def end(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):
