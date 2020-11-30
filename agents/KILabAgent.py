@@ -78,47 +78,6 @@ class KILabAgent(BaseAgent):
             else:
                 return SnakeState.SUPERIOR
 
-    def bestCorner(self, board: BoardState, you: Snake):
-
-        bottom_left, bottom_right, top_left, top_right = ((), Position(1, 1)), \
-                                                         ((), Position(1, board.height - 1)), \
-                                                         ((), Position(board.width - 1, 1)), \
-                                                         ((), Position(board.width - 1, board.height - 1))
-        #get a distance between the corners and enemy snakes
-        for snake in board.snakes:
-            head = snake.get_head()
-            np.append(top_left[0], self.euclidean_heuristic(top_left[1], head))
-            np.append(top_right[0], self.euclidean_heuristic(top_right[1], head))
-            np.append(bottom_left[0], self.euclidean_heuristic(bottom_left[1], head))
-            np.append(bottom_right[0], self.euclidean_heuristic(bottom_right[1], head))
-
-        #sustract your distance to the corners from the value that exists from the distance of the enemy snakes
-        your_head = you.get_head()
-        bottom_left = (np.abs(np.average(bottom_left[0]) - self.euclidean_heuristic(bottom_left[1], your_head)),
-                       Position(1, 1))
-        bottom_right = (np.abs(np.average(bottom_right[0]) - self.euclidean_heuristic(bottom_right[1], your_head)),
-                        Position(board.width - 1, 1))
-        top_left = (np.abs(np.average(top_left[0]) - self.euclidean_heuristic(top_left[1], your_head)),
-                    Position(1, board.height - 1))
-        top_right = (np.abs(np.average(top_right[0]) - self.euclidean_heuristic(top_right[1], your_head)),
-                     Position(board.width - 1, board.height - 1))
-
-        corners = np.zeros(shape=top_left, dtype=np.float64)
-        np.append(corners, top_left)
-        np.append(corners, top_right)
-        np.append(corners, bottom_left)
-        np.append(corners, bottom_right)
-
-        best_corner = Position(0, 0)
-        value = 0
-        #take the best corner
-        for corner in corners:
-            if corner[0] >= value:
-                best_corner = corner[1]
-                value = corner[0]
-
-        return best_corner
-
     def strategy(self, board: BoardState, you: Snake, grid_map):
 
         """
@@ -131,19 +90,34 @@ class KILabAgent(BaseAgent):
         head = you.get_head()
         tail = you.get_tail()
 
-        corner = self.bestCorner(board, you)
+        # get the best corner
+        corner = self.get_relevant_Corner(head, board.snakes, board)
 
-        dist_path_array = []
-
+        possible_actions = you.possible_actions()
+        valid_actions = self.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
+        if not valid_actions:
+            print("Keine validen ACtions!!!!!!!!!!!!")
         # check if any part of the snake is in a corner, if so then chase tail, else go to the best corner
         if corner in you.body:
             print("Chasing Tail")
-            dist_path_array.append(KILabAgent.a_star_search(head, tail, board, grid_map))
+            distance_to_tail = manhattan_dist(tail, head.advanced(valid_actions[0]))
+            next_action = valid_actions[0]
+            for direction in valid_actions:
+                distance_to_tail_next = manhattan_dist(tail, head.advanced(direction))
+                if distance_to_tail_next <= distance_to_tail:
+                    next_action = direction
+                    distance_to_tail = distance_to_tail_next
         else:
             print("Trying to reach Corner")
-            dist_path_array.append(KILabAgent.a_star_search(head, corner, board, grid_map))
+            distance_to_tail = manhattan_dist(corner, head.advanced(valid_actions[0]))
+            next_action = valid_actions[0]
+            for direction in valid_actions:
+                distance_to_tail_next = manhattan_dist(corner, head.advanced(direction))
+                if distance_to_tail_next <= distance_to_tail:
+                    next_action = direction
+                    distance_to_tail = distance_to_tail_next
 
-        return dist_path_array
+        return next_action
 
     def get_name(self):
         return 'Jürgen'
@@ -155,10 +129,16 @@ class KILabAgent(BaseAgent):
 
         grid_map: GridMap[Occupant] = board.generate_grid_map()
         # if health, lenght, usw. < X: -> A-Star Search nur im Notfall
-        if self.get_state(you, board.snakes) == SnakeState.HUNGRY or self.get_state(you,
-                                                                                    board.snakes) == SnakeState.INFERIORHUNGRY:
+
+        possible_actions = you.possible_actions()
+
+        if you.health < 25:
+            valid_actions = self.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
+
             food_action = self.follow_food(you, board, grid_map)
-            next_action = food_action
+            if food_action[0][1] in valid_actions:
+                next_action = food_action[0][1]
+
         else:
             next_action = self.strategy(board, you, grid_map)
 
@@ -181,6 +161,24 @@ class KILabAgent(BaseAgent):
     def end(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):
         pass
 
+    def get_relevant_Corner(self, my_head, snakes, board):
+        bottom_left, bottom_right, top_left, top_right = (Position(1, 1)), \
+                                                         (Position(1, board.height - 1)), \
+                                                         (Position(board.width - 1, 1)), \
+                                                         (Position(board.width - 1, board.height - 1))
+        corners = []
+        corners.extend((bottom_left, bottom_right, top_left, top_right))
+        enemy_heads = [snake.get_head() for snake in snakes if snake.get_head() is not my_head]
+        my_close_food = corners[0]
+        my_dist_to_best_corner = manhattan_dist(my_close_food, my_head)
+        for food in corners:
+            enemy_dist_to_food = min([manhattan_dist(food, head) for head in enemy_heads])
+            my_dist_to_food = manhattan_dist(food, my_head)
+            if my_dist_to_food <= enemy_dist_to_food and my_dist_to_food <= my_dist_to_best_corner:
+                my_close_food = food
+                my_dist_to_best_corner = my_dist_to_food
+        return my_close_food
+
     def get_relevant_food(self, my_head, snakes, all_food):
         enemy_heads = [snake.get_head() for snake in snakes if snake.get_head() is not my_head]
         my_close_food = []
@@ -197,13 +195,15 @@ class KILabAgent(BaseAgent):
 
         relevant_food = self.get_relevant_food(head, board.snakes, board.food)
 
-        dist_path_array = []
+        path_array = []
+        old_cost = 999
+
         for food in relevant_food:
-            # start_time = time.time()
-            # Kill thread if it takes too long
-            dist_path_array.append(KILabAgent.a_star_search(head, food, board, grid_map))
-            # print("--- %s seconds ---" % (time.time() - start_time))
-        return dist_path_array
+            cost, path = KILabAgent.a_star_search(head, food, board, grid_map)
+            if cost < old_cost:
+                path_array = path
+
+        return path_array
 
     @staticmethod
     def reverse_direction(d):
