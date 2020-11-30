@@ -65,18 +65,85 @@ class KILabAgent(BaseAgent):
             for snake in snakes:
                 if snake.get_length() >= my_snake.get_length():
                     return SnakeState.INFERIORHUNGRY  # hungry but inferior
-            return SnakeState.HUNGRY    # hungry and the largest snake
+            return SnakeState.HUNGRY  # hungry and the largest snake
         if my_snake.get_health() <= 20:
             for snake in snakes:
                 if snake.get_length() >= my_snake.get_length():
                     return SnakeState.INFERIORHUNGRY  # hungry but inferior
-            return SnakeState.HUNGRY    # hungry and the largest snake
+            return SnakeState.HUNGRY  # hungry and the largest snake
         for snake in snakes:
             if snake.get_length() >= my_snake.get_length():
                 return SnakeState.INFERIOR
             else:
                 return SnakeState.SUPERIOR
     
+
+    def bestCorner(self, board: BoardState, you: Snake):
+
+        bottom_left, bottom_right, top_left, top_right = ((), Position(1, 1)), \
+                                                         ((), Position(1, board.height - 1)), \
+                                                         ((), Position(board.width - 1, 1)), \
+                                                         ((), Position(board.width - 1, board.height - 1))
+        #get a distance between the corners and enemy snakes
+        for snake in board.snakes:
+            head = snake.get_head()
+            np.append(top_left[0], self.euclidean_heuristic(top_left[1], head))
+            np.append(top_right[0], self.euclidean_heuristic(top_right[1], head))
+            np.append(bottom_left[0], self.euclidean_heuristic(bottom_left[1], head))
+            np.append(bottom_right[0], self.euclidean_heuristic(bottom_right[1], head))
+
+        #sustract your distance to the corners from the value that exists from the distance of the enemy snakes
+        your_head = you.get_head()
+        bottom_left = (np.abs(np.average(bottom_left[0]) - self.euclidean_heuristic(bottom_left[1], your_head)),
+                       Position(1, 1))
+        bottom_right = (np.abs(np.average(bottom_right[0]) - self.euclidean_heuristic(bottom_right[1], your_head)),
+                        Position(board.width - 1, 1))
+        top_left = (np.abs(np.average(top_left[0]) - self.euclidean_heuristic(top_left[1], your_head)),
+                    Position(1, board.height - 1))
+        top_right = (np.abs(np.average(top_right[0]) - self.euclidean_heuristic(top_right[1], your_head)),
+                     Position(board.width - 1, board.height - 1))
+
+        corners = np.zeros(shape=top_left, dtype=np.float64)
+        np.append(corners, top_left)
+        np.append(corners, top_right)
+        np.append(corners, bottom_left)
+        np.append(corners, bottom_right)
+
+        best_corner = Position(0, 0)
+        value = 0
+        #take the best corner
+        for corner in corners:
+            if corner[0] >= value:
+                best_corner = corner[1]
+                value = corner[0]
+
+        return best_corner
+
+    def strategy(self, board: BoardState, you: Snake, grid_map):
+
+        """
+        :param board:
+        :param you:
+        :param grid_map:
+        :return:
+        """
+
+        head = you.get_head()
+        tail = you.get_tail()
+
+        corner = self.bestCorner(board, you)
+
+        dist_path_array = []
+
+        # check if any part of the snake is in a corner, if so then chase tail, else go to the best corner
+        if corner in you.body:
+            print("Chasing Tail")
+            dist_path_array.append(KILabAgent.a_star_search(head, tail, board, grid_map))
+        else:
+            print("Trying to reach Corner")
+            dist_path_array.append(KILabAgent.a_star_search(head, corner, board, grid_map))
+
+        return dist_path_array
 
     def get_name(self):
         return 'Jürgen'
@@ -88,20 +155,28 @@ class KILabAgent(BaseAgent):
 
         grid_map: GridMap[Occupant] = board.generate_grid_map()
         # if health, lenght, usw. < X: -> A-Star Search nur im Notfall
-        if (you.get_state(you, board.snakes) == SnakeState.HUNGRY or you.get_state(you, board.snakes) == SnakeState.INFERIORHUNGRY):
+        if self.get_state(you, board.snakes) == SnakeState.HUNGRY or self.get_state(you,
+                                                                                    board.snakes) == SnakeState.INFERIORHUNGRY:
             food_action = self.follow_food(you, board, grid_map)
+            next_action = food_action
+        else:
+            next_action = self.strategy(board, you, grid_map)
 
+        """
         possible_actions = you.possible_actions()
         valid_actions = self.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
         if not valid_actions:
             print("Keine validen ACtions!!!!!!!!!!!!")
-        random_action = np.random.choice(valid_actions)
-        # random durch Strategien ersetzen
-        #for line in grid_map.grid_cache:
-        #    print(line)
-        #print(valid_actions)
-        print(random_action)
-        return MoveResult(direction=random_action)
+        next_action = np.random.choice(valid_actions)
+        """
+
+        ########################################
+        #
+        # Hier kommt die Strategie
+        #
+        ########################################
+        print(next_action)
+        return MoveResult(direction=next_action)
 
     def end(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):
         pass
@@ -110,7 +185,7 @@ class KILabAgent(BaseAgent):
         enemy_heads = [snake.get_head() for snake in snakes if snake.get_head() is not my_head]
         my_close_food = []
         for food in all_food:
-            enemy_dist_to_food = min([manhattan_dist(food, head)for head in enemy_heads])
+            enemy_dist_to_food = min([manhattan_dist(food, head) for head in enemy_heads])
             my_dist_to_food = manhattan_dist(food, my_head)
             if my_dist_to_food <= enemy_dist_to_food and my_dist_to_food <= 10:
                 my_close_food.append(food)
@@ -143,7 +218,7 @@ class KILabAgent(BaseAgent):
 
     @staticmethod
     def euclidean_heuristic(p1: Position, p2: Position) -> float:
-        euc_dist = math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2)
+        euc_dist = math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2)
         return euc_dist
 
     @staticmethod
@@ -154,13 +229,13 @@ class KILabAgent(BaseAgent):
         print(start_field, search_field, "\n")
 
         queue = KLPriorityQueue()
-        came_from = {}                  # current node ist key parent ist value
-        cost_so_far = {str(start_field): 0}                # summierte Kosten
+        came_from = {}  # current node ist key parent ist value
+        cost_so_far = {str(start_field): 0}  # summierte Kosten
 
         current_position = start_field
 
         first = True
-        
+
         while not queue.empty() or first:
             first = False
             # Check if Current Position is goal state
