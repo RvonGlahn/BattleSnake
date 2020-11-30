@@ -61,18 +61,18 @@ class KILabAgent(BaseAgent):
         return possible_actions
     
     def get_state(self, my_snake, snakes):
-        if (my_snake.get_length % 2 == 1):
+        if my_snake.get_length() % 2 == 1:
             for snake in snakes:
-                if snake.get_length >= my_snake.get_length:
-                    return SnakeState.INFERIORHUNGRY #hungry but inferior
-            return SnakeState.HUNGRY #hungry and the largest snake
-        if (my_snake.get_health <=20):
+                if snake.get_length() >= my_snake.get_length():
+                    return SnakeState.INFERIORHUNGRY  # hungry but inferior
+            return SnakeState.HUNGRY    # hungry and the largest snake
+        if my_snake.get_health() <= 20:
             for snake in snakes:
-                if snake.get_length >= my_snake.get_length:
-                    return SnakeState.INFERIORHUNGRY #hungry but inferior
-            return SnakeState.HUNGRY #hungry and the largest snake
+                if snake.get_length() >= my_snake.get_length():
+                    return SnakeState.INFERIORHUNGRY  # hungry but inferior
+            return SnakeState.HUNGRY    # hungry and the largest snake
         for snake in snakes:
-            if snake.get_length >= my_snake.get_length:
+            if snake.get_length() >= my_snake.get_length():
                 return SnakeState.INFERIOR
             else:
                 return SnakeState.SUPERIOR
