@@ -13,31 +13,40 @@ from tkinter import *  # not advisable to import everything with *
 
 class ReplayController:
 
-    def __init__(self, board_states):
+    def __init__(self):
         self.games = []
         self.games_index = 0
-        self.board_states = board_states
-        self.paused = False
+        self.board_states = None
+        self.paused = True
         self.current_step = 0
         self.speed = 1
         self.last_step_ts = time.time()
         self.renderer = None
 
-
         self.reset()
         # self.open_masker()
 
     def show_game(self, index):
+        if index < 0 or index >= len(self.games):
+            print('no more games')
+            return
+
         self.games_index = index
         board_states = self.games[index]
 
-        width, height = self.board_states[0].width, self.board_states[0].width
-        num_snakes = len(self.board_states[0].snakes)
+        width, height = board_states[0].width, board_states[0].width
+        num_snakes = len(board_states[0].snakes)
 
         self.renderer = GameRenderer(width, height, num_snakes)
 
         self.board_states = board_states
         self.reset()
+
+    def previous_game(self):
+        self.show_game(self.games_index - 1)
+
+    def next_game(self):
+        self.show_game(self.games_index + 1)
 
     def reset(self):
 
@@ -59,7 +68,7 @@ class ReplayController:
         # root.update()
 
     def show_step(self, index):
-        if index < 0 or index >= len(self.board_states):
+        if self.board_states is None or index < 0 or index >= len(self.board_states):
             return
 
         self.last_step_ts = time.time()
@@ -142,6 +151,13 @@ class ReplayController:
             print('next state')
             self.paused = True
             self.go_forward()
+        elif key == pygame.K_b:
+            print('previous game')
+            self.previous_game()
+
+        elif key == pygame.K_n:
+            print('next game')
+            self.next_game()
 
         elif key == pygame.K_p:
             print('toggle pause')
@@ -152,7 +168,9 @@ class ReplayController:
     #     audio_file_name = filedialog.askopenfilename(filetypes=(("Audio Files", ".wav .ogg"),   ("All Files", "*.*")))
 
     def load_replay(self, replay_path):
-        print('load', replay_path)
+        file_name = os.path.basename(replay_path)
+
+        print('load', file_name)
         game, turns, move_list = Importer.load_replay_file(replay_path)
         if len(move_list) == 0:
             print('replay is empty')
@@ -162,12 +180,18 @@ class ReplayController:
 
     def load_replays_from_folder(self, folder_path):
 
+        folder_name = os.path.basename(folder_path)
+        print('read', folder_name)
+
         replay_paths = []
         for filename in os.listdir(folder_path):
             file_path = os.path.join(folder_path, filename)
             extension = os.path.splitext(filename)[1]
-            if not os.path.isfile(file_path) or extension != '.replay':
+
+            if not os.path.isfile(file_path) or not extension == '.replay':
                 continue
+
+            replay_paths.append(file_path)
 
         for replay_path in replay_paths:
             self.load_replay(replay_path)

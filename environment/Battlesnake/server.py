@@ -34,8 +34,10 @@ class BattlesnakeServer:
     def start(self):
         # This function is called everytime your snake is entered into a game.
         # cherrypy.request.json contains information about the game that's about to be played.
-        # TODO: Use this function to decide how your snake is going to look on the board.
+
         data = cherrypy.request.json
+        game_info, turn, board, you = Importer.parse_request(data)
+        self.agent.start(game_info=game_info, turn=turn, board=board, you=you)
 
         print("START")
         return "ok"
@@ -48,9 +50,8 @@ class BattlesnakeServer:
         # Valid moves are "up", "down", "left", or "right".
 
         data = cherrypy.request.json
-        print(data)
+        # print(data)
         game_info, turn, board, you = Importer.parse_request(data)
-
         move_result = self.agent.move(game_info=game_info, turn=turn, board=board, you=you)
         move = move_result.direction
         move = BattlesnakeServer.decode_direction(move)
@@ -66,6 +67,8 @@ class BattlesnakeServer:
         # This function is called when a game your snake was in ends.
         # It's purely for informational purposes, you don't have to make any decisions here.
         data = cherrypy.request.json
+        game_info, turn, board, you = Importer.parse_request(data)
+        self.agent.end(game_info=game_info, turn=turn, board=board, you=you)
 
         print("END")
         return "ok"
