@@ -92,6 +92,7 @@ class Snake:
             "name": self.snake_name or "Unknown",
             "color": self.snake_color or (0, 0, 0),
             "health": self.health,
+            "latency": self.latency,
             "body": body_exported,
             "elimination_event": self.elimination_event.export_json() if self.elimination_event is not None else None
         }

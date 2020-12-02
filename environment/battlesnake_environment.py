@@ -63,7 +63,9 @@ class BattlesnakeEnvironment:
 
         self.default_snake_colors = default_colors.copy()
 
-        self.exporter = Exporter() if self.export_games else None
+        make_filename = lambda s: "".join(x for x in s if x.isalnum())
+        replay_name = "_".join(make_filename(sn.get_name()) for sn in self.agents) + "_"
+        self.exporter = Exporter(file_name=replay_name, append_date=True) if self.export_games else None
 
         self.game = StandardGame(timeout=int(self.act_timeout * 1000))
         self.board = self.game.create_initial_board_state(width=self.width, height=self.height, snake_ids=self.snake_ids)
@@ -72,7 +74,7 @@ class BattlesnakeEnvironment:
         self.game_renderer = GameRenderer(self.width, self.height, self.num_snakes)
 
         if self.export_games:
-            self.exporter.add_initial_state(self.game.game_info)
+            self.exporter.add_initial_state(self.game.game_info, self.board)
 
     def update_snake_infos(self):
 
@@ -136,7 +138,7 @@ class BattlesnakeEnvironment:
 
             agent_action = None
             # IDEA: use Process and set timeout
-            agent_move_result = BattlesnakeEnvironment.copy_and_call(
+            agent_move_result, act_time = BattlesnakeEnvironment.copy_and_call(
                 agent.move, timeout=self.act_timeout, snake_name=snake.snake_name,
                 game_info=game_info, turn=turn, board=board, you=snake)
 
@@ -144,11 +146,12 @@ class BattlesnakeEnvironment:
                 agent_action = agent_move_result.direction
 
             actions[snake_id] = agent_action
+            snake.latency = act_time
 
         self.game.create_next_board_state(board=self.board, moves=actions)
 
         if self.export_games:
-            self.exporter.add_latest_game_step(self.game)
+            self.exporter.add_latest_game_step(self.board)
 
         is_game_over = self.game.is_game_over(self.board)
         for idx, snake_id in enumerate(self.snake_ids):
@@ -247,6 +250,9 @@ class BattlesnakeEnvironment:
             traceback.print_exc()
             print('snake {}: Exception raised in act method of agent'.format(snake_name))
 
+        # result, act_time
+        return None, None
+
     @staticmethod
     def call_sync(func, timeout=None, **kwargs):
 
@@ -258,7 +264,7 @@ class BattlesnakeEnvironment:
             if act_time > timeout:
                 raise AgentTimeoutError()
 
-        return result
+        return result, act_time
 
     @staticmethod
     def call_process(func, timeout=None, **kwargs):

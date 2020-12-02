@@ -1,3 +1,4 @@
+from environment.Battlesnake.helper.DirectionUtil import DirectionUtil
 from environment.Battlesnake.helper.helper import Helper
 from environment.Battlesnake.model.EliminationEvent import EliminatedCause, EliminationEvent
 from environment.Battlesnake.model.Food import Food
@@ -372,8 +373,6 @@ class StandardGame(AbstractGame):
 
     def maybeSpawnFood(self, board: BoardState):
 
-        # TODO implement https://github.com/BattlesnakeOfficial/rules/commit/c6d9ba12ab966380c78c366869428725e2288835
-
         num_current_food = len(board.food)
 
         if num_current_food < self.minimumFood:
@@ -383,7 +382,7 @@ class StandardGame(AbstractGame):
 
     def spawn_food(self, board: BoardState, n):
 
-        unoccupied_points = self.get_unoccupied_points(board=board)
+        unoccupied_points = self.get_unoccupied_points(board=board, include_possible_moves=False)
         n = min(n, len(unoccupied_points))
 
         if n > 0:
@@ -393,7 +392,7 @@ class StandardGame(AbstractGame):
                 food = Food(position=unoccupied_points[point_indices[i]])
                 board.add_food(food)
 
-    def get_unoccupied_points(self, board: BoardState) -> List[Position]:
+    def get_unoccupied_points(self, board: BoardState, include_possible_moves) -> List[Position]:
 
         occupied: GridMap[bool] = GridMap(width=board.width, height=board.height)
 
@@ -401,8 +400,12 @@ class StandardGame(AbstractGame):
             occupied.set_value_at_position(f, True)
 
         for snake in board.snakes:
-            for p in snake.body:
-                occupied.set_value_at_position(p, True)
+            for i, p in enumerate(snake.body):
+                occupied.set_value_at_position(p, True, check_range=True)
+
+                if i == 0 and not include_possible_moves:
+                    for n in DirectionUtil.neighbor_positions(p):
+                        occupied.set_value_at_position(n, True, check_range=True)
 
         unoccupied_points = []
         for y in range(board.height):
@@ -414,7 +417,7 @@ class StandardGame(AbstractGame):
 
     def get_even_unoccupied_points(self, board: BoardState) -> List[Position]:
 
-        unoccupied_points = self.get_unoccupied_points(board=board)
+        unoccupied_points = self.get_unoccupied_points(board=board, include_possible_moves=True)
         even_unoccupied_points = list(filter(lambda c: (c.x + c.y) % 2 == 0, unoccupied_points))
         return even_unoccupied_points
 

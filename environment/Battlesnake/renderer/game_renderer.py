@@ -66,12 +66,15 @@ class GameRenderer:
 
         # myfont = pygame.font.SysFont('Comic Sans MS', 30)
         try:
-            self.myfont_name = pygame.font.Font('fonts/karla/Karla-Regular.ttf', 25)
-            self.myfont_die_reason = pygame.font.Font('fonts/karla/Karla-Regular.ttf', 16)
+            karla_path = 'fonts/karla/Karla-Regular.ttf'
+            self.myfont_name = pygame.font.Font(karla_path, 25)
+            self.myfont_die_reason = pygame.font.Font(karla_path, 16)
+            self.myfont_latency = pygame.font.Font(karla_path, 16)
         except FileNotFoundError:
             print("WARNING: Fonts not found! Using system default", file=sys.stderr)
             self.myfont_name = pygame.font.Font(pygame.font.get_default_font() , 25)
             self.myfont_die_reason = pygame.font.Font(pygame.font.get_default_font(), 16)
+            self.myfont_latency = pygame.font.Font(pygame.font.get_default_font(), 16)
 
 
     def display(self, board: BoardState):
@@ -348,26 +351,33 @@ class GameRenderer:
                 snake_text_color = GameRenderer.mix_colors(snake_text_color, FieldColor.background, 0.3)
                 snake_color = GameRenderer.mix_colors(snake_color, FieldColor.background, 0.5)
 
+            snake_latency_text = '{} ms'.format(int(1000*snake.latency) if snake.latency is not None else '')
+
             textsurface_snake_name = self.myfont_name.render(snake.snake_name, True, snake_text_color)
             textsurface_snake_length = self.myfont_name.render(str(snake.get_length()), True, snake_text_color)
             textsurface_eliminated_cause = self.myfont_die_reason.render(snake_eliminated_cause_text, True,
                                                                          snake_text_color)
+            textsurface_latency = self.myfont_latency.render(snake_latency_text, True, snake_text_color)
 
             textsurface_snake_length_rect = textsurface_snake_length.get_rect()
+            textsurface_latency_rect = textsurface_latency.get_rect()
 
             surface.blit(textsurface_snake_name, (x_start + padding_content_left, y_start))
             surface.blit(textsurface_snake_length,
                          (x_start + surface_width - textsurface_snake_length_rect.width, y_start))
 
-            eliminated_reason_y = y_start + 40
+            surface.blit(textsurface_latency,
+                         (x_start + surface_width - textsurface_latency_rect.width, y_start + 25))
+
+            eliminated_reason_y = y_start + 50
 
             surface.blit(textsurface_eliminated_cause, (x_start + padding_content_left, eliminated_reason_y))
 
-            bar_y_start = y_start + 40
+            bar_y_start = y_start + 50
 
             health_bar_height = 20
 
-            color_rect = pygame.Rect(x_start, y_start, 5, LEADERBOARD_ITEM_HEIGHT - 35)
+            color_rect = pygame.Rect(x_start, y_start, 5, LEADERBOARD_ITEM_HEIGHT - 25)
             AAfilledRoundedRect(surface, color_rect, snake_color, 1.0)
 
             background_bar_color = GameRenderer.mix_colors(snake.snake_color, FieldColor.background, 0.5)

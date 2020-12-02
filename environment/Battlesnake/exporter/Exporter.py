@@ -8,12 +8,16 @@ from environment.Battlesnake.model.board_state import BoardState
 
 class Exporter:
 
-    def __init__(self, output_folder="replays", file_name=None):
+    def __init__(self, output_folder="replays", file_name=None, append_date=False):
 
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
-        filename = file_name or datetime.now().strftime('%y-%m-%d_%H-%M-%S')
+        date = datetime.now().strftime('%y-%m-%d_%H-%M-%S')
+        filename = file_name or date
+        if append_date:
+            filename += date
+
         if not filename.endswith(".replay"):
             filename += ".replay"
 
@@ -23,13 +27,14 @@ class Exporter:
         self.game_meta_info = {}
         self.history = []
 
-    def add_initial_state(self, game_info: GameInfo):
+    def add_initial_state(self, game_info: GameInfo, board: BoardState):
         self.game_meta_info = game_info.export_json()
+        self.history.append(board.to_json())
 
-    def add_latest_game_step(self, game):
-        self.history.append(game.state.to_json())
+    def add_latest_game_step(self, board: BoardState):
+        self.history.append(board.to_json())
 
-        if game.is_game_over():
+        if board.finished():
             self.write_replay_to_file()
 
     def write_replay_to_file(self):

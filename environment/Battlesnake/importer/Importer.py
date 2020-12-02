@@ -63,7 +63,8 @@ class Importer:
 
         snake_id = json['id']
         snake_name = json['name']
-        snake_color = json['color']
+        # Never present and not mentioned in API?
+        snake_color = json['color'] if 'color' in json else ""
         health = json['health']
         body_json_list = json['body']
         latency = json['latency'] if 'latency' in json else 0
