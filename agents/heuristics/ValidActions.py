@@ -13,7 +13,8 @@ class ValidActions:
                           possible_actions: List[Direction],
                           snakes: List[Snake],
                           my_snake: Snake,
-                          grid_map: GridMap[Occupant]):
+                          grid_map: GridMap[Occupant]) -> List[Direction]:
+
         my_head = my_snake.get_head()
         snake_tails = []
         valid_actions = []

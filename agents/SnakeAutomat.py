@@ -18,16 +18,16 @@ from environment.Battlesnake.model.SnakeState import SnakeState
 
 
 class SnakeAutomat:
-    
+
     def __init__(
-            self, 
+            self,
             snake: Snake,
-            snake_type: bool,
+            enemy: bool,
             valid_actions: Direction,
     ):
-        self.state = None
+        self.enemy = enemy
+        self.status = "hungry" if self.enemy else self.status = "anxious"
         self.snake = snake
-        self.snake_type = snake_type
         self.previous_actions = []
         self.valid_actions = valid_actions
         self.previous_positions: List[Position]

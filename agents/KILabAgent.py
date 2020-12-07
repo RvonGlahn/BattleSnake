@@ -1,7 +1,6 @@
-
 from typing import List
 from agents.BaseAgent import BaseAgent
-from agents.Search import Search
+from agents.heuristics.FoodSearch import FoodSearch
 from agents.heuristics.Distance import Distance
 from agents.heuristics.ValidActions import ValidActions
 from agents.strategies.Anxious import Anxious
@@ -11,7 +10,6 @@ from environment.Battlesnake.model.MoveResult import MoveResult
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
-from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.Occupant import Occupant
 
@@ -34,7 +32,6 @@ class KILabAgent(BaseAgent):
     def move(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake) -> MoveResult:
 
         grid_map: GridMap[Occupant] = board.generate_grid_map()
-        # if health, lenght, usw. < X: -> A-Star Search nur im Notfall
 
         possible_actions = you.possible_actions()
         valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
@@ -49,7 +46,7 @@ class KILabAgent(BaseAgent):
             next_action = Anxious.hide_in_corner(board, you, grid_map)
         if you.health < 25:
             if not self.food_path:
-                self.food_path = Search.follow_food(you, board, grid_map)
+                self.food_path = FoodSearch.follow_food(you, board, grid_map)
             if self.food_path[0][1] in valid_actions:
                 next_action = self.food_path[0][1]
                 self.food_path.pop(0)

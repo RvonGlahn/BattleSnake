@@ -1,11 +1,9 @@
-from typing import Dict
 from agents.BaseAgent import BaseAgent
 import numpy as np
 from environment.Battlesnake.model.GameInfo import GameInfo
 from environment.Battlesnake.model.MoveResult import MoveResult
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
-from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.Occupant import Occupant
 

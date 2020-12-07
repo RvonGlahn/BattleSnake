@@ -1,5 +1,4 @@
-import math
-from typing import Tuple, List, Optional
+from typing import Tuple, List
 from agents.heuristics.RelevantFood import RelevantFood
 from agents.heuristics.Distance import Distance
 
@@ -11,7 +10,7 @@ from environment.Battlesnake.model.grid_map import GridMap
 from util.kl_priority_queue import KLPriorityQueue
 
 
-class Search:
+class FoodSearch:
 
     @staticmethod
     def follow_food(snake: Snake, board: BoardState, grid_map: GridMap) -> List[Tuple[Position, Direction]]:
@@ -29,7 +28,7 @@ class Search:
             if distance > start_distance:
                 food = relevant_food
 
-        cost, path = Search.a_star_search(head, food, board, grid_map)
+        cost, path = FoodSearch.a_star_search(head, food, board, grid_map)
         path_array = path
 
         return path_array
@@ -50,7 +49,6 @@ class Search:
                       search_field: Position,
                       board: BoardState,
                       grid_map: GridMap) -> Tuple[int, List[Tuple[Position, Direction]]]:
-        print(start_field, search_field, "\n")
 
         queue = KLPriorityQueue()
         came_from = {}  # current node ist key parent ist value
@@ -85,7 +83,7 @@ class Search:
             best_direction = pos_dir_tuple[1]
 
             # reverse direction to get poistion where we came from
-            opposite_direction = Search.reverse_direction(best_direction)
+            opposite_direction = FoodSearch.reverse_direction(best_direction)
 
             # only use undiscovered nodes
             if best_position not in came_from:
