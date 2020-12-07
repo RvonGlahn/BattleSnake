@@ -17,20 +17,22 @@ import time
 from environment.Battlesnake.model.SnakeState import SnakeState
 
 
-class SnakeAutomat(BaseAgent):
+class SnakeAutomat:
     
     def __init__(
             self, 
-            snake, 
-            snake_type, 
-            valid_actions
+            snake: Snake,
+            snake_type: bool,
+            valid_actions: Direction,
     ):
-        self.state = get_state(snake_type)
-        self.head = 
-        self.next_position = 
-        self.snake
+        self.state = None
+        self.snake = snake
+        self.snake_type = snake_type
+        self.previous_actions = []
+        self.valid_actions = valid_actions
+        self.previous_positions: List[Position]
 
-    def get_state(self, my_snake: Snake, snakes: List[Snake]):
+    def get_state(self, snake_type, my_snake: Snake, snakes: List[Snake]):
         """
         hungry
         agressive
@@ -38,11 +40,35 @@ class SnakeAutomat(BaseAgent):
         anxious
         """
         pass
-    
-    def _get_relevant_Corner(self, my_head, snakes, board):
 
-    def hide_in_corner(self, board: BoardState, you: Snake, grid_map):
+    def update_my_state(self):
+        pass
 
-    def avoid_enemy(self, valid_actions: List[Direction], my_snake: Snake, snakes: List[Snake]):
+    def update_enemy_state(self):
+        pass
 
-    def attack_enemy():
+    def reset_state(self):
+        pass
+
+    def _hidden_markov(self):
+        pass
+
+
+"""
+def get_state(self, my_snake, snakes):
+    if my_snake.get_length() % 2 == 1:
+        for snake in snakes:
+            if snake.get_length >= my_snake.get_length:
+                return SnakeState.INFERIORHUNGRY  # hungry but inferior
+        return SnakeState.HUNGRY  # hungry and the largest snake
+    if my_snake.get_health <= 20:
+        for snake in snakes:
+            if snake.get_length >= my_snake.get_length:
+                return SnakeState.INFERIORHUNGRY  # hungry but inferior
+        return SnakeState.HUNGRY  # hungry and the largest snake
+    for snake in snakes:
+        if snake.get_length >= my_snake.get_length:
+            return SnakeState.INFERIOR
+        else:
+            return SnakeState.SUPERIOR
+"""
