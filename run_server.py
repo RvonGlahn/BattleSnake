@@ -5,7 +5,7 @@ from environment.Battlesnake.server import BattlesnakeServer
 
 
 agent = KILabAgent()
-port = None
+port = 8011
 
 server = BattlesnakeServer(agent)
 cherrypy.config.update({"server.socket_host": "0.0.0.0"})
