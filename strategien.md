@@ -1,17 +1,20 @@
 # Strategien Battle Snake
 
+### Automaten
+
+- Unsere AutomatenKlasse implementieren MySnake
+    - Zustände: {hungrig, fliehend, provozierend}
+- Gegner als Klasse implementieren EnemySnakes
+    - Zustände: {hungrig, agressiv}
+    
+    &rarr; Einen Automaten für alle Schlangen
+
 ### Pfadsuche
 - möglichst wenig A* Star search verwenden da kostenintensiv
     - Pfad über die Runden solange verwenden bis es keinen Sinn mehr macht
     - Pfad anpassen an Position und Verhalten der anderen Snakes
 ### Moves    
-- moves strategisch verwenden das die Kollisionen nicht zu unserem Nachteil passieren:
-    - {self-collision, body-collision, head-to-head-collision}
-
-- moves so wählen das Schlange nicht out of bounds geht
-    - bei Royal verschiedene Wertigkeit der Felder durch Genom 
-
-- Heuristiken für die Sicherheit von verschiedenen Moves
+- Heuristiken für die Sicherheit von verschiedenen Moves &rarr; Wert von Feldern erstellen
     - wo sind Köpfe der anderen Schlangen
     - Deadlocks vermeiden
     - nicht verhungern
