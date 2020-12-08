@@ -2,7 +2,6 @@ import cherrypy
 import os
 
 from agents.BaseAgent import BaseAgent
-from agents.SimpleAgent_solution import SimpleAgent
 from environment.Battlesnake.importer.Importer import Importer
 from environment.Battlesnake.model.Direction import Direction
 
