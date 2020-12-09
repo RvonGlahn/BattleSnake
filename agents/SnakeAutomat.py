@@ -14,7 +14,6 @@ from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.Occupant import Occupant
 from util.kl_priority_queue import KLPriorityQueue
 import time
-from environment.Battlesnake.model.SnakeState import SnakeState
 
 
 class SnakeAutomat:

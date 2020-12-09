@@ -1,6 +1,6 @@
 from typing import List
 from agents.BaseAgent import BaseAgent
-from agents.heuristics.FoodSearch import FoodSearch
+from agents.strategies.Hungry import Hungry
 from agents.heuristics.Distance import Distance
 from agents.heuristics.ValidActions import ValidActions
 from agents.strategies.Anxious import Anxious
@@ -46,7 +46,7 @@ class KILabAgent(BaseAgent):
             next_action = Anxious.hide_in_corner(board, you, grid_map)
         if you.health < 25:
             if not self.food_path:
-                self.food_path = FoodSearch.follow_food(you, board, grid_map)
+                self.food_path = Hungry.follow_food(you, board, grid_map)
             if self.food_path[0][1] in valid_actions:
                 next_action = self.food_path[0][1]
                 self.food_path.pop(0)
