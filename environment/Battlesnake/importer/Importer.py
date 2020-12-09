@@ -1,5 +1,6 @@
 from environment.Battlesnake.model.Food import Food
 from environment.Battlesnake.model.GameInfo import GameInfo
+from environment.Battlesnake.model.Hazard import Hazard
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
@@ -43,16 +44,18 @@ class Importer:
         height = json['height']
         width = json['width']
         food_json_list = json['food']
-        # hazards_json_list = json['hazards']
+        hazards_json_list = json['hazards']
         snakes_json_list = json['snakes']
 
         food = Importer.parse_food_array(food_json_list)
+        hazards = Importer.parse_hazard_array(hazards_json_list)
         snakes = Importer.parse_snake_array(snakes_json_list)
 
         board = BoardState(
             width=width,
             height=height,
             food=food,
+            hazards=hazards,
             snakes=snakes
         )
 
@@ -119,6 +122,17 @@ class Importer:
     @staticmethod
     def parse_food_array(json_list):
         return list(map(Importer.parse_food, json_list))
+
+    @staticmethod
+    def parse_hazard(json):
+        x = json['x']
+        y = json['y']
+
+        return Hazard(x=x, y=y)
+
+    @staticmethod
+    def parse_hazard_array(json_list):
+        return list(map(Importer.parse_hazard, json_list))
 
     @staticmethod
     def load_replay_file(filepath):

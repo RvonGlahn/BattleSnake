@@ -37,10 +37,14 @@ class ReplayController:
         width, height = board_states[0].width, board_states[0].width
         num_snakes = len(board_states[0].snakes)
 
+        # TODO improve that GameRenderer is not created new -> just setup new
         self.renderer = GameRenderer(width, height, num_snakes)
 
         self.board_states = board_states
         self.reset()
+
+        if self.paused:
+            print('Press p for start')
 
     def previous_game(self):
         self.show_game(self.games_index - 1)

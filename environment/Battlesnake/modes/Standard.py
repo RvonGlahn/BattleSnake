@@ -345,6 +345,8 @@ class StandardGame(AbstractGame):
 
     def maybeFeedSnakes(self, board: BoardState):
 
+        food_not_eaten = []
+
         for f in board.food:
 
             food_has_been_eaten = False
@@ -359,8 +361,10 @@ class StandardGame(AbstractGame):
                     self.feed_snake(snake)
                     food_has_been_eaten = True
 
-            if food_has_been_eaten:
-                board.food.remove(f)
+            if not food_has_been_eaten:
+                food_not_eaten.append(f)
+                
+        board.food = food_not_eaten
 
     def feed_snake(self, snake: Snake):
         self.grow_snake(snake)

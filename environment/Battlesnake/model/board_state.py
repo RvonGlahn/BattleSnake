@@ -1,6 +1,7 @@
 import copy
 
 from .Food import Food
+from .Hazard import Hazard
 from .Snake import Snake
 from typing import List, Optional
 from .Position import Position
@@ -16,6 +17,7 @@ class BoardState:
             height: int,
             snakes: Optional[List[Snake]] = None,
             food: Optional[List[Food]] = None,
+            hazards: Optional[List[Hazard]] = None,
     ):
 
         if width < 3 or height < 3:
@@ -24,6 +26,7 @@ class BoardState:
         self.snakes: List[Snake] = snakes if snakes is not None else []  # contains only alive snakes
         self.all_snakes: List[Snake] = copy.deepcopy(self.snakes)
         self.food: List[Food] = food if food is not None else []
+        self.hazards: List[Hazard] = hazards if hazards is not None else []
         self.height = height
         self.width = width
 
@@ -113,7 +116,8 @@ class BoardState:
             "height": self.height,
             "width": self.width,
             "food": [f.export_json() for f in self.food],
-            "snakes": [s.export_json() for s in self.all_snakes]
+            "hazards": [h.export_json() for h in self.hazards],
+            "snakes": [s.export_json() for s in self.all_snakes],
         }
 
     def clone(self):
