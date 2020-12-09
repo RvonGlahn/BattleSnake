@@ -25,6 +25,9 @@ class RemoteAgent(BaseAgent):
         try:
             result = requests.get(self.url)
 
+            if result.status_code != 200:
+                raise ValueError('RemoteAgent did not return status 200. Got status {}: \n\n{}'.format(result.status_code, result.text))
+
             data = result.json()
 
             if 'name' in data:
