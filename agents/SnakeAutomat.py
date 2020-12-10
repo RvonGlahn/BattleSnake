@@ -1,15 +1,12 @@
-import math
 from typing import List, Dict
 import numpy as np
+
+from agents.heuristics.MovementProfile import MovementProfile
 from agents.States import States
 
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
-from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.Direction import Direction
-from environment.Battlesnake.model.grid_map import GridMap
-import numpy as np
-from sklearn import hmm
 
 
 class SnakeAutomat:
@@ -24,6 +21,7 @@ class SnakeAutomat:
         self.enemy: bool = enemy
         self.state = States.HUNGRY if self.enemy else self.status = States.ANXIOUS
         self.previous_positions: List[Position] = []
+        self.movement_profiles: Dict[Position] = {}
         self.Behaviour: Dict = {
             "attack_head": 0,
             "force_outside": 0,
@@ -31,7 +29,7 @@ class SnakeAutomat:
             "chase_food": 0
         }
 
-    def __eq__(self, other_state):
+    def __eq__(self, other_state: States):
         return self.state == other_state
 
     def get_state(self) -> States:
@@ -57,13 +55,14 @@ class SnakeAutomat:
             self.state = States.PROVOCATIVE
             return
 
-    def update_enemy_state(self, enemy_snakes) -> None:
-        pass
+    def update_enemy_state(self, enemy_snakes: List[Snake]) -> None:
 
+        for enemy in enemy_snakes:
+            if enemy.get_length() < self.snake.get_length():
+                MovementProfile.get_head_profiles()
+            MovementProfile.get_food_profiles()
 
-
-
-    def update_behaviour(self):
+    def update_behaviour(self, enemy_snakes: List[Snake]):
         # Update Behaviour if snakes are near each other
         pass
 
@@ -74,6 +73,7 @@ class SnakeAutomat:
             self.state = States.ANXIOUS
 
     """
+    from sklearn import hmm
     def _hidden_markov(self):
 
         startprob = np.array([0.3, 0.3, 0.3, 0.1])
