@@ -3,7 +3,7 @@ from agents.RandomAgent import RandomAgent
 from agents.KILabAgent import KILabAgent
 import time
 
-agents = [RandomAgent(), KILabAgent()]
+agents = [RandomAgent(), KILabAgent(), RandomAgent(), RandomAgent()]
 
 env = BattlesnakeEnvironment(
     width=15,

@@ -73,7 +73,7 @@ class Anxious:
         enemy_heads = [snake.get_head() for snake in snakes if snake.snake_id is not my_snake.snake_id]
 
         best_action = None
-        corners = [Position(1, 1), Position(1, 13), Position(13, 1), Position(13, 13)]
+        corners = [Position(1, 1), Position(1, 7), Position(7, 1), Position(7, 7)]
 
         alpha = 1
         beta = 4
