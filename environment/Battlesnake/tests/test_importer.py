@@ -1,5 +1,6 @@
 import unittest
 import json
+import os
 
 from environment.Battlesnake.importer.Importer import Importer
 from environment.Battlesnake.model.Position import Position
@@ -9,7 +10,7 @@ class ImporterTestCase(unittest.TestCase):
 
     def test_parse_request(self):
 
-        with open('data/request_1.json') as json_file:
+        with open(os.path.dirname(__file__) + '/data/request_1.json') as json_file:
             data = json.load(json_file)
 
         print(data)

@@ -46,17 +46,21 @@ class Importer:
         food_json_list = json['food']
         hazards_json_list = json['hazards']
         snakes_json_list = json['snakes']
+        # kilab specific attribute
+        dead_snakes_json_list = json['dead_snakes'] if 'dead_snakes' in json else []
 
         food = Importer.parse_food_array(food_json_list)
         hazards = Importer.parse_hazard_array(hazards_json_list)
         snakes = Importer.parse_snake_array(snakes_json_list)
+        dead_snakes = Importer.parse_snake_array(dead_snakes_json_list)
 
         board = BoardState(
             width=width,
             height=height,
             food=food,
             hazards=hazards,
-            snakes=snakes
+            snakes=snakes,
+            dead_snakes=dead_snakes
         )
 
         return board
@@ -66,8 +70,8 @@ class Importer:
 
         snake_id = json['id']
         snake_name = json['name']
-        # Never present and not mentioned in API?
-        snake_color = json['color'] if 'color' in json else ""
+        # kilab specific attribute
+        snake_color = json['color'] if 'color' in json else None
         health = json['health']
         body_json_list = json['body']
         latency = json['latency'] if 'latency' in json else 0

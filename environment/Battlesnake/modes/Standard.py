@@ -157,7 +157,16 @@ class StandardGame(AbstractGame):
         else:
             return False
 
-    def create_next_board_state(self, board: BoardState, moves: Dict[str, Direction]):
+    def create_next_board_state(self, board: BoardState, moves: Dict[str, Direction], only_deterministic: bool = False):
+        """
+        Calculate the next board state in place. You should clone the board state before calling this method if you want
+        to maintain the old state.
+
+        :param board: Board state to operate on
+        :param moves: Moves per agent to carry out
+        :param only_deterministic: Only perform deterministic board updates, for example if mode supports non deterministic
+        food spawn, disable if True
+        """
 
         self.turn += 1
 
@@ -165,16 +174,21 @@ class StandardGame(AbstractGame):
         self.reduce_snake_health(board=board)
 
         self.maybeFeedSnakes(board=board)
-        self.maybeSpawnFood(board=board)
+
+        if not only_deterministic:
+            self.maybeSpawnFood(board=board)
+        
         self.maybeEliminateSnakes(board=board)
 
-        snakes_alive = []
+        now_dead_snakes = []
 
         for s in board.snakes:
-            if s.is_alive():
-                snakes_alive.append(s)
+            if not s.is_alive():
+                now_dead_snakes.append(s)
 
-        board.snakes = snakes_alive
+        for s in now_dead_snakes:
+            board.snakes.remove(s)
+            board.dead_snakes.append(s)
 
     def move_snakes(self, board: BoardState, moves: Dict[str, Direction]):
 

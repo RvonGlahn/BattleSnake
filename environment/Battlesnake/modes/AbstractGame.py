@@ -20,7 +20,16 @@ class AbstractGame:
         pass
 
     @abstractmethod
-    def create_next_board_state(self, board: BoardState, moves: Dict[str, Direction]):
+    def create_next_board_state(self, board: BoardState, moves: Dict[str, Direction], only_deterministic: bool = False):
+        """
+        Calculate the next board state in place. You should clone the board state before calling this method if you want
+        to maintain the old state.
+
+        :param board: Board state to operate on
+        :param moves: Moves per agent to carry out
+        :param only_deterministic: Only perform deterministic board updates, for example if mode supports non deterministic
+        food spawn, disable if True
+        """
         pass
 
     @abstractmethod
