@@ -1,3 +1,5 @@
+from typing import Optional
+
 import cherrypy
 import os
 
@@ -13,20 +15,28 @@ class BattlesnakeServer:
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def index(self):
+    def index(self, **params):
         # This function is called when you register your Battlesnake on play.battlesnake.com
         # It controls your Battlesnake appearance and author permissions.
         # TIP: If you open your Battlesnake URL in browser you should see this data
 
-        # name = self.agent.get_name()
-
-        return {
+        data = {
             "apiversion": "1",
-            # "author": "",  # TODO: Your Battlesnake Username
-            # "color": "#888888",  # TODO: Personalize
-            # "head": "default",  # TODO: Personalize
-            # "tail": "default",  # TODO: Personalize
+            "author": self.agent.get_author(),
+            "color": self.agent.get_color_hex(),
+            "head": self.agent.get_head(),
+            "tail": self.agent.get_tail()
         }
+
+        # filter None values
+        data = {k: v for k, v in data.items() if v is not None}
+
+        if 'kilab' in params:
+
+            name = self.agent.get_name()
+            data['name'] = name
+
+        return data
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
@@ -82,5 +92,18 @@ class BattlesnakeServer:
             return 'left'
         elif d == Direction.RIGHT:
             return 'right'
+        else:
+            return None
+
+    @staticmethod
+    def encode_direction(s: str) -> Optional[Direction]:
+        if s == 'up':
+            return Direction.UP
+        elif s == 'down':
+            return Direction.DOWN
+        elif s == 'left':
+            return Direction.LEFT
+        elif s == 'right':
+            return Direction.RIGHT
         else:
             return None

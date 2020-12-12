@@ -1,9 +1,13 @@
+from agents.RemoteAgent import RemoteAgent
 from environment.battlesnake_environment import BattlesnakeEnvironment
 from agents.RandomAgent import RandomAgent
 from agents.KILabAgent import KILabAgent
 import time
 
 agents = [RandomAgent(), KILabAgent(), RandomAgent(), RandomAgent()]
+
+# remote_agent = RemoteAgent(url='130.75.31.206:8000')
+# agents.append(remote_agent)
 
 env = BattlesnakeEnvironment(
     width=15,

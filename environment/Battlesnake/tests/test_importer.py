@@ -1,5 +1,6 @@
 import unittest
 import json
+import os
 
 from environment.Battlesnake.importer.Importer import Importer
 from environment.Battlesnake.model.Position import Position
@@ -9,7 +10,7 @@ class ImporterTestCase(unittest.TestCase):
 
     def test_parse_request(self):
 
-        with open('data/request_1.json') as json_file:
+        with open(os.path.dirname(__file__) + '/data/request_1.json') as json_file:
             data = json.load(json_file)
 
         print(data)
@@ -43,6 +44,9 @@ class ImporterTestCase(unittest.TestCase):
         self.assertEqual(board.food[0], Position(x=5, y=5))
         self.assertEqual(board.food[1], Position(x=9, y=0))
         self.assertEqual(board.food[2], Position(x=2, y=6))
+
+        self.assertEqual(len(board.hazards), 1)
+        self.assertEqual(board.hazards[0], Position(x=3, y=2))
 
     def test_parse_snake(self):
 

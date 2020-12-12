@@ -82,7 +82,7 @@ class BattlesnakeEnvironment:
 
         for idx, agent in enumerate(self.agents):
             snake_id = self.snake_ids[idx]
-            snake = self.board.get_snake_by_id(snake_id)
+            snake = self.board.get_alive_or_dead_snake_by_id(snake_id)
             name = agent.get_name()
             color = agent.get_color()
 
@@ -126,7 +126,7 @@ class BattlesnakeEnvironment:
 
         for idx, snake_id in enumerate(self.snake_ids):
             agent = self.agents[idx]
-            snake = board.get_snake_by_id(snake_id)
+            snake = board.get_alive_or_dead_snake_by_id(snake_id)
 
             if turn == 0:
                 BattlesnakeEnvironment.copy_and_call(
@@ -156,7 +156,7 @@ class BattlesnakeEnvironment:
         is_game_over = self.game.is_game_over(self.board)
         for idx, snake_id in enumerate(self.snake_ids):
             agent = self.agents[idx]
-            snake = board.get_snake_by_id(snake_id)
+            snake = board.get_alive_or_dead_snake_by_id(snake_id)
 
             call_end = False
             if not snake.is_alive() and snake.elimination_event.turn == turn:

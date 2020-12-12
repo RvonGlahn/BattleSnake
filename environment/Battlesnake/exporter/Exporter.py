@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 
 from environment.Battlesnake.model.GameInfo import GameInfo
+from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
 
 
@@ -47,3 +48,13 @@ class Exporter:
 
         os.rename(self.tempfile, self.outpath)
         print(f"Success! Wrote to {self.outpath}")
+
+    @staticmethod
+    def export_request(game_info: GameInfo, turn: int, board: BoardState, you: Snake):
+
+        return {
+            'game': game_info.export_json(),
+            'turn': turn,
+            'board': board.to_json(),
+            'you': you.export_json()
+        }
