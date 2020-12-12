@@ -3,6 +3,7 @@ import numpy as np
 
 from agents.heuristics.MovementProfile import MovementProfile
 from agents.States import States
+from agents.heuristics.Distance import Distance
 
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
@@ -14,23 +15,46 @@ class SnakeAutomat:
     def __init__(
             self,
             snake: Snake,
-            enemy: bool,
-            valid_actions: Direction,
+            enemy: bool
     ):
         self.snake: Snake = snake
         self.enemy: bool = enemy
         self.state = States.HUNGRY if self.enemy else self.status = States.ANXIOUS
         self.previous_positions: List[Position] = []
-        self.movement_profiles: Dict[Position] = {}
-        self.Behaviour: Dict = {
+        self.length_history:  List[int] = []
+        self.distance_to_enemy_heads: List[int] = []
+        self.movement_profile_predictions: Dict = {
+            "food": [],
+            "head": []
+        }
+        self.behaviour: Dict = {
             "attack_head": 0,
             "force_outside": 0,
             "flee_from_enemy": 0,
-            "chase_food": 0
+            "chase_food": 0,
+            "chase_tail": 0     # Schwerpunkt berechnen
         }
 
     def __eq__(self, other_state: States):
         return self.state == other_state
+
+    def monitor_length(self, length: int):
+        self.length_history.append(length)
+        if len(self.length_history) > 5:
+            self.length_history.pop(0)
+
+    def monitor_dist_to_enemies(self, dist: int):
+        self.distance_to_enemy_heads.append(dist)
+        if len(self.distance_to_enemy_heads) > 5:
+            self.distance_to_enemy_heads.pop(0)
+
+    def reset_positions(self):
+        self.previous_positions = []
+
+    def add_position(self, position: Position):
+        self.previous_positions.append(position)
+        if len(self.previous_positions) > 10:
+            self.previous_positions.pop(0)
 
     def get_state(self) -> States:
         return self.state
@@ -55,12 +79,32 @@ class SnakeAutomat:
             self.state = States.PROVOCATIVE
             return
 
-    def update_enemy_state(self, enemy_snakes: List[Snake]) -> None:
-
+    def make_movement_profile_prediction(self, enemy_snakes: List[Snake], food: List[Position], heads: List[Position]):
         for enemy in enemy_snakes:
             if enemy.get_length() < self.snake.get_length():
-                MovementProfile.get_head_profiles()
-            MovementProfile.get_food_profiles()
+                self.movement_profile_predictions["head"] = MovementProfile.get_head_profiles(food)
+            self.movement_profile_predictions["food"] = MovementProfile.get_food_profiles(heads)
+
+    def update_enemy_state(self) -> None:
+        # get path to food or head that fits best the performed actions
+        most_prob_food_path = min([Distance.path_similarity(f_profile, self.previous_positions)
+                                   for f_profile in self.movement_profile_predictions["food"]])
+
+        most_prob_head_path = min([Distance.path_similarity(h_profile, self.previous_positions)
+                                   for h_profile in self.movement_profile_predictions["head"]])
+        ###########################
+        # TODO: set state of snake
+        # relevant infos:
+        # health, movement_profile, length_delta, distance_to_other snakes, longest_snake
+        ###########################
+        if most_prob_food_path < most_prob_head_path or self.snake.health < 20:
+            self.state = States.HUNGRY
+
+        if most_prob_head_path < most_prob_food_path:
+            self.state = States.AGRESSIVE
+
+        # if length klein aber dist to head auch klein PROVOCATIVE
+        # if length klein und dist to head groß dann ANXIOUS
 
     def update_behaviour(self, enemy_snakes: List[Snake]):
         # Update Behaviour if snakes are near each other
@@ -73,6 +117,8 @@ class SnakeAutomat:
             self.state = States.ANXIOUS
 
     """
+    Transition Probabilities müssen gelernt werden.
+    
     from sklearn import hmm
     def _hidden_markov(self):
 

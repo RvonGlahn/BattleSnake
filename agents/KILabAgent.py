@@ -4,6 +4,7 @@ from agents.strategies.Hungry import Hungry
 from agents.heuristics.Distance import Distance
 from agents.heuristics.ValidActions import ValidActions
 from agents.strategies.Anxious import Anxious
+# from agents.Decision import Decision
 
 from environment.Battlesnake.model.GameInfo import GameInfo
 from environment.Battlesnake.model.MoveResult import MoveResult
@@ -18,7 +19,7 @@ class KILabAgent(BaseAgent):
 
     def __init__(self):
         self.food_path: List[Position] = []
-        self.Snake_States: List[Snake] = []
+        # self.Decision = Decision()
 
     def setup_automats(self):
         pass
@@ -36,6 +37,10 @@ class KILabAgent(BaseAgent):
         possible_actions = you.possible_actions()
         valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
         next_action = None
+
+        # TODO: replace logic with decision
+        # Decision.set_round(turn)
+        # next_action = self.Decision.decide(you, board, grid_map)
 
         enemy_head_dist = min([Distance.manhattan_dist(snake.get_head(), you.get_head())
                                for snake in board.snakes if snake.snake_id is not you.snake_id])
