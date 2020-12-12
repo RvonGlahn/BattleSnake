@@ -19,7 +19,7 @@ class SnakeAutomat:
     ):
         self.snake: Snake = snake
         self.enemy: bool = enemy
-        self.state = States.HUNGRY if self.enemy else self.status = States.ANXIOUS
+        self.state = States.HUNGRY if self.enemy else States.ANXIOUS
         self.previous_positions: List[Position] = []
         self.length_history:  List[int] = []
         self.distance_to_enemy_heads: List[int] = []
@@ -38,28 +38,39 @@ class SnakeAutomat:
     def __eq__(self, other_state: States):
         return self.state == other_state
 
-    def monitor_length(self, length: int):
+    def update_snake(self, snake: Snake) -> None:
+        self.snake = snake
+
+    def monitor_length(self, length: int) -> None:
         self.length_history.append(length)
         if len(self.length_history) > 5:
             self.length_history.pop(0)
 
-    def monitor_dist_to_enemies(self, dist: int):
+    def monitor_dist_to_enemies(self, dist: int) -> None:
         self.distance_to_enemy_heads.append(dist)
         if len(self.distance_to_enemy_heads) > 5:
             self.distance_to_enemy_heads.pop(0)
 
-    def reset_positions(self):
-        self.previous_positions = []
-
-    def add_position(self, position: Position):
+    def add_position(self, position: Position) -> None:
         self.previous_positions.append(position)
         if len(self.previous_positions) > 10:
             self.previous_positions.pop(0)
 
+    def reset_positions(self) -> None:
+        self.previous_positions = []
+
+    def reset_state(self, enemy: bool) -> None:
+        if enemy:
+            self.state = States.AGRESSIVE
+        else:
+            self.state = States.ANXIOUS
+
     def get_state(self) -> States:
         return self.state
 
-    def update_my_state(self, enemy_snakes: List[Snake], states: Dict, round_number: int) -> None:
+    def update_my_state(self, snakes: List[Snake], states: Dict, round_number: int) -> None:
+
+        enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
         if self.snake.health < 25:
             self.state = States.HUNGRY
@@ -79,11 +90,13 @@ class SnakeAutomat:
             self.state = States.PROVOCATIVE
             return
 
-    def make_movement_profile_prediction(self, enemy_snakes: List[Snake], food: List[Position], heads: List[Position]):
+    def make_movement_profile_prediction(self, enemy_snakes: List[Snake], food: List[Position],
+                                         enemy_heads: List[Position]) -> None:
+
         for enemy in enemy_snakes:
             if enemy.get_length() < self.snake.get_length():
                 self.movement_profile_predictions["head"] = MovementProfile.get_head_profiles(food)
-            self.movement_profile_predictions["food"] = MovementProfile.get_food_profiles(heads)
+            self.movement_profile_predictions["food"] = MovementProfile.get_food_profiles(enemy_heads)
 
     def update_enemy_state(self) -> None:
         # get path to food or head that fits best the performed actions
@@ -110,11 +123,7 @@ class SnakeAutomat:
         # Update Behaviour if snakes are near each other
         pass
 
-    def reset_state(self, enemy: bool):
-        if enemy:
-            self.state = States.AGRESSIVE
-        else:
-            self.state = States.ANXIOUS
+
 
     """
     Transition Probabilities müssen gelernt werden.

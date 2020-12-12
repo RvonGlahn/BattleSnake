@@ -1,9 +1,7 @@
 from typing import Tuple, List
-from agents.heuristics.RelevantFood import RelevantFood
 from agents.heuristics.Distance import Distance
 
 from environment.Battlesnake.model.Position import Position
-from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.grid_map import GridMap

@@ -4,7 +4,7 @@ from agents.strategies.Hungry import Hungry
 from agents.heuristics.Distance import Distance
 from agents.heuristics.ValidActions import ValidActions
 from agents.strategies.Anxious import Anxious
-# from agents.Decision import Decision
+from agents.Decision import Decision
 
 from environment.Battlesnake.model.GameInfo import GameInfo
 from environment.Battlesnake.model.MoveResult import MoveResult
@@ -19,10 +19,8 @@ class KILabAgent(BaseAgent):
 
     def __init__(self):
         self.food_path: List[Position] = []
-        # self.Decision = Decision()
-
-    def setup_automats(self):
-        pass
+        self.Decision = Decision()
+        self.first = True
 
     def get_name(self):
         return 'Jürgen'
@@ -34,14 +32,19 @@ class KILabAgent(BaseAgent):
 
         grid_map: GridMap[Occupant] = board.generate_grid_map()
 
-        possible_actions = you.possible_actions()
-        valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
-        next_action = None
+        # possible_actions = you.possible_actions()
+        # valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
+        # next_action = None
 
         # TODO: replace logic with decision
-        # Decision.set_round(turn)
-        # next_action = self.Decision.decide(you, board, grid_map)
+        if self.first:
+            self.Decision.set_up_automats(board.snakes)
+            self.first = False
 
+        self.Decision.set_round(turn)
+        next_action = self.Decision.decide(you, board, grid_map, game_info)
+
+        """
         enemy_head_dist = min([Distance.manhattan_dist(snake.get_head(), you.get_head())
                                for snake in board.snakes if snake.snake_id is not you.snake_id])
 
@@ -57,7 +60,7 @@ class KILabAgent(BaseAgent):
                 self.food_path.pop(0)
             else:
                 self.food_path = []
-
+        """
         return MoveResult(direction=next_action)
 
     def end(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):

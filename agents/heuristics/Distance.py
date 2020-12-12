@@ -30,5 +30,8 @@ class Distance:
             cost += Distance.manhattan_dist(pos1, pos2)
         return cost
 
-    def min_distance_to_enemy_heads(self):
-        pass
+    @staticmethod
+    def dist_to_closest_enemy_head(snakes, you):
+        dist = min([Distance.manhattan_dist(snake.get_head(), you.get_head())
+                    for snake in snakes if snake.snake_id is not you.snake_id])
+        return dist

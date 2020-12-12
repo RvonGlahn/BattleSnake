@@ -1,5 +1,6 @@
 from typing import List
 from environment.Battlesnake.model.Snake import Snake
+from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.Position import Position
@@ -67,10 +68,13 @@ class Anxious:
         return next_action
 
     @staticmethod
-    def avoid_enemy(valid_actions: List[Direction], my_snake: Snake, snakes: List[Snake]) -> Direction:
+    def avoid_enemy(my_snake: Snake, board: BoardState, grid_map: GridMap) -> Direction:
+
+        possible_actions = my_snake.possible_actions()
+        valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, my_snake, grid_map)
 
         my_head = my_snake.get_head()
-        enemy_heads = [snake.get_head() for snake in snakes if snake.snake_id is not my_snake.snake_id]
+        enemy_heads = [snake.get_head() for snake in board.snakes if snake.snake_id is not my_snake.snake_id]
 
         best_action = None
         corners = [Position(1, 1), Position(1, 7), Position(7, 1), Position(7, 7)]
