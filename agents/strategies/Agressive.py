@@ -37,7 +37,7 @@ class Aggressive:
                     best_distance = distance
                     target = rel_snake.get_head()
         else: #sonst geringsten Abstand
-            distance = 999999
+            best_distance = 999999
             for rel_snake in relevant_snakes:
                 distance = [Distance.manhattan_dist(head, rel_snake.get_head())]
                 if distance < best_distance:
