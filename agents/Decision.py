@@ -41,9 +41,11 @@ class Decision:
         self.states: Dict = {}
         self.monitoring_time = 150
 
-    def set_up_automats(self, snakes: List[Snake]) -> Dict:
+    def set_up_automats(self, my_snake: Snake, snakes: List[Snake]) -> None:
 
+        self.my_snake_id = my_snake.snake_id
         enemy = True
+
         for snake in snakes:
 
             if snake.snake_id is not self.my_snake_id:
@@ -55,8 +57,10 @@ class Decision:
 
             self.automats[snake.snake_id] = SnakeAutomat(snake, enemy)
 
-    def _update_automats(self, snakes: List[Snake], food, heads) -> None:
+    def _update_automats(self, snakes: List[Snake], food: List[Position]) -> None:
+
         snake_heads = [snake.get_head() for snake in snakes]
+
         for index, snake in enumerate(snakes):
 
             automat: SnakeAutomat = self.automats[snake.snake_id]
@@ -69,7 +73,7 @@ class Decision:
 
                 enemy_snakes = snakes.copy()
                 enemy_snakes.pop(index)
-                enemy_heads = snake_heads
+                enemy_heads = snake_heads.copy()
                 enemy_heads.pop(index)
                 # automat.make_movement_profile_prediction(enemy_snakes, food, enemy_heads)
                 # automat.update_behaviour()
@@ -80,7 +84,7 @@ class Decision:
                 del self.automats[dead_snake.snake_id]
 
     def _get_snake_states(self) -> Dict:
-        states = {automat.snake.snake_id: automat.state for automat in self.automats}
+        states = {automat.snake.snake_id: automat.state for automat in self.automats.values()}
         return states
 
     def _call_strategy(self, you: Snake, board: BoardState, grid_map: GridMap) -> Direction:
@@ -92,11 +96,11 @@ class Decision:
             action: Direction = Direction.UP
             if not self.my_food_path:
                 self.my_food_path = Hungry.follow_food(you, board, grid_map)
-            if self.food_path[0][1] in valid_actions:
+            if self.my_food_path[0][1] in valid_actions:
                 action = self.my_food_path[0][1]
                 self.my_food_path.pop(0)
             else:
-                self.food_path = []
+                self.my_food_path = []
             return action
 
         if state == States.ANXIOUS:
@@ -120,7 +124,7 @@ class Decision:
         if len(self.automats) is not len(board.snakes):
             self._delete_dead_snake(board.dead_snakes)
 
-        self._update_automats(board.snakes)
+        self._update_automats(board.snakes, board.food)
 
         dist_to_closest_head = Distance.dist_to_closest_enemy_head(board.snakes, you)
 
@@ -138,6 +142,8 @@ class Decision:
 
         # while time.time() - start_time < 350:
         next_action = self._call_strategy(you, board, grid_map)
+
+        print(self.automats[self.my_snake_id].get_state())
 
         return next_action
 

@@ -38,7 +38,7 @@ class KILabAgent(BaseAgent):
 
         # TODO: replace logic with decision
         if self.first:
-            self.Decision.set_up_automats(board.snakes)
+            self.Decision.set_up_automats(you, board.snakes)
             self.first = False
 
         self.Decision.set_round(turn)
