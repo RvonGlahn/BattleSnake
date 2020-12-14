@@ -1,5 +1,4 @@
 from typing import Tuple, List
-from agents.heuristics.RelevantFood import RelevantFood
 from agents.heuristics.Distance import Distance
 
 from environment.Battlesnake.model.Position import Position
