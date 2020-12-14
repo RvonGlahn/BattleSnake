@@ -1,4 +1,5 @@
 from typing import List, Dict
+import numpy as np
 
 from agents.States import States
 from agents.heuristics.Distance import Distance
@@ -65,7 +66,7 @@ class Decision:
         snake_heads = [snake.get_head() for snake in board.snakes]
 
         for index, snake in enumerate(board.snakes):
-            automat: SnakeAutomat = self.automats[snake.snake_id]
+            automat = self.automats[snake.snake_id]
 
             automat.update_snake(snake)
             automat.add_position(snake.get_head())
@@ -97,16 +98,7 @@ class Decision:
         state = self.automats[self.my_snake_id].get_state()
 
         if state == States.HUNGRY:
-            possible_actions = you.possible_actions()
-            valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
-            action: Direction = Direction.UP
-            if not self.my_food_path:
-                self.my_food_path = Hungry.follow_food(you, board, grid_map)
-            if self.my_food_path[0][1] in valid_actions:
-                action = self.my_food_path[0][1]
-                self.my_food_path.pop(0)
-            else:
-                self.my_food_path = []
+            action, self.my_food_path = Hungry.hunger(you, board, grid_map, self.my_food_path)
             return action
 
         if state == States.ANXIOUS:
@@ -149,7 +141,7 @@ class Decision:
         print(self.automats[self.my_snake_id].get_state())
 
         if self.game_round == 50:
-            pass
+            print("Hallo")
 
         return next_action
 

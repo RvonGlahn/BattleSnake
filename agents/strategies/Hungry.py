@@ -1,6 +1,9 @@
 from typing import Tuple, List
+import numpy as np
+
 from agents.heuristics.RelevantFood import RelevantFood
 from agents.heuristics.Distance import Distance
+from agents.heuristics.ValidActions import ValidActions
 
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
@@ -33,3 +36,20 @@ class Hungry:
         print(path_array)
 
         return path_array
+
+    @staticmethod
+    def hunger(snake: Snake, board: BoardState, grid_map: GridMap, food_path: List[Position]):
+
+        possible_actions = snake.possible_actions()
+        valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, snake, grid_map)
+        action: Direction
+
+        if not food_path:
+            food_path = Hungry.follow_food(snake, board, grid_map)
+        if food_path[0][1] in valid_actions:
+            action = food_path[0][1]
+            food_path.pop(0)
+        else:
+            food_path = []
+            action = np.random.choice(valid_actions)
+        return action, food_path
