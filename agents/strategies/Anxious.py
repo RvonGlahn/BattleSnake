@@ -87,6 +87,8 @@ class Anxious:
         theta = len(enemy_heads) * 5
         cost = []
 
+        print(valid_actions)
+
         for action in valid_actions:
             next_position = my_head.advanced(action)
 
@@ -100,6 +102,9 @@ class Anxious:
 
             cost.append(distance)
 
-        best_action = valid_actions[np.argmax(cost)]
+        if valid_actions:
+            best_action = valid_actions[np.argmax(cost)]
+        else:
+            best_action = np.random.choice(possible_actions)
 
         return best_action
