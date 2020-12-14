@@ -66,6 +66,8 @@ class Decision:
         snake_heads = [snake.get_head() for snake in board.snakes]
 
         for index, snake in enumerate(board.snakes):
+            if snake.snake_id not in self.enemy_ids:
+                continue
             automat = self.automats[snake.snake_id]
 
             automat.update_snake(snake)
