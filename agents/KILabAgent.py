@@ -1,4 +1,5 @@
 from typing import List
+import numpy as np
 from agents.BaseAgent import BaseAgent
 from agents.strategies.Hungry import Hungry
 from agents.heuristics.Distance import Distance
@@ -38,6 +39,9 @@ class KILabAgent(BaseAgent):
 
         self.Decision.set_round(turn)
         next_action = self.Decision.decide(you, board, grid_map, game_info)
+
+        if next_action is None:
+            next_action = np.random.choice(you.possible_actions())
 
         return MoveResult(direction=next_action)
 

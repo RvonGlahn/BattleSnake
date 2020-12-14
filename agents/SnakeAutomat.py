@@ -4,6 +4,8 @@ from agents.heuristics.MovementProfile import MovementProfile
 from agents.States import States
 from agents.heuristics.Distance import Distance
 
+from environment.Battlesnake.model.board_state import GridMap
+from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
 
@@ -70,9 +72,12 @@ class SnakeAutomat:
 
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
+        print(self.snake.health)
         if self.snake.health < 25:
             self.state = States.HUNGRY
             return
+        else:
+            self.state = States.ANXIOUS
 
         # check if game is in early stage and how many enemies are left
         if round_number < 150 or len(enemy_snakes) >= 3:
@@ -88,13 +93,16 @@ class SnakeAutomat:
             self.state = States.PROVOCATIVE
             return
 
-    def make_movement_profile_prediction(self, enemy_snakes: List[Snake], food: List[Position],
-                                         enemy_heads: List[Position]) -> None:
+    def make_movement_profile_prediction(self, enemy_snakes: List[Snake], enemy_heads: List[Position],
+                                         board: BoardState, grid_map: GridMap) -> None:
 
         for enemy in enemy_snakes:
             if enemy.get_length() < self.snake.get_length():
-                self.movement_profile_predictions["head"] = MovementProfile.get_head_profiles(food)
-            self.movement_profile_predictions["food"] = MovementProfile.get_food_profiles(enemy_heads)
+                self.movement_profile_predictions["head"] = MovementProfile.get_head_profiles(enemy.get_head(),
+                                                                                              enemy_heads, board,
+                                                                                              grid_map)
+            self.movement_profile_predictions["food"] = MovementProfile.get_food_profiles(enemy.get_head(), board,
+                                                                                          grid_map)
 
     def update_enemy_state(self) -> None:
         # get path to food or head that fits best the performed actions

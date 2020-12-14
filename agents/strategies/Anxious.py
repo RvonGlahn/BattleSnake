@@ -1,4 +1,6 @@
 from typing import List
+
+import numpy as np
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.board_state import BoardState
@@ -40,10 +42,9 @@ class Anxious:
 
         possible_actions = you.possible_actions()
         valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
-        next_action = valid_actions[0]
 
-        if not valid_actions:
-            print("Keine validen ACtions!!!!!!!!!!!!")
+        if valid_actions:
+            next_action = valid_actions[0]
 
         # check if any part of the snake is in a corner, if so then chase tail, else go to the best corner
         if corner in you.body:
@@ -77,21 +78,29 @@ class Anxious:
         enemy_heads = [snake.get_head() for snake in board.snakes if snake.snake_id is not my_snake.snake_id]
 
         best_action = None
-        corners = [Position(1, 1), Position(1, 7), Position(7, 1), Position(7, 7)]
+        middle = Position(int(board.height/2), int(board.width/2))
+        corners = [Position(0, 0), Position(0, board.width), Position(board.height, 0), Position(board.height,
+                                                                                                 board.width)]
 
-        alpha = 1
-        beta = 4
-        cost = 0
+        alpha = 2
+        beta = 1
+        gamma = 1
+        theta = len(enemy_heads)
+        cost = []
 
         for action in valid_actions:
             next_position = my_head.advanced(action)
 
             distance_snakes = sum([Distance.manhattan_dist(next_position, enemy_head) for enemy_head in enemy_heads])
             distance_corners = sum([Distance.manhattan_dist(next_position, corner) for corner in corners])
-            distance = alpha * distance_snakes + beta * distance_corners
+            distance_mid = Distance.manhattan_dist(next_position, middle)
+            distance_food = sum([Distance.manhattan_dist(next_position, food) for food in board.food
+                                 if 3 < food.x < grid_map.width - 3 and 3 < food.y < grid_map.height - 3])
 
-            if distance > cost:
-                cost = distance
-                best_action = action
+            distance = alpha * distance_snakes + beta * distance_corners - gamma * distance_food - theta * distance_mid
+
+            cost.append(distance)
+
+        best_action = valid_actions[np.argmax(cost)]
 
         return best_action
