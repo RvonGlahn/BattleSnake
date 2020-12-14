@@ -117,8 +117,8 @@ class Decision:
 
         start_time = time.time()
 
-        # if len(self.automats) is not len(board.snakes):
-        #     self._delete_dead_snake(board.dead_snakes)
+        if len(self.automats) is not len(board.snakes):
+            self._delete_dead_snake(board.dead_snakes)
 
         self._update_automats(board, grid_map)
 
