@@ -45,6 +45,6 @@ class Agressive:
                     target = rel_snake.get_head()
 
         cost, path = AStar.a_star_search(head, target, board, grid_map)
-        path_array = path
-
-        return path_array
+        
+        _, next_step = path.pop
+        return next_step

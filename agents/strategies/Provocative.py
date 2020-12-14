@@ -56,7 +56,7 @@ class Provocative:
                 target_field.append(Position(x, y-5))
             
             if len(target_field) == 0:
-                relevant_snakes.remove(snake)
+                relevant_snakes.remove(target_snake)
             else:
                 break
         
@@ -64,8 +64,7 @@ class Provocative:
             possible_actions = you.possible_actions()
             random_action = np.random.choice(possible_actions)
             # random action ausgeben
-            random_path: List[Tuple[Position, Direction]] = [(head.advanced(random_action), random_action)]
-            return random_path
+            return random_action
         else:
             dist = 999999
             for field in target_field:
@@ -74,10 +73,10 @@ class Provocative:
                     dist = distance
                     target = field
 
-            cost, path = AStar.a_star_search(head, target, board, grid_map)
-            path_array = path
-
-            return path_array
+        cost, path = AStar.a_star_search(head, target, board, grid_map)
+            
+        _, next_step = path.pop
+        return next_step
   
     @staticmethod
     def _free(position: Position, board: BoardState) -> bool:
