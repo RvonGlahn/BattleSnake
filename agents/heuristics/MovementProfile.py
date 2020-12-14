@@ -6,11 +6,11 @@
 class MovementProfile:
 
     @staticmethod
-    def get_food_profiles(self):
+    def get_food_profiles(head, food):
         pass
 
     @staticmethod
-    def get_head_profiles(self):
+    def get_head_profiles(my_head, enemy_heads):
         pass
 
     @staticmethod

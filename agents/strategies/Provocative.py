@@ -1,5 +1,7 @@
-from typing import Tuple, List
+from typing import Tuple, List, Dict
+import numpy as np
 from agents.heuristics.Distance import Distance
+from agents.States import States
 
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
@@ -8,21 +10,22 @@ from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.grid_map import GridMap
 from agents.gametree.AStar import AStar
 
+
 class Provocative:
 
     @staticmethod
-    def provocate(snakes: List[Snake], board: BoardState, grid_map: GridMap) -> List[Tuple[Position, Direction]]:
-        
+    def provocate(you: Snake, board: BoardState, grid_map: GridMap, states: Dict) -> List[Tuple[Position, Direction]]:
+
         head = you.get_head()
         target = None
         target_field = []
         target_snake = None
 
-        #alle relevanten snakes = alle mit state AGGRESSIVE
+        # alle relevanten snakes = alle mit state AGGRESSIVE
         relevant_snakes = []
 
-        for snake in snakes:
-            if snake.state = States.AGRESSIVE:
+        for snake in board.snakes:
+            if states[snake.snake_id] == States.AGRESSIVE:
                 relevant_snakes.append(snake)
 
         while True:
@@ -35,12 +38,12 @@ class Provocative:
                     target = snake.get_head()
             
             x, y = target
-            if _free(Position(x-5,y),board):
-                target_field.append(Position(x-5,y))
-            if _free(Position(x-5,y-5),board):
-                target_field.append(Position(x-5,y-5))
-            if _free(Position(x,y-5),board):
-                target_field.append(Position(x,y-5))
+            if Provocative._free(Position(x-5, y), board):
+                target_field.append(Position(x-5, y))
+            if Provocative._free(Position(x-5, y-5), board):
+                target_field.append(Position(x-5, y-5))
+            if Provocative._free(Position(x, y-5), board):
+                target_field.append(Position(x, y-5))
             
             if len(target_field) == 0:
                 relevant_snakes.remove(snake)
@@ -50,9 +53,8 @@ class Provocative:
         if len(target_field) == 0:
             possible_actions = you.possible_actions()
             random_action = np.random.choice(possible_actions)
-            #random action ausgeben
-            random_path: List[Tuple[Position, Direction]] = []
-            random_path.append((head.advanced(random_action),random_action))
+            # random action ausgeben
+            random_path: List[Tuple[Position, Direction]] = [(head.advanced(random_action), random_action)]
             return random_path
         else:
             dist = 999999
@@ -68,7 +70,7 @@ class Provocative:
             return path_array
   
     @staticmethod
-    def _free(position: Tupel, board: BoardState) -> Boolean:
+    def _free(position: Position, board: BoardState) -> bool:
         if board.is_out_of_bounds(position):
             return False
         if board.is_occupied(position):

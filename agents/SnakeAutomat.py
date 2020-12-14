@@ -43,12 +43,12 @@ class SnakeAutomat:
 
     def monitor_length(self, length: int) -> None:
         self.length_history.append(length)
-        if len(self.length_history) > 5:
+        if len(self.length_history) > 10:
             self.length_history.pop(0)
 
     def monitor_dist_to_enemies(self, dist: int) -> None:
         self.distance_to_enemy_heads.append(dist)
-        if len(self.distance_to_enemy_heads) > 5:
+        if len(self.distance_to_enemy_heads) > 10:
             self.distance_to_enemy_heads.pop(0)
 
     def add_position(self, position: Position) -> None:
@@ -122,28 +122,3 @@ class SnakeAutomat:
     def update_behaviour(self, enemy_snakes: List[Snake]):
         # Update Behaviour if snakes are near each other
         pass
-
-
-
-    """
-    Transition Probabilities müssen gelernt werden.
-    
-    from sklearn import hmm
-    def _hidden_markov(self):
-
-        startprob = np.array([0.3, 0.3, 0.3, 0.1])
-        transmat = np.array([[0.35, 0.35, 0.2, 0.1],
-                             [0.3, 0.25, 0.2, 0.25],
-                             [0.3, 0.3, 0.2, 0.2],
-                             [0.3, 0.3, 0.2, 0.2]])
-
-        means = np.array([[0.0, 0.0], [3.0, -3.0], [5.0, 10.0]])
-        covars = np.tile(np.identity(2), (3, 1, 1))
-
-        model = hmm.GaussianHMM(4, "full", startprob, transmat)
-        model.means_ = means
-        model.covars_ = covars
-        X, Z = model.sample(100)
-    """
-
-

@@ -10,16 +10,16 @@ from agents.gametree.AStar import AStar
 
 
 class Aggressive:
-# follow head of enemies that are smaller than Jürgen
+    # follow head of enemies that are smaller than Jürgen
     @staticmethod
     def attack(snakes: List[Snake], board: BoardState, grid_map: GridMap, you: Snake) -> List[Tuple[Position, Direction]]:
         
         head = you.get_head()
         target = None
 
-        #alle relevanten snakes = alle kleiner als Jürgen
+        # alle relevanten snakes = alle kleiner als Jürgen
         relevant_snakes = []
-        #dangerous snakes = größer/gleich Jürgen
+        # dangerous snakes = größer/gleich Jürgen
         dangerous_snakes = []
         for snake in snakes:
             if snake.get_length < you.get_length:
@@ -28,14 +28,15 @@ class Aggressive:
                 dangerous_snakes.append(snake)
 
         best_distance = 0
-        #jagd auf relevant snakes, die möglichst weit weg von dangerous snakes sind
-        if len(dangerous_snakes)>0:
+        # jagd auf relevant snakes, die möglichst weit weg von dangerous snakes sind
+        if len(dangerous_snakes) > 0:
             for rel_snake in relevant_snakes:
                 distance = min([Distance.manhattan_dist(dan_snake.get_head(), rel_snake.get_head()) for dan_snake in dangerous_snakes])
                 if distance > best_distance:
                     best_distance = distance
                     target = rel_snake.get_head()
-        else: #sonst geringsten Abstand
+        # sonst geringsten Abstand
+        else:
             best_distance = 999999
             for rel_snake in relevant_snakes:
                 distance = [Distance.manhattan_dist(head, rel_snake.get_head())]
