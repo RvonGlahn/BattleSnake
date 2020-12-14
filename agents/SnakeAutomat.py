@@ -1,5 +1,4 @@
 from typing import List, Dict
-import numpy as np
 
 from agents.heuristics.MovementProfile import MovementProfile
 from agents.States import States
@@ -7,7 +6,6 @@ from agents.heuristics.Distance import Distance
 
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
-from environment.Battlesnake.model.Direction import Direction
 
 
 class SnakeAutomat:

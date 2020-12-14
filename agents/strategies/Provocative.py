@@ -10,6 +10,16 @@ from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.grid_map import GridMap
 from agents.gametree.AStar import AStar
 
+##############
+# TODO:
+# - Hungry Snakes berücksichtigen
+# - wenn hungry und agressive gleich nah - > hungry provozieren
+# - MovementProfile einbeziehen
+# - Agressive Schlangen zum Rand locken
+#       - Feste Punkte am Rand
+#       - Check ob Punkte sinnvoll sind (andere Schlangen usw. ...)
+##############
+
 
 class Provocative:
 

@@ -9,7 +9,7 @@ from environment.Battlesnake.model.grid_map import GridMap
 from agents.gametree.AStar import AStar
 
 
-class Aggressive:
+class Agressive:
     # follow head of enemies that are smaller than Jürgen
     @staticmethod
     def attack(snakes: List[Snake], board: BoardState, grid_map: GridMap, you: Snake) -> List[Tuple[Position, Direction]]:

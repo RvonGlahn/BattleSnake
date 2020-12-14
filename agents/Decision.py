@@ -78,7 +78,7 @@ class Decision:
                 enemy_snakes.pop(index)
                 enemy_heads = snake_heads.copy()
                 enemy_heads.pop(index)
-                automat.make_movement_profile_prediction(enemy_snakes, food, enemy_heads)
+                # automat.make_movement_profile_prediction(enemy_snakes, food, enemy_heads)
                 # automat.update_behaviour()
 
     def _delete_dead_snake(self, dead_snakes: List[Snake]) -> None:
