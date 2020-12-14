@@ -56,5 +56,5 @@ class ValidActions:
                 # avoid eating
                 if grid_map.get_value_at_position(next_position) is Occupant.Food:
                     valid_actions.append(direction)
-
+        print(valid_actions)
         return valid_actions
