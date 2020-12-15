@@ -100,7 +100,7 @@ class Decision:
 
     def _call_strategy(self, you: Snake, board: BoardState, grid_map: GridMap) -> Direction:
         my_state = self.automats[self.my_snake_id].get_state()
-
+        
         if my_state == States.HUNGRY:
             action, self.my_food_path = Hungry.hunger(you, board, grid_map, self.my_food_path)
             return action
@@ -112,7 +112,7 @@ class Decision:
             return Agressive.attack()
 
         if my_state == States.PROVOCATIVE:
-            return Provocative.provocate(you, board, grid_map, self.states)
+            return Provocative.provocate(you, board, grid_map, self.states, self.automats)
 
     def set_round(self, this_round):
         self.game_round = this_round

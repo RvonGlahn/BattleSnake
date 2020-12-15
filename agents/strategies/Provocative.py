@@ -2,13 +2,15 @@ from typing import Tuple, List, Dict
 import numpy as np
 from agents.heuristics.Distance import Distance
 from agents.States import States
-
+from agents.strategies.Anxious import Anxious
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.grid_map import GridMap
 from agents.gametree.AStar import AStar
+from agents.heuristics.MovementProfile import MovementProfile
+from agents.SnakeAutomat import SnakeAutomat
 
 ##############
 # TODO:
@@ -24,60 +26,90 @@ from agents.gametree.AStar import AStar
 class Provocative:
 
     @staticmethod
-    def provocate(you: Snake, board: BoardState, grid_map: GridMap, states: Dict) -> List[Tuple[Position, Direction]]:
+    def provocate(you: Snake, board: BoardState, grid_map: GridMap, states: Dict, automats: Dict) -> List[Tuple[Position, Direction]]:
 
         head = you.get_head()
-        target = None
-        target_field = []
         target_snake = None
+        hunted = False
+        run = False
+        trap = False
 
         # alle relevanten snakes = alle mit state AGGRESSIVE
-        relevant_snakes = []
+        aggressive_snakes = []
+        hungry_snakes = []
 
         for snake in board.snakes:
-            if states[snake.snake_id] == States.AGRESSIVE:
-                relevant_snakes.append(snake)
+            if snake.snake_id == you.snake_id:
+                pass
+            else:
+                if states[snake.snake_id] == States.AGRESSIVE:
+                    aggressive_snakes.append(snake)
+                if states[snake.snake_id] == States.HUNGRY:
+                    hungry_snakes.append(snake)
+                hunt_profile = automats[snake.snake_id].movement_profile_predictions["head"] #prüfen, ob eine Schlange Jürgen jagt
+                if len(hunt_profile) > 0:
+                    target_snake = snake
+                    hunted = True
+                    break
+                target_snake = snake
+                target = snake.get_head()
 
-        while True:
+        if not hunted and not run and len(aggressive_snakes) > 0:
             best_distance = 999999
-            for snake in relevant_snakes:
+            for snake in aggressive_snakes:
                 distance = [Distance.manhattan_dist(head, snake.get_head())]
                 if distance < best_distance:
                     best_distance = distance
                     target_snake = snake
                     target = snake.get_head()
-            
-            x, y = target
-            if Provocative._free(Position(x-5, y), board):
-                target_field.append(Position(x-5, y))
-            if Provocative._free(Position(x-5, y-5), board):
-                target_field.append(Position(x-5, y-5))
-            if Provocative._free(Position(x, y-5), board):
-                target_field.append(Position(x, y-5))
-            
-            if len(target_field) == 0:
-                relevant_snakes.remove(target_snake)
-            else:
-                break
-        
-        if len(target_field) == 0:
-            possible_actions = you.possible_actions()
-            random_action = np.random.choice(possible_actions)
-            # random action ausgeben
-            return random_action
-        else:
-            dist = 999999
-            for field in target_field:
-                distance = [Distance.manhattan_dist(head, field)]
-                if distance < dist:
-                    dist = distance
-                    target = field
+            trap = True
 
-        cost, path = AStar.a_star_search(head, target, board, grid_map)
+        if hunted: 
             
-        _, next_step = path.pop
-        return next_step
-  
+            #nächste gute Ecke suchen
+            bottom_left, bottom_right, top_left, top_right = (Position(3, 3)), \
+                                                         (Position(3, board.height - 3)), \
+                                                         (Position(board.width - 3, 3)), \
+                                                         (Position(board.width - 3, board.height - 3))
+            allcorners = []
+            allcorners.extend((bottom_left, bottom_right, top_left, top_right))
+            
+            best_corner = allcorners[0]
+            dist = [Distance.manhattan_dist(best_corner, head)]
+            for corner in allcorners:
+                
+                dist_corner = [Distance.manhattan_dist(corner, head)]
+                if (dist_corner < dist):
+                    best_corner = corner
+            
+            cost, path = AStar.a_star_search(head, best_corner, board, grid_map)
+            
+            if cost == 0:
+                run = True #wieder zur mitte weglaufen
+                hunted = False
+            else:
+                _, next_step = path[0]
+                return next_step
+
+        if run:#zur mitte laufen
+            mid = Position(board.width//2,board.height//2)
+            cost, path = AStar.a_star_search(head, mid, board, grid_map)
+            if cost == 0:
+                hunted = True
+                run = False
+            _, next_step = path[0]
+            return next_step
+
+        if trap:
+            cost, path = AStar.a_star_search(head, target, board, grid_map)
+            _, next_step = path[0]
+            return next_step
+
+        possible_actions = you.possible_actions()
+        random_action = np.random.choice(possible_actions)
+        # random action ausgeben
+        return None
+
     @staticmethod
     def _free(position: Position, board: BoardState) -> bool:
         if board.is_out_of_bounds(position):
