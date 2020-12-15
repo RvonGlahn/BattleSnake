@@ -38,7 +38,6 @@ class ValidActions:
             if grid_map.get_value_at_position(next_position) is Occupant.Snake and next_position not in snake_tails:
                 continue
 
-            """
             # head crash -> Alle möglichen Richtungen des Heads der Gegner Schlange beachten
             cont = False
             for en_snake in snakes:
@@ -51,12 +50,13 @@ class ValidActions:
                     print("Enemy Possible Actions: ", en_snake.possible_actions())
                     positions_enemy = [enemy_head.advanced(action) for action in en_snake.possible_actions()]
                     print(positions_enemy)
-                    if next_position in positions_enemy:
-                        print("Head Crash")
-                        cont = True
+                    for pos_enemy in positions_enemy:
+                        if next_position.x == pos_enemy.x and next_position.y == pos_enemy.y:
+                            print("Head Crash")
+                            cont = True
             if cont:
                 continue
-            """
+
             valid_actions.append(direction)
 
         if not valid_actions:
