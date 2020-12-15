@@ -42,6 +42,8 @@ class ValidActions:
             cont = False
             for en_snake in snakes:
                 if en_snake.snake_id is not my_snake.snake_id:
+                    print("Enemy-ID: ", en_snake.snake_id)
+                    print("My-ID: ", my_snake.snake_id)
                     if en_snake.get_length() >= my_snake.get_length():
                         enemy_head = en_snake.get_head()
                         print("Enemy Possible Actions: ", en_snake.possible_actions())

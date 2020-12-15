@@ -58,7 +58,7 @@ class Decision:
 
             self.automats[snake.snake_id] = SnakeAutomat(snake, enemy)
             self.states[snake.snake_id] = self.automats[snake.snake_id].state
-        print("Set-Up Automat-States", self.states)
+        # print("Set-Up Automat-States", self.states)
         print("My ID:", self.my_snake_id)
 
     def _update_automats(self, board: BoardState, grid_map: GridMap) -> None:
