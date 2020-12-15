@@ -59,6 +59,7 @@ class Decision:
             self.automats[snake.snake_id] = SnakeAutomat(snake, enemy)
             self.states[snake.snake_id] = self.automats[snake.snake_id].state
         print("Set-Up Automat-States", self.states)
+        print("My ID:", self.my_snake_id)
 
     def _update_automats(self, board: BoardState, grid_map: GridMap) -> None:
 
@@ -131,7 +132,7 @@ class Decision:
         for enemy_id in self.enemy_ids:
             # if time.time() - start_time < self.monitoring_time:
             #    break
-            if self.game_round % 5 == 0:
+            if self.game_round % 5 == 0 and self.game_round > 0:
                 self.automats[enemy_id].update_enemy_state()
 
         # update my snake state
