@@ -133,7 +133,8 @@ class Decision:
             # if time.time() - start_time < self.monitoring_time:
             #    break
             if self.game_round % 5 == 0 and self.game_round > 0:
-                self.automats[enemy_id].update_enemy_state()
+                pass
+                # self.automats[enemy_id].update_enemy_state()
 
         # update my snake state
         self.automats[self.my_snake_id].update_my_state(board.snakes, self._get_snake_states(), self.game_round)
