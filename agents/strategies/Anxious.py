@@ -72,8 +72,9 @@ class Anxious:
     def avoid_enemy(my_snake: Snake, board: BoardState, grid_map: GridMap) -> Direction:
 
         possible_actions = my_snake.possible_actions()
+        print("Possible Actions:", possible_actions)
         valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, my_snake, grid_map)
-
+        print("Valid Actions:", valid_actions)
         my_head = my_snake.get_head()
         enemy_heads = [snake.get_head() for snake in board.snakes if snake.snake_id is not my_snake.snake_id]
 

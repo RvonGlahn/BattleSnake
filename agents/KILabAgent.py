@@ -1,10 +1,6 @@
 from typing import List
 import numpy as np
 from agents.BaseAgent import BaseAgent
-from agents.strategies.Hungry import Hungry
-from agents.heuristics.Distance import Distance
-from agents.heuristics.ValidActions import ValidActions
-from agents.strategies.Anxious import Anxious
 from agents.Decision import Decision
 
 from environment.Battlesnake.model.GameInfo import GameInfo
