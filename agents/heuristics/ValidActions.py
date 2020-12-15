@@ -28,17 +28,14 @@ class ValidActions:
             # avoid eating
             if my_snake.health > 20:
                 if grid_map.get_value_at_position(next_position) is Occupant.Food:
-                    print("avoid eating")
                     continue
 
             # outofbounds
             if board.is_out_of_bounds(next_position):
-                print("out of bounds")
                 continue
 
             # body crash -> ganze Gegner Schlange minus letzten Teil
             if grid_map.get_value_at_position(next_position) is Occupant.Snake and next_position not in snake_tails:
-                print("body_crash")
                 continue
 
             # head crash -> Alle möglichen Richtungen des Heads der Gegner Schlange beachten
@@ -46,8 +43,10 @@ class ValidActions:
             for snake in snakes:
                 if snake.snake_id is not my_snake.snake_id:
                     if snake.get_length() >= my_snake.get_length():
-                        head = snake.get_head()
-                        positions_enemy = [head.advanced(action) for action in snake.possible_actions()]
+                        enemy_head = snake.get_head()
+                        print("Enemy Possible Actions: ", snake.possible_actions())
+                        positions_enemy = [enemy_head.advanced(action) for action in snake.possible_actions()]
+                        print(positions_enemy)
                         if next_position in positions_enemy:
                             print("Head Crash")
                             cont = True
