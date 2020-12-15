@@ -41,22 +41,19 @@ class ValidActions:
             # head crash -> Alle möglichen Richtungen des Heads der Gegner Schlange beachten
             cont = False
             for en_snake in snakes:
-                if en_snake.snake_id is my_snake.snake_id:
-                    continue
-                print("Enemy-ID: ", en_snake.snake_id)
-                print("My-ID: ", my_snake.snake_id)
-                if en_snake.get_length() >= my_snake.get_length():
-                    enemy_head = en_snake.get_head()
-                    print("Enemy Possible Actions: ", en_snake.possible_actions())
-                    positions_enemy = [enemy_head.advanced(action) for action in en_snake.possible_actions()]
-                    print(positions_enemy)
-                    for pos_enemy in positions_enemy:
-                        if next_position.x == pos_enemy.x and next_position.y == pos_enemy.y:
+                if en_snake.snake_id is not my_snake.snake_id:
+                    print("Enemy-ID: ", en_snake.snake_id)
+                    print("My-ID: ", my_snake.snake_id)
+                    if en_snake.get_length() >= my_snake.get_length():
+                        enemy_head = en_snake.get_head()
+                        print("Enemy Possible Actions: ", en_snake.possible_actions())
+                        positions_enemy = [enemy_head.advanced(action) for action in en_snake.possible_actions()]
+                        print(positions_enemy)
+                        if next_position in positions_enemy:
                             print("Head Crash")
                             cont = True
             if cont:
                 continue
-
             valid_actions.append(direction)
 
         if not valid_actions:
