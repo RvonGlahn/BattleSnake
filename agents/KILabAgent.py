@@ -43,5 +43,8 @@ class KILabAgent(BaseAgent):
         return MoveResult(direction=next_action)
 
     def end(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):
+        del self.Decision
+        del self.food_path
+        del self.first
         pass
 

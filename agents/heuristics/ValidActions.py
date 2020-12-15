@@ -40,12 +40,12 @@ class ValidActions:
 
             # head crash -> Alle möglichen Richtungen des Heads der Gegner Schlange beachten
             cont = False
-            for snake in snakes:
-                if snake.snake_id is not my_snake.snake_id:
-                    if snake.get_length() >= my_snake.get_length():
-                        enemy_head = snake.get_head()
-                        print("Enemy Possible Actions: ", snake.possible_actions())
-                        positions_enemy = [enemy_head.advanced(action) for action in snake.possible_actions()]
+            for en_snake in snakes:
+                if en_snake.snake_id is not my_snake.snake_id:
+                    if en_snake.get_length() >= my_snake.get_length():
+                        enemy_head = en_snake.get_head()
+                        print("Enemy Possible Actions: ", en_snake.possible_actions())
+                        positions_enemy = [enemy_head.advanced(action) for action in en_snake.possible_actions()]
                         print(positions_enemy)
                         if next_position in positions_enemy:
                             print("Head Crash")
