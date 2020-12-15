@@ -23,7 +23,9 @@ class KILabAgent(BaseAgent):
         return 'Jürgen'
 
     def start(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):
-        pass
+        self.food_path: List[Position] = []
+        self.Decision = Decision()
+        self.first = True
 
     def move(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake) -> MoveResult:
 
@@ -44,7 +46,7 @@ class KILabAgent(BaseAgent):
 
     def end(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):
         del self.Decision
-        del self.food_path
-        del self.first
-        pass
+        self.food_path = []
+        self.first = True
+
 
