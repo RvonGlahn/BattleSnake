@@ -34,6 +34,7 @@ class KILabAgent(BaseAgent):
             self.Decision.set_up_automats(you, board.snakes)
             self.first = False
 
+        print("Move in KILabAgent")
         self.Decision.set_round(turn)
         next_action = self.Decision.decide(you, board, grid_map, game_info)
 
