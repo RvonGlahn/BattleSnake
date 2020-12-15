@@ -21,15 +21,15 @@ class Anxious:
         corners = []
         corners.extend((bottom_left, bottom_right, top_left, top_right))
         enemy_heads = [snake.get_head() for snake in snakes if snake.get_head() is not my_head]
-        my_close_food = corners[0]
-        my_dist_to_best_corner = Distance.manhattan_dist(my_close_food, my_head)
-        for food in corners:
-            enemy_dist_to_food = min([Distance.manhattan_dist(food, head) for head in enemy_heads])
-            my_dist_to_food = Distance.manhattan_dist(food, my_head)
-            if my_dist_to_food <= enemy_dist_to_food and my_dist_to_food <= my_dist_to_best_corner:
-                my_close_food = food
-                my_dist_to_best_corner = my_dist_to_food
-        return my_close_food
+        my_close_corner = corners[0]
+        my_dist_to_best_corner = Distance.manhattan_dist(my_close_corner, my_head)
+        for corner in corners:
+            enemy_dist_to_corner = min([Distance.manhattan_dist(corner, head) for head in enemy_heads])
+            my_dist_to_corner = Distance.manhattan_dist(corner, my_head)
+            if my_dist_to_corner <= enemy_dist_to_corner and my_dist_to_corner <= my_dist_to_best_corner:
+                my_close_corner = corner
+                my_dist_to_best_corner = my_dist_to_corner
+        return my_close_corner
 
     @staticmethod
     def hide_in_corner(board: BoardState, you: Snake, grid_map) -> Direction:
