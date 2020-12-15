@@ -34,6 +34,7 @@ class KILabAgent(BaseAgent):
         grid_map: GridMap[Occupant] = board.generate_grid_map()
 
         if self.first:
+            print("Init Automats in move")
             self.Decision.set_up_automats(you, board.snakes)
             self.first = False
 

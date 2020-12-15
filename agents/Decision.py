@@ -22,11 +22,9 @@ import time
 # TODO:
 # - time_limit in strategien einbauen
 # - bzw. in spielbaum
-# - MovementProfile erstellen
-# - update_enemy state
+# - MovementProfile mit der Zeit verbessern
 # - update behaviour
 # - automaten nach relevanz sortieren
-# - Option A-Star auf X Schritte zu begrenzen und mehrere Inputs zu geben
 ###################
 
 
@@ -60,14 +58,14 @@ class Decision:
 
             self.automats[snake.snake_id] = SnakeAutomat(snake, enemy)
             self.states[snake.snake_id] = self.automats[snake.snake_id].state
+        print("Set-Up Automat-States", self.states)
 
     def _update_automats(self, board: BoardState, grid_map: GridMap) -> None:
 
+        print("Update Automats in decide")
         snake_heads = [snake.get_head() for snake in board.snakes]
 
         for index, snake in enumerate(board.snakes):
-            if snake.snake_id not in self.enemy_ids:
-                continue
             automat = self.automats[snake.snake_id]
 
             automat.update_snake(snake)
@@ -97,19 +95,19 @@ class Decision:
         return states
 
     def _call_strategy(self, you: Snake, board: BoardState, grid_map: GridMap) -> Direction:
-        state = self.automats[self.my_snake_id].get_state()
+        my_state = self.automats[self.my_snake_id].get_state()
 
-        if state == States.HUNGRY:
+        if my_state == States.HUNGRY:
             action, self.my_food_path = Hungry.hunger(you, board, grid_map, self.my_food_path)
             return action
 
-        if state == States.ANXIOUS:
+        if my_state == States.ANXIOUS:
             return Anxious.avoid_enemy(you, board, grid_map)
 
-        if state == States.AGRESSIVE:
+        if my_state == States.AGRESSIVE:
             return Agressive.attack()
 
-        if state == States.PROVOCATIVE:
+        if my_state == States.PROVOCATIVE:
             return Provocative.provocate(you, board, grid_map, self.states)
 
     def set_round(self, this_round):
@@ -131,9 +129,10 @@ class Decision:
 
         # update enemy
         for enemy_id in self.enemy_ids:
-            if time.time() - start_time < self.monitoring_time:
-                break
-            self.automats[enemy_id].update_enemy_state()
+            # if time.time() - start_time < self.monitoring_time:
+            #    break
+            if self.game_round % 5 == 0:
+                self.automats[enemy_id].update_enemy_state()
 
         # update my snake state
         self.automats[self.my_snake_id].update_my_state(board.snakes, self._get_snake_states(), self.game_round)

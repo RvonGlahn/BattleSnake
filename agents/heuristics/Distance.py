@@ -27,7 +27,7 @@ class Distance:
 
         cost = 0
         for pos1, pos2 in zip(path1, path2):
-            cost += Distance.manhattan_dist(pos1, pos2)
+            cost += Distance.manhattan_dist(pos1[0], pos2)
         return cost
 
     @staticmethod

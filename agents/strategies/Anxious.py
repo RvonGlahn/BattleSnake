@@ -81,13 +81,11 @@ class Anxious:
         corners = [Position(0, 0), Position(0, board.width), Position(board.height, 0), Position(board.height,
                                                                                                  board.width)]
 
-        alpha = 2
+        alpha = 3
         beta = 1
         gamma = 1
         theta = len(enemy_heads) * 5
         cost = []
-
-        print(valid_actions)
 
         for action in valid_actions:
             next_position = my_head.advanced(action)
