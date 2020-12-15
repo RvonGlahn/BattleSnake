@@ -24,7 +24,7 @@ class ValidActions:
 
         for direction in possible_actions:
             next_position = my_head.advanced(direction)
-            print("Next Position: ", next_position)
+
             # avoid eating
             if my_snake.health > 20:
                 if grid_map.get_value_at_position(next_position) is Occupant.Food:
@@ -42,15 +42,12 @@ class ValidActions:
             cont = False
             for en_snake in snakes:
                 if en_snake.snake_id != my_snake.snake_id:
-                    print("Enemy-ID: ", en_snake.snake_id)
-                    print("My-ID: ", my_snake.snake_id)
+
                     if en_snake.get_length() >= my_snake.get_length():
                         enemy_head = en_snake.get_head()
-                        print("Enemy Possible Actions: ", en_snake.possible_actions())
                         positions_enemy = [enemy_head.advanced(action) for action in en_snake.possible_actions()]
-                        print(positions_enemy)
+
                         if next_position in positions_enemy:
-                            print("Head Crash")
                             cont = True
             if cont:
                 continue

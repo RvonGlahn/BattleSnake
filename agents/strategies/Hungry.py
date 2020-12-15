@@ -26,14 +26,13 @@ class Hungry:
 
         # get food that is the futhest away from enemies heads
         for relevant_food in relevant_foods:
-            distance = min([Distance.manhattan_dist(enemy.get_head(), relevant_food) for enemy in board.snakes if
-                            enemy.get_head() is not my_head])
+            distance = min([Distance.manhattan_dist(enemy.get_head(), relevant_food) for enemy in board.snakes
+                            if enemy.get_head() is not my_head])
             if distance > start_distance:
                 food = relevant_food
-        print(food)
+
         cost, path = AStar.a_star_search(my_head, food, board, grid_map)
         path_array = path
-        print(path_array)
 
         return path_array
 

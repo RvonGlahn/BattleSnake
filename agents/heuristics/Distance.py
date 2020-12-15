@@ -17,21 +17,21 @@ class Distance:
         return euc_dist
 
     @staticmethod
-    def path_similarity(path1: List[Position], path2: List[Position]):
+    def path_similarity(pred_path: List[Position], real_path: List[Position]):
 
         # adjust path length expects path with different length but same starting position
-        if len(path1) > len(path2):
-            path1 = path1[:len(path2)]
-        if len(path2) > len(path1):
-            path2 = path2[:len(path1)]
+        if len(pred_path) > len(real_path):
+            pred_path = pred_path[:len(real_path)]
+        if len(real_path) > len(pred_path):
+            path2 = real_path[:len(pred_path)]
 
         cost = 0
-        for pos1, pos2 in zip(path1, path2):
+        for pos1, pos2 in zip(pred_path, real_path):
             cost += Distance.manhattan_dist(pos1[0], pos2)
         return cost
 
     @staticmethod
     def dist_to_closest_enemy_head(snakes, you):
         dist = min([Distance.manhattan_dist(snake.get_head(), you.get_head())
-                    for snake in snakes if snake.snake_id is not you.snake_id])
+                    for snake in snakes if snake.snake_id != you.snake_id])
         return dist

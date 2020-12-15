@@ -76,7 +76,7 @@ class Anxious:
         valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, my_snake, grid_map)
         print("Valid Actions:", valid_actions)
         my_head = my_snake.get_head()
-        enemy_heads = [snake.get_head() for snake in board.snakes if snake.snake_id is not my_snake.snake_id]
+        enemy_heads = [snake.get_head() for snake in board.snakes if snake.snake_id != my_snake.snake_id]
 
         middle = Position(int(board.height/2), int(board.width/2))
         corners = [Position(0, 0), Position(0, board.width), Position(board.height, 0), Position(board.height,

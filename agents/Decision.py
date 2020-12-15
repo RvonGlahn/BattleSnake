@@ -25,6 +25,7 @@ import time
 # - MovementProfile mit der Zeit verbessern
 # - update behaviour
 # - automaten nach relevanz sortieren
+# -
 ###################
 
 
@@ -49,7 +50,7 @@ class Decision:
 
         for snake in snakes:
 
-            if snake.snake_id is not self.my_snake_id:
+            if snake.snake_id != self.my_snake_id:
                 self.enemy_ids.append(snake.snake_id)
 
             else:
@@ -74,7 +75,7 @@ class Decision:
             automat.monitor_dist_to_enemies(Distance.dist_to_closest_enemy_head(board.snakes, snake))
             self.states[snake.snake_id] = self.automats[snake.snake_id].state
 
-            if self.game_round % 5 is 0 and snake.snake_id is not self.my_snake_id:
+            if self.game_round % 5 == 0 and snake.snake_id != self.my_snake_id:
                 automat.monitor_length(snake.get_length())
 
                 enemy_snakes = board.snakes.copy()
@@ -83,6 +84,8 @@ class Decision:
                 enemy_heads = snake_heads.copy()
                 enemy_heads.pop(index)
 
+                if self.game_round != 0:
+                    automat.update_enemy_state()
                 automat.make_movement_profile_prediction(enemy_snakes, enemy_heads, board, grid_map)
                 # automat.update_behaviour()
 
@@ -118,7 +121,7 @@ class Decision:
 
         start_time = time.time()
 
-        if len(self.automats) is not len(board.snakes):
+        if len(self.automats) != len(board.snakes):
             self._delete_dead_snake(board.dead_snakes)
 
         self._update_automats(board, grid_map)
@@ -129,13 +132,14 @@ class Decision:
             self.monitoring_time = 100
 
         # update enemy
+
+        """
         for enemy_id in self.enemy_ids:
             # if time.time() - start_time < self.monitoring_time:
             #    break
             if self.game_round % 5 == 0 and self.game_round > 0:
-                pass
-                # self.automats[enemy_id].update_enemy_state()
-
+                self.automats[enemy_id].update_enemy_state()
+        """
         # update my snake state
         self.automats[self.my_snake_id].update_my_state(board.snakes, self._get_snake_states(), self.game_round)
 

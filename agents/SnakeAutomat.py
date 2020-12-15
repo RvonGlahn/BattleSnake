@@ -21,7 +21,7 @@ class SnakeAutomat:
         self.enemy: bool = enemy
         self.state = States.HUNGRY if self.enemy else States.ANXIOUS
         self.previous_positions: List[Position] = []
-        self.length_history:  List[int] = []
+        self.length_history: List[int] = []
         self.distance_to_enemy_heads: List[int] = []
         self.movement_profile_predictions: Dict = {
             "food": [],
@@ -32,7 +32,7 @@ class SnakeAutomat:
             "force_outside": 0,
             "flee_from_enemy": 0,
             "chase_food": 0,
-            "chase_tail": 0     # Schwerpunkt berechnen
+            "chase_tail": 0  # Schwerpunkt berechnen
         }
 
     def __eq__(self, other_state: States):
@@ -98,19 +98,26 @@ class SnakeAutomat:
 
         for enemy in enemy_snakes:
             if enemy.get_length() < self.snake.get_length():
-                self.movement_profile_predictions["head"] = MovementProfile.get_head_profiles(enemy.get_head(),
+                self.movement_profile_predictions["head"] = MovementProfile.get_head_profiles(self.snake.get_head(),
                                                                                               enemy_heads, board,
                                                                                               grid_map)
-            self.movement_profile_predictions["food"] = MovementProfile.get_food_profiles(enemy.get_head(), board,
+
+            self.movement_profile_predictions["food"] = MovementProfile.get_food_profiles(self.snake.get_head(), board,
                                                                                           grid_map)
 
     def update_enemy_state(self) -> None:
         # get path to food or head that fits best the performed actions
-        most_prob_food_path = min([Distance.path_similarity(f_profile, self.previous_positions)
-                                   for f_profile in self.movement_profile_predictions["food"]])
+        most_prob_food_path = 99999
+        most_prob_head_path = 99999
 
-        most_prob_head_path = min([Distance.path_similarity(h_profile, self.previous_positions)
-                                   for h_profile in self.movement_profile_predictions["head"]])
+        if self.movement_profile_predictions["food"]:
+            most_prob_food_path = min([Distance.path_similarity(f_profile, self.previous_positions)
+                                       for f_profile in self.movement_profile_predictions["food"]])
+
+        if self.movement_profile_predictions["head"]:
+            most_prob_head_path = min([Distance.path_similarity(h_profile, self.previous_positions)
+                                       for h_profile in self.movement_profile_predictions["head"]])
+
         ###########################
         # TODO: set state of snake
         # relevant infos:
