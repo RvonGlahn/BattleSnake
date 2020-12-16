@@ -1,4 +1,6 @@
 from typing import List
+from agents.heuristics.Distance import Distance
+
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.Direction import Direction
@@ -61,3 +63,25 @@ class ValidActions:
                     valid_actions.append(direction)
 
         return valid_actions
+
+    @staticmethod
+    def multi_level_valid_actions(board: BoardState,
+                                  possible_actions: List[Direction],
+                                  snakes: List[Snake],
+                                  my_snake: Snake,
+                                  grid_map: GridMap[Occupant],
+                                  depth: int) -> List[Direction]:
+
+        my_valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
+
+        # only relevant snakes
+        enemy_valid_actions = [ValidActions.get_valid_actions(board, possible_actions, snakes, enemy_snake, grid_map)
+                               for enemy_snake in snakes
+                               if Distance.manhattan_dist(my_snake, enemy_snake) < 4]
+
+        for action in my_valid_actions:
+            for enemy_action in enemy_valid_actions:
+                if action == enemy_action:
+                    my_valid_actions.remove(action)
+
+        return my_valid_actions

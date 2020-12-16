@@ -20,12 +20,12 @@ import time
 
 ###################
 # TODO:
-# - time_limit in strategien einbauen
-# - bzw. in spielbaum
+# - time_limit in strategien / ActionPlan einbauen
 # - MovementProfile mit der Zeit verbessern
 # - update behaviour
 # - automaten nach relevanz sortieren
-# -
+# - Nachdem man gegessen aht nicht Tail fressen
+# - Valid_Actions auf Tiefe 2 erweitern oder flachen MaxN Tree einbauen
 ###################
 
 
@@ -66,6 +66,7 @@ class Decision:
 
         print("Update Automats in decide")
         snake_heads = [snake.get_head() for snake in board.snakes]
+        longest_snake = max([snake.get_length() for snake in board.snakes])
 
         for index, snake in enumerate(board.snakes):
             automat = self.automats[snake.snake_id]
@@ -75,7 +76,7 @@ class Decision:
             automat.monitor_dist_to_enemies(Distance.dist_to_closest_enemy_head(board.snakes, snake))
             self.states[snake.snake_id] = self.automats[snake.snake_id].state
 
-            if self.game_round % 5 == 0 and snake.snake_id != self.my_snake_id:
+            if self.game_round % self.update_frequency == 0 and snake.snake_id != self.my_snake_id:
                 automat.monitor_length(snake.get_length())
 
                 enemy_snakes = board.snakes.copy()
@@ -85,9 +86,12 @@ class Decision:
                 enemy_heads.pop(index)
 
                 if self.game_round != 0:
-                    automat.update_enemy_state()
+                    automat.update_enemy_state(longest_snake)
                 automat.make_movement_profile_prediction(enemy_snakes, enemy_heads, board, grid_map)
                 # automat.update_behaviour()
+
+        # update my snake state
+        self.automats[self.my_snake_id].update_my_state(board.snakes, self._get_snake_states(), self.game_round)
 
     def _delete_dead_snake(self, dead_snakes: List[Snake]) -> None:
         for dead_snake in dead_snakes:
@@ -124,24 +128,12 @@ class Decision:
         if len(self.automats) != len(board.snakes):
             self._delete_dead_snake(board.dead_snakes)
 
-        self._update_automats(board, grid_map)
-
         # decide if we focus on monitoring enemies or on calculating our next move
         dist_to_closest_head = Distance.dist_to_closest_enemy_head(board.snakes, you)
         if dist_to_closest_head < 5:
             self.monitoring_time = 100
 
-        # update enemy
-
-        """
-        for enemy_id in self.enemy_ids:
-            # if time.time() - start_time < self.monitoring_time:
-            #    break
-            if self.game_round % 5 == 0 and self.game_round > 0:
-                self.automats[enemy_id].update_enemy_state()
-        """
-        # update my snake state
-        self.automats[self.my_snake_id].update_my_state(board.snakes, self._get_snake_states(), self.game_round)
+        self._update_automats(board, grid_map)
 
         next_action = self._call_strategy(you, board, grid_map)
 

@@ -23,6 +23,7 @@ class SnakeAutomat:
         self.previous_positions: List[Position] = []
         self.length_history: List[int] = []
         self.distance_to_enemy_heads: List[int] = []
+        self.move_prediction_precision = 0
         self.movement_profile_predictions: Dict = {
             "food": [],
             "head": []
@@ -43,7 +44,7 @@ class SnakeAutomat:
 
     def monitor_length(self, length: int) -> None:
         self.length_history.append(length)
-        if len(self.length_history) > 10:
+        if len(self.length_history) > 20:
             self.length_history.pop(0)
 
     def monitor_dist_to_enemies(self, dist: int) -> None:
@@ -105,7 +106,7 @@ class SnakeAutomat:
             self.movement_profile_predictions["food"] = MovementProfile.get_food_profiles(self.snake.get_head(), board,
                                                                                           grid_map)
 
-    def update_enemy_state(self) -> None:
+    def update_enemy_state(self, longest_snake: int) -> None:
         # get path to food or head that fits best the performed actions
         most_prob_food_path = 99999
         most_prob_head_path = 99999
@@ -119,18 +120,43 @@ class SnakeAutomat:
                                        for h_profile in self.movement_profile_predictions["head"]])
 
         ###########################
-        # TODO: set state of snake
+        # TODO: set state of enemy snake
         # relevant infos:
-        # health, movement_profile, length_delta, distance_to_other snakes, longest_snake
+        # health, movement_profile, length_delta, distance_to_other snakes, longest_snake, previous snake
+        # Punktesystem für State: State mit meisten Punkten ist es
         ###########################
-        if most_prob_food_path < most_prob_head_path or self.snake.health < 20:
-            self.state = States.HUNGRY
+        hungry = 0
+        agressive = 0
+        length_diff = self.length_history[0] - self.length_history[-1]
+        head_dist_avg = sum(self.distance_to_enemy_heads)/len(self.distance_to_enemy_heads)
+
+        # estimate correct state of Snake from assigning points to behaviour or snake_parameters
+        if most_prob_food_path < most_prob_head_path:
+            hungry += 1
 
         if most_prob_head_path < most_prob_food_path:
-            self.state = States.AGRESSIVE
+            agressive += 1
 
-        # if length klein aber dist to head auch klein PROVOCATIVE
-        # if length klein und dist to head groß dann ANXIOUS
+        if self.snake.health < 20:
+            hungry += 1
+
+        if self.snake.get_length() == longest_snake:
+            agressive += 1
+
+        if length_diff > 1:
+            hungry += 1
+        elif length_diff == 0:
+            agressive += 1
+
+        if self.state == States.AGRESSIVE:
+            agressive += 1
+        elif self.state == States.HUNGRY:
+            hungry += 1
+
+        if head_dist_avg < 4:
+            agressive += 1
+        elif head_dist_avg > 5:
+            hungry += 1
 
     def update_behaviour(self, enemy_snakes: List[Snake]):
         # Update Behaviour if snakes are near each other

@@ -1,0 +1,31 @@
+class Params_Decision:
+
+    MONITOR_TIME = 150
+    REDUCED_MONITORING_TIME = 100
+    UPDATE_FREQUENCY = 5
+    CLOSEST_HEAD_BOUNDARY = 5
+
+
+class Params_Automat:
+
+    HEAD_DIST_AVG_AGGRESSIVE = 4
+    HEAD_DIST_AVG_HUNGRY = 5
+    ENEMY_HEALTH_BOUNDARY = 20
+    MONITOR_LENGTH = 20
+    MONITOR_DISTANCE = 10
+    PATH_LENGTH = 10
+
+    MY_HEALTH_BOUNDARY = 25
+    ROUND_NUMBER_BOUNDARY = 150
+    ENEMIES_ALIVE = 3
+
+
+class Params_MovementProfile:
+
+    FOOD_PROFILE_DIST_BOUNDARY = 10
+    HEAD_PROFILE_DIST_BOUNDARY = 15
+
+
+class Params_ActionPlan:
+
+    pass

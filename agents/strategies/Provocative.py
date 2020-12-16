@@ -2,7 +2,7 @@ from typing import Tuple, List, Dict
 import numpy as np
 from agents.heuristics.Distance import Distance
 from agents.States import States
-from agents.strategies.Anxious import Anxious
+from agents.heuristics.ValidActions import ValidActions
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
@@ -26,7 +26,7 @@ from agents.SnakeAutomat import SnakeAutomat
 class Provocative:
 
     @staticmethod
-    def provocate(you: Snake, board: BoardState, grid_map: GridMap, states: Dict, automats: Dict) -> List[Tuple[Position, Direction]]:
+    def provocate(you: Snake, board: BoardState, grid_map: GridMap, states: Dict, automats: Dict) -> Direction:
 
         head = you.get_head()
         target_snake = None
@@ -46,7 +46,7 @@ class Provocative:
                     aggressive_snakes.append(snake)
                 if states[snake.snake_id] == States.HUNGRY:
                     hungry_snakes.append(snake)
-                hunt_profile = automats[snake.snake_id].movement_profile_predictions["head"] #prüfen, ob eine Schlange Jürgen jagt
+                hunt_profile = automats[snake.snake_id].movement_profile_predictions["head"]  # prüfen, ob eine Schlange Jürgen jagt
                 if len(hunt_profile) > 0:
                     target_snake = snake
                     hunted = True
@@ -66,7 +66,7 @@ class Provocative:
 
         if hunted: 
             
-            #nächste gute Ecke suchen
+            # nächste gute Ecke suchen
             bottom_left, bottom_right, top_left, top_right = (Position(3, 3)), \
                                                          (Position(3, board.height - 3)), \
                                                          (Position(board.width - 3, 3)), \
@@ -79,19 +79,19 @@ class Provocative:
             for corner in allcorners:
                 
                 dist_corner = [Distance.manhattan_dist(corner, head)]
-                if (dist_corner < dist):
+                if dist_corner < dist:
                     best_corner = corner
             
             cost, path = AStar.a_star_search(head, best_corner, board, grid_map)
             
             if cost == 0:
-                run = True #wieder zur mitte weglaufen
+                run = True      # wieder zur mitte weglaufen
                 hunted = False
             else:
                 _, next_step = path[0]
                 return next_step
 
-        if run:#zur mitte laufen
+        if run:     # zur mitte laufen
             mid = Position(board.width//2,board.height//2)
             cost, path = AStar.a_star_search(head, mid, board, grid_map)
             if cost == 0:
@@ -106,9 +106,10 @@ class Provocative:
             return next_step
 
         possible_actions = you.possible_actions()
+        valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
         random_action = np.random.choice(possible_actions)
         # random action ausgeben
-        return None
+        return random_action
 
     @staticmethod
     def _free(position: Position, board: BoardState) -> bool:

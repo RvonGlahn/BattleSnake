@@ -12,10 +12,9 @@ from environment.Battlesnake.model.board_state import GridMap
 ####################################
 # TODO:
 # - MovementProfile in jedem Automat initialisieren und verbessern über die Zeit
+#       - Objekte erstellen in Automat wenn Movementprofile größer wird
 # - HiddenMarkovModel? oder RNN/LSTM/Transformer? Vorhersage von Zügen mit wenig und schnellem Training
-# - a-star or manhattan dist to food
-# - a-star or manhattan dist to enemy head
-# - metrik für abdrängen
+# - metrik für abdrängen: Voronoi/ Death-Lane
 ####################################
 
 
@@ -46,6 +45,7 @@ class MovementProfile:
 
         return profiles
 
+    # mithilfe von Voronoi Diagramm o.Ä. Profil für Feldvorteil der Snake errechnen
     @staticmethod
     def get_bully_profile(self) -> List[Position]:
         pass
