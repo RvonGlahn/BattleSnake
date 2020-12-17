@@ -92,7 +92,7 @@ class Provocative:
                 return next_step
 
         if run:     # zur mitte laufen
-            mid = Position(board.width//2,board.height//2)
+            mid = Position(board.width//2, board.height//2)
             cost, path = AStar.a_star_search(head, mid, board, grid_map)
             if cost == 0:
                 hunted = True

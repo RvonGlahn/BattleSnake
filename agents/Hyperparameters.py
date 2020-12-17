@@ -26,6 +26,14 @@ class Params_MovementProfile:
     HEAD_PROFILE_DIST_BOUNDARY = 15
 
 
+class Params_Anxious:
+
+    ALPHA_DISTANCE_SNAKE = 3
+    BETA_DISTANCE_CORNERS = 1
+    GAMMA_DISTANCE_FOOD = 2
+    THETA_DISTANCE_MID = 5
+
+
 class Params_ActionPlan:
 
-    pass
+    SNAKE_RADIUS = 5

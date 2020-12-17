@@ -9,6 +9,10 @@ from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
 
+###########################
+# TODO: update Behaviour
+###########################
+
 
 class SnakeAutomat:
 
@@ -23,11 +27,13 @@ class SnakeAutomat:
         self.previous_positions: List[Position] = []
         self.length_history: List[int] = []
         self.distance_to_enemy_heads: List[int] = []
-        self.move_prediction_precision = 0
-        self.movement_profile_predictions: Dict = {
+
+        self.move_profil = MovementProfile()
+        self.move_profile_predictions: Dict = {
             "food": [],
             "head": []
         }
+
         self.behaviour: Dict = {
             "attack_head": 0,
             "force_outside": 0,
@@ -99,32 +105,26 @@ class SnakeAutomat:
 
         for enemy in enemy_snakes:
             if enemy.get_length() < self.snake.get_length():
-                self.movement_profile_predictions["head"] = MovementProfile.get_head_profiles(self.snake.get_head(),
-                                                                                              enemy_heads, board,
-                                                                                              grid_map)
+                self.move_profile_predictions["head"] = self.move_profil.get_head_profiles(self.snake.get_head(),
+                                                                                           enemy_heads, board,
+                                                                                           grid_map)
 
-            self.movement_profile_predictions["food"] = MovementProfile.get_food_profiles(self.snake.get_head(), board,
-                                                                                          grid_map)
+            self.move_profile_predictions["food"] = self.move_profil.get_food_profiles(self.snake.get_head(), board,
+                                                                                       grid_map)
 
     def update_enemy_state(self, longest_snake: int) -> None:
         # get path to food or head that fits best the performed actions
         most_prob_food_path = 99999
         most_prob_head_path = 99999
 
-        if self.movement_profile_predictions["food"]:
+        if self.move_profile_predictions["food"]:
             most_prob_food_path = min([Distance.path_similarity(f_profile, self.previous_positions)
-                                       for f_profile in self.movement_profile_predictions["food"]])
+                                       for f_profile in self.move_profile_predictions["food"]])
 
-        if self.movement_profile_predictions["head"]:
+        if self.move_profile_predictions["head"]:
             most_prob_head_path = min([Distance.path_similarity(h_profile, self.previous_positions)
-                                       for h_profile in self.movement_profile_predictions["head"]])
+                                       for h_profile in self.move_profile_predictions["head"]])
 
-        ###########################
-        # TODO: set state of enemy snake
-        # relevant infos:
-        # health, movement_profile, length_delta, distance_to_other snakes, longest_snake, previous snake
-        # Punktesystem für State: State mit meisten Punkten ist es
-        ###########################
         hungry = 0
         agressive = 0
         length_diff = self.length_history[0] - self.length_history[-1]

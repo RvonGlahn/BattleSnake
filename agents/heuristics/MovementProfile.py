@@ -11,14 +11,14 @@ from environment.Battlesnake.model.board_state import GridMap
 
 ####################################
 # TODO:
-# - MovementProfile in jedem Automat initialisieren und verbessern über die Zeit
-#       - Objekte erstellen in Automat wenn Movementprofile größer wird
-# - HiddenMarkovModel? oder RNN/LSTM/Transformer? Vorhersage von Zügen mit wenig und schnellem Training
+# - RNN/LSTM/Transformer? Vorhersage von Zügen mit wenig und schnellem Training
 # - metrik für abdrängen: Voronoi/ Death-Lane
 ####################################
 
 
 class MovementProfile:
+    def __init__(self):
+        self.precision: float
 
     @staticmethod
     def get_food_profiles(head: Position, board: BoardState, grid_map: GridMap) -> List[List[Tuple[Position,

@@ -24,7 +24,7 @@ import time
 # - MovementProfile mit der Zeit verbessern
 # - update behaviour
 # - automaten nach relevanz sortieren
-# - Nachdem man gegessen aht nicht Tail fressen
+# - Nachdem man gegessen hat nicht Tail fressen
 # - Valid_Actions auf Tiefe 2 erweitern oder flachen MaxN Tree einbauen
 ###################
 
@@ -139,8 +139,9 @@ class Decision:
 
         print(self.automats[self.my_snake_id].get_state())
 
-        if self.game_round == 50:
-            print("Hallo")
+        if self.game_round == 10:
+            possible_actions = you.possible_actions()
+            ValidActions.multi_level_valid_actions(board, possible_actions, board.snakes, you,  grid_map, 5)
 
         return next_action
 

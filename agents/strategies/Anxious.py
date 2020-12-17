@@ -1,72 +1,16 @@
-from typing import List
-
 import numpy as np
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.Position import Position
+
+from agents.Hyperparameters import Params_Anxious
 from agents.heuristics.Distance import Distance
 from agents.heuristics.ValidActions import ValidActions
 
 
 class Anxious:
-
-    @staticmethod
-    def _get_relevant_corner(my_head, snakes, board) -> Position:
-        bottom_left, bottom_right, top_left, top_right = (Position(3, 3)), \
-                                                         (Position(3, board.height - 3)), \
-                                                         (Position(board.width - 3, 3)), \
-                                                         (Position(board.width - 3, board.height - 3))
-        corners = []
-        corners.extend((bottom_left, bottom_right, top_left, top_right))
-        enemy_heads = [snake.get_head() for snake in snakes if snake.get_head() is not my_head]
-        my_close_corner = corners[0]
-        my_dist_to_best_corner = Distance.manhattan_dist(my_close_corner, my_head)
-        for corner in corners:
-            enemy_dist_to_corner = min([Distance.manhattan_dist(corner, head) for head in enemy_heads])
-            my_dist_to_corner = Distance.manhattan_dist(corner, my_head)
-            if my_dist_to_corner <= enemy_dist_to_corner and my_dist_to_corner <= my_dist_to_best_corner:
-                my_close_corner = corner
-                my_dist_to_best_corner = my_dist_to_corner
-        return my_close_corner
-
-    @staticmethod
-    def hide_in_corner(board: BoardState, you: Snake, grid_map) -> Direction:
-
-        head = you.get_head()
-        tail = you.get_tail()
-
-        # get the best corner
-        corner = Anxious._get_relevant_corner(head, board.snakes, board)
-
-        possible_actions = you.possible_actions()
-        valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
-
-        if valid_actions:
-            next_action = valid_actions[0]
-
-        # check if any part of the snake is in a corner, if so then chase tail, else go to the best corner
-        if corner in you.body:
-            # Chasing Tail
-            distance_to_tail = Distance.manhattan_dist(tail, head.advanced(valid_actions[0]))
-
-            for direction in valid_actions:
-                distance_to_tail_next = Distance.manhattan_dist(tail, head.advanced(direction))
-                if distance_to_tail_next <= distance_to_tail:
-                    next_action = direction
-                    distance_to_tail = distance_to_tail_next
-        else:
-            # Trying to reach Corner
-            distance_to_tail = Distance.manhattan_dist(corner, head.advanced(valid_actions[0]))
-
-            for direction in valid_actions:
-                distance_to_tail_next = Distance.manhattan_dist(corner, head.advanced(direction))
-                if distance_to_tail_next <= distance_to_tail:
-                    next_action = direction
-                    distance_to_tail = distance_to_tail_next
-
-        return next_action
 
     @staticmethod
     def avoid_enemy(my_snake: Snake, board: BoardState, grid_map: GridMap) -> Direction:
@@ -82,10 +26,11 @@ class Anxious:
         corners = [Position(0, 0), Position(0, board.width), Position(board.height, 0), Position(board.height,
                                                                                                  board.width)]
 
-        alpha = 3
-        beta = 1
-        gamma = 1
-        theta = len(enemy_heads) * 5
+        alpha = Params_Anxious.ALPHA_DISTANCE_SNAKE
+        beta = Params_Anxious.BETA_DISTANCE_CORNERS
+        gamma = Params_Anxious.GAMMA_DISTANCE_FOOD
+        theta = Params_Anxious.THETA_DISTANCE_MID
+
         cost = []
 
         for action in valid_actions:
