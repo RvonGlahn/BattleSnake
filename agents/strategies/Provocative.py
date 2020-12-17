@@ -27,7 +27,9 @@ class Provocative:
 
     @staticmethod
     def provocate(you: Snake, board: BoardState, grid_map: GridMap, states: Dict, automats: Dict) -> Direction:
-
+        
+        possible_actions = you.possible_actions()
+        valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
         head = you.get_head()
         target_snake = None
         hunted = False
@@ -89,7 +91,10 @@ class Provocative:
                 hunted = False
             else:
                 _, next_step = path[0]
-                return next_step
+                if next_step in valid_actions:
+                    return next_step
+                else:
+                    return np.random.choice(valid_actions)
 
         if run:     # zur mitte laufen
             mid = Position(board.width//2, board.height//2)
@@ -98,16 +103,20 @@ class Provocative:
                 hunted = True
                 run = False
             _, next_step = path[0]
-            return next_step
+            if next_step in valid_actions:
+                    return next_step
+            else:
+                return np.random.choice(valid_actions)
 
         if trap:
             cost, path = AStar.a_star_search(head, target, board, grid_map)
             _, next_step = path[0]
-            return next_step
+            if next_step in valid_actions:
+                    return next_step
+            else:
+                return np.random.choice(valid_actions)
 
-        possible_actions = you.possible_actions()
-        valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
-        random_action = np.random.choice(possible_actions)
+        random_action = np.random.choice(valid_actions)
         # random action ausgeben
         return random_action
 
