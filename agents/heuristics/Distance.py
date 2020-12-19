@@ -6,7 +6,7 @@ from typing import List
 class Distance:
 
     @staticmethod
-    def manhattan_dist(pos1, pos2) -> int:
+    def manhattan_dist(pos1: Position, pos2: Position) -> int:
 
         return abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y)
 

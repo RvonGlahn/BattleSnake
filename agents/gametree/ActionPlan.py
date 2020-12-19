@@ -18,17 +18,15 @@ class ActionPlan:
     def __init__(
             self,
             grid_map: GridMap,
-            state: States
+            state: States,
+            base_board: np.ndarray
     ):
-        self.value_board = np.zeros((grid_map.width, grid_map.height))
+        self.value_board = base_board
 
         if state == States.ANXIOUS:
             self._calculate_escape_board(grid_map)
         if state == States.PROVOCATIVE:
             self._calculate_provocate_board(grid_map)
-
-    def _get_snake_radius(self) -> None:
-        pass
 
     def _calculate_escape_board(self, grid_map: GridMap) -> None:
         pass
@@ -43,7 +41,7 @@ class ActionPlan:
     def _add_relevant_snake(self, snake, snake_automat: SnakeAutomat) -> None:
         pass
 
-    def escape_lane(self, snakes: List[Snake], automats: Dict[SnakeAutomat]) -> Direction:
+    def escape_lane(self, snakes: List[Snake], automats: Dict) -> Direction:
         pass
 
     def provocate_lane(self) -> Direction:

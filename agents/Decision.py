@@ -9,6 +9,7 @@ from agents.strategies.Hungry import Hungry
 from agents.strategies.Agressive import Agressive
 from agents.strategies.Provocative import Provocative
 from agents.SnakeAutomat import SnakeAutomat
+from agents.gametree.ActionPlan import ActionPlan
 
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
@@ -25,7 +26,6 @@ import time
 # - update behaviour
 # - automaten nach relevanz sortieren
 # - Nachdem man gegessen hat nicht Tail fressen
-# - Valid_Actions auf Tiefe 2 erweitern oder flachen MaxN Tree einbauen
 ###################
 
 
@@ -42,6 +42,11 @@ class Decision:
         self.automats: Dict = {}
         self.states: Dict = {}
         self.monitoring_time = 150
+        self.action_plan = None
+        self.default_board_score = None
+
+    def get_default_board(self, x, y):
+        self.default_board_score = np.zeros((x, y))
 
     def set_up_automats(self, my_snake: Snake, snakes: List[Snake]) -> None:
 
@@ -104,7 +109,10 @@ class Decision:
 
     def _call_strategy(self, you: Snake, board: BoardState, grid_map: GridMap) -> Direction:
         my_state = self.automats[self.my_snake_id].get_state()
-        
+        # base_board = self.action_plan + self.default_board_score
+
+        # my_plan = ActionPlan(grid_map, my_state, base_board)
+
         if my_state == States.HUNGRY:
             action, self.my_food_path = Hungry.hunger(you, board, grid_map, self.my_food_path)
             return action
@@ -128,6 +136,12 @@ class Decision:
         if len(self.automats) != len(board.snakes):
             self._delete_dead_snake(board.dead_snakes)
 
+        # get valid actions and pass them to other functions
+        if self.game_round == 10:
+            possible_actions = you.possible_actions()
+            valid_actions, self.action_plan = ValidActions.multi_level_valid_actions(board, possible_actions,
+                                                                                     board.snakes, you, grid_map, 4)
+
         # decide if we focus on monitoring enemies or on calculating our next move
         dist_to_closest_head = Distance.dist_to_closest_enemy_head(board.snakes, you)
         if dist_to_closest_head < 5:
@@ -138,10 +152,6 @@ class Decision:
         next_action = self._call_strategy(you, board, grid_map)
 
         print(self.automats[self.my_snake_id].get_state())
-
-        if self.game_round == 10:
-            possible_actions = you.possible_actions()
-            ValidActions.multi_level_valid_actions(board, possible_actions, board.snakes, you,  grid_map, 5)
 
         return next_action
 
