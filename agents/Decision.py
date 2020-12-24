@@ -16,7 +16,6 @@ from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.Direction import Direction
-from environment.Battlesnake.model.GameInfo import GameInfo
 import time
 
 ###################
@@ -24,7 +23,6 @@ import time
 # - time_limit in strategien / ActionPlan einbauen
 # - MovementProfile mit der Zeit verbessern
 # - update behaviour
-# - automaten nach relevanz sortieren
 # - Nachdem man gegessen hat nicht Tail fressen
 ###################
 
@@ -107,7 +105,9 @@ class Decision:
         states = {automat.snake.snake_id: automat.state for automat in self.automats.values()}
         return states
 
-    def _call_strategy(self, you: Snake, board: BoardState, grid_map: GridMap) -> Direction:
+    def _call_strategy(self, you: Snake, board: BoardState, grid_map: GridMap, valid_actions: List[Direction])\
+            -> Direction:
+
         my_state = self.automats[self.my_snake_id].get_state()
         # base_board = self.action_plan + self.default_board_score
 
@@ -118,18 +118,20 @@ class Decision:
             return action
 
         if my_state == States.ANXIOUS:
-            return Anxious.avoid_enemy(you, board, grid_map)
+            print("Anxious: ", valid_actions)
+            return Anxious.avoid_enemy(you, board, grid_map, valid_actions)
 
         if my_state == States.AGRESSIVE:
             return Agressive.attack()
 
         if my_state == States.PROVOCATIVE:
-            return Provocative.provocate(you, board, grid_map, self.states, self.automats)
+            return Anxious.avoid_enemy(you, board, grid_map, valid_actions)
+            # return Provocative.provocate(you, board, grid_map, self.states, self.automats)
 
     def set_round(self, this_round):
         self.game_round = this_round
 
-    def decide(self, you: Snake, board: BoardState, grid_map: GridMap, game_info: GameInfo) -> Direction:
+    def decide(self, you: Snake, board: BoardState, grid_map: GridMap) -> Direction:
 
         start_time = time.time()
 
@@ -137,10 +139,9 @@ class Decision:
             self._delete_dead_snake(board.dead_snakes)
 
         # get valid actions and pass them to other functions
-        if self.game_round == 10:
-            possible_actions = you.possible_actions()
-            valid_actions, self.action_plan = ValidActions.multi_level_valid_actions(board, possible_actions,
-                                                                                     board.snakes, you, grid_map, 4)
+        print("started valid_actions!")
+        valid_actions, self.action_plan = ValidActions.multi_level_valid_actions(board, board.snakes, you, grid_map, 4)
+        print("finished valid_actions!")
 
         # decide if we focus on monitoring enemies or on calculating our next move
         dist_to_closest_head = Distance.dist_to_closest_enemy_head(board.snakes, you)
@@ -149,9 +150,8 @@ class Decision:
 
         self._update_automats(board, grid_map)
 
-        next_action = self._call_strategy(you, board, grid_map)
+        next_action = self._call_strategy(you, board, grid_map, valid_actions)
 
         print(self.automats[self.my_snake_id].get_state())
 
         return next_action
-

@@ -38,7 +38,7 @@ class KILabAgent(BaseAgent):
             self.first = False
 
         self.Decision.set_round(turn)
-        next_action = self.Decision.decide(you, board, grid_map, game_info)
+        next_action = self.Decision.decide(you, board, grid_map)
 
         if next_action is None:
             next_action = np.random.choice(you.possible_actions())

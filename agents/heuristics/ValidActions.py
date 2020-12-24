@@ -1,6 +1,5 @@
 from typing import List, Tuple
 import numpy as np
-import math
 from agents.heuristics.Distance import Distance
 
 from environment.Battlesnake.model.Snake import Snake
@@ -179,7 +178,8 @@ class ValidActions:
             back_track_list = []
             while all_neighbours_greater:
                 all_neighbours_greater = [value for value in ValidActions.get_valid_neighbour_values(x, y, valid_board)
-                                          if value >= valid_board[x, y]]
+                                          if value >= valid_board[x, y] and value != 99]
+                print("Hallo")
                 if all_neighbours_greater:
                     valid_board[x, y] = 99
                     backtrack_positions = [position for position in ValidActions.get_valid_neigbours(x, y, valid_board)
@@ -217,7 +217,6 @@ class ValidActions:
 
                     if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]), Position(x, y)) == step:
 
-                        # TODO: x und y -values anpassen von square zu board
                         neighbour_fields = ValidActions.get_valid_neighbour_values(x, y, square)
                         border_field = True if x+x_delta == 0 or x+x_delta == board.width-1 or y+y_delta == 0 or y+y_delta == board.height-1 else False
                         snake_body_field = True if Position(x+x_delta, y+y_delta) in snake_bodies and square[x][y] > depth else False
@@ -234,7 +233,7 @@ class ValidActions:
 
                             # sackgassen erkennen am Rand
                             if border_field:
-                                values = [value for value in neighbour_fields if value > square[x][y]]
+                                values = [value for value in neighbour_fields if abs(value) <= abs(square[x][y])]
                                 if not values:
                                     backtrack_list.append((x+x_delta, y+y_delta))
 
@@ -252,22 +251,19 @@ class ValidActions:
                     invalid_actions.append(direction)
         else:
             return []
-        # Wenn Schlange an Body (feld > depth) oder Rand ankommt backtrack zu validem Zustand und
-        # Zustände bis dahin auf 99 setzen
-        # An Rand wenn nachbar-Felder größer oder gleich eigenem Feld
 
+        print(valid_board)
 
-
-        return None
+        return invalid_actions
 
     @staticmethod
     def multi_level_valid_actions(board: BoardState,
-                                  possible_actions: List[Direction],
                                   snakes: List[Snake],
                                   my_snake: Snake,
                                   grid_map: GridMap[Occupant],
                                   depth: int) -> Tuple[List[Direction], np.ndarray]:
 
+        possible_actions = my_snake.possible_actions()
         my_valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
 
         enemy_snakes = [snake for snake in snakes if snake.snake_id != my_snake.snake_id
@@ -277,6 +273,6 @@ class ValidActions:
 
         invalid_actions = ValidActions.find_invalid_actions(board, enemy_board, my_snake, depth)
 
-        my_valid_actions = [valid_action for valid_action in my_valid_actions if valid_action not in invalid_actions]
+        valid_actions = [valid_action for valid_action in my_valid_actions if valid_action not in invalid_actions]
 
-        return my_valid_actions, action_plan
+        return valid_actions, action_plan
