@@ -267,7 +267,7 @@ class ValidActions:
         my_valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
 
         enemy_snakes = [snake for snake in snakes if snake.snake_id != my_snake.snake_id
-                        and Distance.manhattan_dist(snake.get_head(), my_snake.get_head()) < 20]
+                        and Distance.manhattan_dist(snake.get_head(), my_snake.get_head()) < 8]
 
         enemy_board, action_plan = ValidActions.calculate_board(board, enemy_snakes, depth)
 

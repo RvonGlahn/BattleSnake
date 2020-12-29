@@ -62,12 +62,9 @@ class Decision:
 
             self.automats[snake.snake_id] = SnakeAutomat(snake, enemy)
             self.states[snake.snake_id] = self.automats[snake.snake_id].state
-        # print("Set-Up Automat-States", self.states)
-        print("My ID:", self.my_snake_id)
 
     def _update_automats(self, board: BoardState, grid_map: GridMap) -> None:
 
-        print("Update Automats in decide")
         snake_heads = [snake.get_head() for snake in board.snakes]
         longest_snake = max([snake.get_length() for snake in board.snakes])
 
@@ -118,7 +115,6 @@ class Decision:
             return action
 
         if my_state == States.ANXIOUS:
-            print("Anxious: ", valid_actions)
             return Anxious.avoid_enemy(you, board, grid_map, valid_actions)
 
         if my_state == States.AGRESSIVE:
@@ -139,9 +135,7 @@ class Decision:
             self._delete_dead_snake(board.dead_snakes)
 
         # get valid actions and pass them to other functions
-        print("started valid_actions!")
-        valid_actions, self.action_plan = ValidActions.multi_level_valid_actions(board, board.snakes, you, grid_map, 4)
-        print("finished valid_actions!")
+        valid_actions, self.action_plan = ValidActions.multi_level_valid_actions(board, board.snakes, you, grid_map, 3)
 
         # decide if we focus on monitoring enemies or on calculating our next move
         dist_to_closest_head = Distance.dist_to_closest_enemy_head(board.snakes, you)
