@@ -4,6 +4,7 @@ class Params_Decision:
     REDUCED_MONITORING_TIME = 100
     UPDATE_FREQUENCY = 5
     CLOSEST_HEAD_BOUNDARY = 5
+    DEPTH = 6
 
 
 class Params_Automat:
@@ -32,6 +33,7 @@ class Params_Anxious:
     BETA_DISTANCE_CORNERS = 1
     GAMMA_DISTANCE_FOOD = 2
     THETA_DISTANCE_MID = 5
+    PHI_ESCAPE_DIRECTION = 1
 
 
 class Params_ActionPlan:

@@ -147,13 +147,13 @@ class ValidActions:
                         if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]), Position(x, y)) \
                                 == step and square[x][y] + step >= 0:
 
-                            neighbour_fields = ValidActions.get_valid_neighbour_values(x, y, square)
+                            neighbour_field_values = ValidActions.get_valid_neighbour_values(x, y, square)
 
-                            for field in neighbour_fields:
+                            for field in neighbour_field_values:
                                 if step-1 == field:
                                     square[x][y] = step
                                     action_square[x][y] = 5
-
+            """
             # fix empty snake_body fields
             for body_part in enemy.body[::-1]:
                 body_neighbours = ValidActions.get_valid_neighbour_values(body_part.x, body_part.y, valid_board)
@@ -168,7 +168,7 @@ class ValidActions:
                     valid_board[body_part.x][body_part.y] = field_value + 1
                 else:
                     valid_board[body_part.x][body_part.y] = field_value + 2
-
+            """
         return valid_board, action_plan
 
     @staticmethod
@@ -179,18 +179,19 @@ class ValidActions:
             while all_neighbours_greater:
                 all_neighbours_greater = [value for value in ValidActions.get_valid_neighbour_values(x, y, valid_board)
                                           if value >= valid_board[x, y] and value != 99]
-                print("Hallo")
+
                 if all_neighbours_greater:
-                    valid_board[x, y] = 99
                     backtrack_positions = [position for position in ValidActions.get_valid_neigbours(x, y, valid_board)
-                                           if valid_board[position[0], position[1]] == valid_board[x, y]+1]
+                                           if valid_board[position[0]][position[1]] == valid_board[x][y]+1]
+                    valid_board[x, y] = 99
                     back_track_list += backtrack_positions
 
                 if back_track_list:
                     (x, y) = back_track_list.pop(0)
 
     @staticmethod
-    def find_invalid_actions(board: BoardState, valid_board: np.ndarray, my_snake: Snake, depth: int) -> List[Direction]:
+    def find_invalid_actions(board: BoardState, valid_board: np.ndarray, my_snake: Snake,
+                             depth: int) -> List[Direction]:
         help_board = np.zeros((board.width, board.height))
         head = my_snake.get_head()
         backtrack_list = []
@@ -217,7 +218,7 @@ class ValidActions:
 
                     if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]), Position(x, y)) == step:
 
-                        neighbour_fields = ValidActions.get_valid_neighbour_values(x, y, square)
+                        neighbour_values = ValidActions.get_valid_neighbour_values(x, y, square)
                         border_field = True if x+x_delta == 0 or x+x_delta == board.width-1 or y+y_delta == 0 or y+y_delta == board.height-1 else False
                         snake_body_field = True if Position(x+x_delta, y+y_delta) in snake_bodies and square[x][y] > depth else False
 
@@ -227,21 +228,22 @@ class ValidActions:
                             continue
 
                         # aktionsradius der Schlange beschreiben
-                        for field in neighbour_fields:
-                            if field == -step + 1:
+                        if square[x, y] == -step + 1 or step < square[x, y] or square[x, y] == 0:
+                            if square[x, y] < 10:
                                 square[x][y] = -step
 
-                            # sackgassen erkennen am Rand
-                            if border_field:
-                                values = [value for value in neighbour_fields if abs(value) <= abs(square[x][y])]
-                                if not values:
-                                    backtrack_list.append((x+x_delta, y+y_delta))
+                        # sackgassen erkennen am Rand
+                        if border_field:
+                            values = [value for value in neighbour_values if
+                                      abs(value) <= abs(square[x][y])]
+                            if not values:
+                                backtrack_list.append((x + x_delta, y + y_delta))
 
-                            # sackgassen erkennen an Snakebody
-                            if snake_body_field:
-                                values = [value for value in neighbour_fields if value > square[x][y]]
-                                if not values:
-                                    backtrack_list.append((x+x_delta, y+y_delta))
+                        # sackgassen erkennen an Snakebody
+                        if snake_body_field:
+                            values = [value for value in neighbour_values if value > square[x][y]]
+                            if not values:
+                                backtrack_list.append((x + x_delta, y + y_delta))
 
         if backtrack_list:
             ValidActions.backtrack(backtrack_list, valid_board)
@@ -264,15 +266,22 @@ class ValidActions:
                                   depth: int) -> Tuple[List[Direction], np.ndarray]:
 
         possible_actions = my_snake.possible_actions()
-        my_valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
+        valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
 
-        enemy_snakes = [snake for snake in snakes if snake.snake_id != my_snake.snake_id
-                        and Distance.manhattan_dist(snake.get_head(), my_snake.get_head()) < 8]
+        enemy_snakes = [snake for snake in snakes if snake.snake_id != my_snake.snake_id]
+        # and Distance.manhattan_dist(snake.get_head(), my_snake.get_head()) < 99]
 
         enemy_board, action_plan = ValidActions.calculate_board(board, enemy_snakes, depth)
 
-        invalid_actions = ValidActions.find_invalid_actions(board, enemy_board, my_snake, depth)
+        if enemy_snakes:
+            invalid_actions = ValidActions.find_invalid_actions(board, enemy_board, my_snake, depth)
 
-        valid_actions = [valid_action for valid_action in my_valid_actions if valid_action not in invalid_actions]
+            valid_actions = [valid_action for valid_action in valid_actions if valid_action not in invalid_actions]
 
         return valid_actions, action_plan
+
+# [Position(1,2),Position(1,3),Position(2,3),Position(2,4),Position(2,5),Position(2,6),Position(2,7),Position(2,8),Position(2,9),Position(3,9),Position(4,9),Position(5,9),Position(6,9)]
+# [Position(0,0),Position(0,1),Position(0,2),Position(0,3)]
+
+# board.snakes[0].body = [Position(1,2),Position(1,3),Position(2,3),Position(2,4),Position(2,5),Position(2,6),Position(2,7),Position(2,8),Position(2,9),Position(3,9),Position(4,9),Position(5,9),Position(6,9)]
+# board.snakes[1].body = [Position(0,0),Position(0,1),Position(0,2),Position(0,3)]

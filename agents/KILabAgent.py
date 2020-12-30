@@ -34,7 +34,7 @@ class KILabAgent(BaseAgent):
         if self.first:
             print("Init Automats in move")
             self.Decision.set_up_automats(you, board.snakes)
-            self.Decision.get_default_board(board.width, board.height)
+            self.Decision.set_default_board(board.width, board.height)
             self.first = False
 
         self.Decision.set_round(turn)

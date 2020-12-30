@@ -38,10 +38,10 @@ class ActionPlan:
         # width, length, snake_heads near corridor
         pass
 
-    def _add_relevant_snake(self, snake, snake_automat: SnakeAutomat) -> None:
+    def _add_movement_prediction(self):
         pass
 
-    def escape_lane(self, snakes: List[Snake], automats: Dict) -> Direction:
+    def escape_lane(self, my_head) -> Direction:
         pass
 
     def provocate_lane(self) -> Direction:
