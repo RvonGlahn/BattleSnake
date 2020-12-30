@@ -51,8 +51,8 @@ class Decision:
         for x in range(width):
             if x == 0 or x == width-1:
                 init_board[x][:] = 4
-                init_board[x][0] = 10
-                init_board[x][-1] = 10
+                init_board[x][0] = 100
+                init_board[x][-1] = 100
             else:
                 init_board[x][0] = 4
                 init_board[x][-1] = 4
@@ -124,7 +124,7 @@ class Decision:
             print("Hallo")
 
         base_board = self.action_board + self.default_board_score
-        action_plan = ActionPlan(grid_map, my_state, base_board)
+        action_plan = ActionPlan(base_board)
 
         if my_state == States.HUNGRY:
             action, self.my_food_path = Hungry.hunger(you, board, grid_map, self.my_food_path)
@@ -134,7 +134,7 @@ class Decision:
             return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan)
 
         if my_state == States.PROVOCATIVE:
-            return Anxious.avoid_enemy(you, board, grid_map, valid_actions)
+            return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan)
             # return Provocative.provocate(you, board, grid_map, self.states, self.automats)
 
     def set_round(self, this_round):

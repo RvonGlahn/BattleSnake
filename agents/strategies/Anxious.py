@@ -24,7 +24,7 @@ class Anxious:
         corners = [Position(0, 0), Position(0, board.width), Position(board.height, 0), Position(board.height,
                                                                                                  board.width)]
 
-        escape_direction = action_plan.escape_lane(my_head)
+        escape_cost_dict, escape_direction = action_plan.escape_lane(my_head, valid_actions)
 
         alpha = Params_Anxious.ALPHA_DISTANCE_SNAKE
         beta = Params_Anxious.BETA_DISTANCE_CORNERS
@@ -37,7 +37,7 @@ class Anxious:
         for action in valid_actions:
             next_position = my_head.advanced(action)
 
-            escape_value = 50 if escape_direction == action else 0
+            escape_value = escape_cost_dict[action]
             distance_snakes = sum([Distance.manhattan_dist(next_position, enemy_head) for enemy_head in enemy_heads])
             distance_corners = sum([Distance.manhattan_dist(next_position, corner) for corner in corners])
             distance_mid = Distance.manhattan_dist(next_position, middle)
@@ -45,7 +45,7 @@ class Anxious:
                                  if 3 < food.x < grid_map.width - 3 and 3 < food.y < grid_map.height - 3])
 
             distance = alpha * distance_snakes + beta * distance_corners - gamma * distance_food \
-                       - theta * distance_mid + phi * escape_value
+                       - theta * distance_mid - phi * escape_value
 
             cost.append(distance)
 

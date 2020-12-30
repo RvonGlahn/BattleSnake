@@ -31,11 +31,18 @@ class Params_Anxious:
 
     ALPHA_DISTANCE_SNAKE = 3
     BETA_DISTANCE_CORNERS = 1
-    GAMMA_DISTANCE_FOOD = 2
-    THETA_DISTANCE_MID = 5
+    GAMMA_DISTANCE_FOOD = 4
+    THETA_DISTANCE_MID = 7
     PHI_ESCAPE_DIRECTION = 1
 
 
 class Params_ActionPlan:
 
     SNAKE_RADIUS = 5
+
+class Params_ValidActions:
+
+    DIST_TO_ENEMY = 10
+    BODY_VALUE = 15
+    HEAD_VALUE = 25
+    AREA_VALUE = 5

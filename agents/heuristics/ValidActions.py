@@ -1,6 +1,8 @@
 from typing import List, Tuple
 import numpy as np
+
 from agents.heuristics.Distance import Distance
+from agents.Hyperparameters import Params_ValidActions
 
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
@@ -117,8 +119,8 @@ class ValidActions:
         for snake in board.snakes:
             for index, position in enumerate(snake.body[::-1]):
                 valid_board[position.x][position.y] = -(index + 1)
-                action_plan[position.x][position.y] = 15
-            action_plan[snake.get_head().x][snake.get_head().y] = 25
+                action_plan[position.x][position.y] = Params_ValidActions.BODY_VALUE
+            action_plan[snake.get_head().x][snake.get_head().y] = Params_ValidActions.HEAD_VALUE
 
         # build movement area around all enemy snakes near us
         for enemy in enemy_snakes:
@@ -127,7 +129,7 @@ class ValidActions:
             head = enemy.get_head()
 
             # build new circle for each depth level
-            for step in range(1, enemy_depth+1):
+            for step in range(1, enemy_depth + 1):
 
                 square, (_, _) = ValidActions.get_square(head, valid_board, board.width, board.height, step)
                 action_square, (_, _) = ValidActions.get_square(head, action_plan, board.width, board.height, step)
@@ -150,9 +152,9 @@ class ValidActions:
                             neighbour_field_values = ValidActions.get_valid_neighbour_values(x, y, square)
 
                             for field in neighbour_field_values:
-                                if step-1 == field:
+                                if step - 1 == field:
                                     square[x][y] = step
-                                    action_square[x][y] = 5
+                                    action_square[x][y] = Params_ValidActions.AREA_VALUE
             """
             # fix empty snake_body fields
             for body_part in enemy.body[::-1]:
@@ -182,7 +184,7 @@ class ValidActions:
 
                 if all_neighbours_greater:
                     backtrack_positions = [position for position in ValidActions.get_valid_neigbours(x, y, valid_board)
-                                           if valid_board[position[0]][position[1]] == valid_board[x][y]+1]
+                                           if valid_board[position[0]][position[1]] == valid_board[x][y] + 1]
                     valid_board[x, y] = 99
                     back_track_list += backtrack_positions
 
@@ -219,8 +221,9 @@ class ValidActions:
                     if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]), Position(x, y)) == step:
 
                         neighbour_values = ValidActions.get_valid_neighbour_values(x, y, square)
-                        border_field = True if x+x_delta == 0 or x+x_delta == board.width-1 or y+y_delta == 0 or y+y_delta == board.height-1 else False
-                        snake_body_field = True if Position(x+x_delta, y+y_delta) in snake_bodies and square[x][y] > depth else False
+                        border_field = True if x + x_delta == 0 or x + x_delta == board.width - 1 or y + y_delta == 0 or y + y_delta == board.height - 1 else False
+                        snake_body_field = True if Position(x + x_delta, y + y_delta) in snake_bodies and square[x][
+                            y] > depth else False
 
                         # kritische Felder markieren
                         if 0 < square[x][y] < 99 and square[x][y] - step <= 0:
@@ -268,8 +271,9 @@ class ValidActions:
         possible_actions = my_snake.possible_actions()
         valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
 
-        enemy_snakes = [snake for snake in snakes if snake.snake_id != my_snake.snake_id]
-        # and Distance.manhattan_dist(snake.get_head(), my_snake.get_head()) < 99]
+        enemy_snakes = [snake for snake in snakes if snake.snake_id != my_snake.snake_id
+                        and Distance.manhattan_dist(snake.get_head(), my_snake.get_head())
+                        < Params_ValidActions.DIST_TO_ENEMY]
 
         enemy_board, action_plan = ValidActions.calculate_board(board, enemy_snakes, depth)
 
@@ -277,6 +281,9 @@ class ValidActions:
             invalid_actions = ValidActions.find_invalid_actions(board, enemy_board, my_snake, depth)
 
             valid_actions = [valid_action for valid_action in valid_actions if valid_action not in invalid_actions]
+
+        if not valid_actions:
+            valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
 
         return valid_actions, action_plan
 
