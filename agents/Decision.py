@@ -1,7 +1,6 @@
 from typing import List, Dict
 import numpy as np
 
-from agents.Hyperparameters import Params_Decision
 from agents.States import States
 from agents.heuristics.Distance import Distance
 from agents.heuristics.ValidActions import ValidActions
@@ -37,27 +36,15 @@ class Decision:
         self.enemy_ids: List[str] = []
         self.my_food_path: List[Position] = []
         self.game_round: int = 0
-        self.update_frequency = Params_Decision.UPDATE_FREQUENCY
-        self.monitoring_time = Params_Decision.MONITOR_TIME
-
+        self.update_frequency = 5
         self.automats: Dict = {}
         self.states: Dict = {}
-
-        self.action_board = None
+        self.monitoring_time = 150
+        self.action_plan = None
         self.default_board_score = None
 
-    def set_default_board(self, height, width):
-        init_board = np.zeros((height, width))
-        for x in range(width):
-            if x == 0 or x == width-1:
-                init_board[x][:] = 4
-                init_board[x][0] = 100
-                init_board[x][-1] = 100
-            else:
-                init_board[x][0] = 4
-                init_board[x][-1] = 4
-
-        self.default_board_score = init_board
+    def get_default_board(self, x, y):
+        self.default_board_score = np.zeros((x, y))
 
     def set_up_automats(self, my_snake: Snake, snakes: List[Snake]) -> None:
 
@@ -119,22 +106,22 @@ class Decision:
             -> Direction:
 
         my_state = self.automats[self.my_snake_id].get_state()
+        # base_board = self.action_plan + self.default_board_score
 
-        if self.game_round == 10:
-            print("Hallo")
-
-        base_board = self.action_board + self.default_board_score
-        action_plan = ActionPlan(base_board)
+        # my_plan = ActionPlan(grid_map, my_state, base_board)
 
         if my_state == States.HUNGRY:
             action, self.my_food_path = Hungry.hunger(you, board, grid_map, self.my_food_path)
             return action
 
         if my_state == States.ANXIOUS:
-            return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan)
+            return Anxious.avoid_enemy(you, board, grid_map, valid_actions)
+
+        if my_state == States.AGRESSIVE:
+            return Agressive.attack()
 
         if my_state == States.PROVOCATIVE:
-            return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan)
+            return Anxious.avoid_enemy(you, board, grid_map, valid_actions)
             # return Provocative.provocate(you, board, grid_map, self.states, self.automats)
 
     def set_round(self, this_round):
@@ -147,14 +134,13 @@ class Decision:
         if len(self.automats) != len(board.snakes):
             self._delete_dead_snake(board.dead_snakes)
 
-        # get valid actions and basic board for action_plan, pass them to other functions
-        valid_actions, self.action_board = ValidActions.multi_level_valid_actions(board, board.snakes, you, grid_map,
-                                                                                  Params_Decision.DEPTH)
+        # get valid actions and pass them to other functions
+        valid_actions, self.action_plan = ValidActions.multi_level_valid_actions(board, board.snakes, you, grid_map, 3)
 
         # decide if we focus on monitoring enemies or on calculating our next move
         dist_to_closest_head = Distance.dist_to_closest_enemy_head(board.snakes, you)
-        if dist_to_closest_head < Params_Decision.CLOSEST_HEAD_BOUNDARY:
-            self.monitoring_time = Params_Decision.REDUCED_MONITORING_TIME
+        if dist_to_closest_head < 5:
+            self.monitoring_time = 100
 
         self._update_automats(board, grid_map)
 
