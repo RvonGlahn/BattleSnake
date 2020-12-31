@@ -50,7 +50,7 @@ class Provocative:
                 for path in food_pathes:
                     if len(path) < dist:
                         dist = len(path)
-                        food, _= path[len(path)-1]
+                        food, _ = path[len(path)-1]
                 cut, direc = Provocative._cuthungryoff(head, board, target_snake.get_head(), food, grid_map)
                 if cut:
                     if direc in possible_actions:
@@ -77,11 +77,10 @@ class Provocative:
                 else:
                     relevant_snakes.remove(target_snake)
 
-        #falls keine andere Action gefunden
+        # falls keine andere Action gefunden
 
         return random_action
 
-        
     @staticmethod
     def _free(position: Position, board: BoardState) -> bool:
         if board.is_out_of_bounds(position):
@@ -122,6 +121,7 @@ class Provocative:
     #  |       |
     #    --x--
     #
+
     @staticmethod
     def _nearestwall(position: Position, board: BoardState) -> Position:
         x = Position(position.x, 0)
@@ -142,11 +142,12 @@ class Provocative:
     # bool ob Weg einer Hungry Snake abgeschnitten werden kann + Direction
     #
     @staticmethod
-    def _cuthungryoff(ownpos: Position, board: BoardState, enempos: Position, foodpos: Position, grid_map: GridMap) -> Tuple[bool, Direction]:
+    def _cuthungryoff(ownpos: Position, board: BoardState, enempos: Position, foodpos: Position,
+                      grid_map: GridMap) -> Tuple[bool, Direction]:
 
         _, enempath = AStar.a_star_search(enempos, foodpos, board, grid_map)
-        db = {k:v for k, v in enempath}
-        foo1 = Position(foodpos.x - 1,foodpos.y - 1)
+        db = {k: v for k, v in enempath}
+        foo1 = Position(foodpos.x - 1, foodpos.y - 1)
         foo2 = Position(foodpos.x - 1, foodpos.y + 1)
         foo3 = Position(foodpos.x + 1, foodpos.y - 1)
         foo4 = Position(foodpos.x + 1, foodpos.y + 1)
@@ -154,12 +155,12 @@ class Provocative:
         foo6 = Position(foodpos.x + 1, foodpos.y)
         foo7 = Position(foodpos.x, foodpos.y - 1)
         foo8 = Position(foodpos.x, foodpos.y + 1)
-        foods =[foo1, foo2, foo3, foo4, foo5, foo6, foo7, foo8]
-        for food in foods: #TODO dauert vllt zu lange?
+        foods = [foo1, foo2, foo3, foo4, foo5, foo6, foo7, foo8]
+        for food in foods:  # TODO dauert vllt zu lange?
             _, mypath = AStar.a_star_search(ownpos, food, board, grid_map)
-            da = {k:v for k, v in mypath}
-            both = [(da[k], db[k])  for k in da.keys()&db.keys()]
-            if len(both)>0:
+            da = {k: v for k, v in mypath}
+            both = [(da[k], db[k]) for k in da.keys() & db.keys()]
+            if len(both) > 0:
                 if len(mypath) < len(enempath):
                     _, nextdirection = mypath[0]
                     return True, nextdirection
@@ -192,7 +193,7 @@ class Provocative:
                 else:
                     return True
 
-            if owndirection== Direction.LEFT:
+            if owndirection == Direction.LEFT:
                 if rel == 2 or rel == 4 or rel == 42:
                     return False
                 else:
@@ -204,11 +205,9 @@ class Provocative:
                 else:
                     return True
         else:
-            #TODO ist hier überhaupt relevant, ob wir bereits in die gleiche Richtung laufen?
+            # TODO ist hier überhaupt relevant, ob wir bereits in die gleiche Richtung laufen?
 
             pass
-
-
 
     #
     # nächste Direction um von aktueller Position in Richtung Ziel zu laufen
@@ -232,7 +231,6 @@ class Provocative:
             return np.random.choice([Direction.UP, Direction.LEFT])
         if rel == 4:
             return np.random.choice([Direction.UP, Direction.RIGHT])
-
 
     #
     #  1    |    2
@@ -266,13 +264,13 @@ class Provocative:
             else:
                 return 1
 
-    #sind wir näher zur Wall, der Gegner näher zur Mitte -> True
-    #sinf wir näher zur Mitte, der Gegner näher zur Wall -> False
+    # sind wir näher zur Wall, der Gegner näher zur Mitte -> True
+    # sinf wir näher zur Mitte, der Gegner näher zur Wall -> False
     @staticmethod
     def _nearertowall(ownpos: Position, board: BoardState, enempos: Position) -> bool:
         middle = Position(board.width//2, board.height//2)
-        mydist = Distance.manhattan_dist(ownpos,middle)
-        enemdist = Distance.manhattan_dist(enempos,middle)
+        mydist = Distance.manhattan_dist(ownpos, middle)
+        enemdist = Distance.manhattan_dist(enempos, middle)
 
         if mydist < enemdist:
             return False

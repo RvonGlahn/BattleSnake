@@ -27,8 +27,8 @@ class ValidActions:
         valid_actions = []
 
         for snake in snakes:
+            skip = False
             for pos in DirectionUtil.neighbor_positions(snake.get_head()):
-                skip = False
                 if pos in board.food:
                     skip = True
             if not skip:
@@ -47,7 +47,7 @@ class ValidActions:
                 continue
 
             # body crash -> ganze Gegner Schlange minus letzten Teil
-            if grid_map.get_value_at_position(next_position) is Occupant.Snake:
+            if grid_map.get_value_at_position(next_position) is Occupant.Snake and next_position not in snake_tails:
                 continue
 
             # head crash -> Alle möglichen Richtungen des Heads der Gegner Schlange beachten
@@ -201,6 +201,7 @@ class ValidActions:
                                            if valid_board[position[0]][position[1]] == valid_board[x][y] + 1]
 
                     # TODO: 99er besser setzen
+                    # probleme wenn körper des Gegners voraus geht
                     # es fehlen noch Einbahnstraßen
                     # es werden zu viele falsche am Körper gesetzt
                     valid_board[x, y] = 99
@@ -296,8 +297,8 @@ class ValidActions:
                         and Distance.manhattan_dist(snake.get_head(), my_snake.get_head())
                         < Params_ValidActions.DIST_TO_ENEMY]
 
-        if len(board.snakes[0].body) == 4:
-            print("Hallo")
+        # if len(board.snakes[0].body) == 4:
+        #     print("Hallo")
 
         enemy_board, action_plan = ValidActions.calculate_board(board, enemy_snakes, depth)
 
@@ -308,6 +309,8 @@ class ValidActions:
 
         if not valid_actions:
             valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
+
+        print(valid_actions)
 
         return valid_actions, action_plan
 

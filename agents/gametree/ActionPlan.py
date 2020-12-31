@@ -2,13 +2,7 @@ import numpy as np
 from typing import List, Dict, Tuple
 # import numba
 
-from agents.States import States
-from agents.heuristics.Distance import Distance
-from agents.SnakeAutomat import SnakeAutomat
-
 from environment.Battlesnake.model.Position import Position
-from environment.Battlesnake.model.Snake import Snake
-from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.Direction import Direction
 
@@ -24,6 +18,7 @@ class ActionPlan:
     def _evaluate_corridor(self, direction: Direction, x: int, y: int) -> int:
 
         # TODO: Länge der Lane einbeziehen und vielleicht abstand zur nächsten Snake
+        # Fluchtweg einberechnen. Pfad muss mind. 2 breit sein
         # check if corridor is valid
         if x == 0:
             x += 1

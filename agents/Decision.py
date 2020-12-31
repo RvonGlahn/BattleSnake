@@ -7,7 +7,6 @@ from agents.heuristics.Distance import Distance
 from agents.heuristics.ValidActions import ValidActions
 from agents.strategies.Anxious import Anxious
 from agents.strategies.Hungry import Hungry
-from agents.strategies.Agressive import Agressive
 from agents.strategies.Provocative import Provocative
 from agents.SnakeAutomat import SnakeAutomat
 from agents.gametree.ActionPlan import ActionPlan
@@ -131,8 +130,8 @@ class Decision:
             return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan)
 
         if my_state == States.PROVOCATIVE:
-            return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan)
-            # return Provocative.provocate(you, board, grid_map, self.states, self.automats)
+            # return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan)
+            return Provocative.provocate(you, board, grid_map, self.states, self.automats)
 
     def set_round(self, this_round):
         self.game_round = this_round
