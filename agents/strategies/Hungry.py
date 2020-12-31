@@ -37,10 +37,9 @@ class Hungry:
         return path_array
 
     @staticmethod
-    def hunger(snake: Snake, board: BoardState, grid_map: GridMap, food_path: List[Position]):
+    def hunger(snake: Snake, board: BoardState, grid_map: GridMap, food_path: List[Position],
+               valid_actions: List[Direction]) -> Tuple[Direction, List[Position]]:
 
-        possible_actions = snake.possible_actions()
-        valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, snake, grid_map)
         action: Direction
 
         if not food_path:

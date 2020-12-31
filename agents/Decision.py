@@ -120,14 +120,11 @@ class Decision:
 
         my_state = self.automats[self.my_snake_id].get_state()
 
-        if self.game_round == 10:
-            print("Hallo")
-
         base_board = self.action_board + self.default_board_score
         action_plan = ActionPlan(base_board)
 
         if my_state == States.HUNGRY:
-            action, self.my_food_path = Hungry.hunger(you, board, grid_map, self.my_food_path)
+            action, self.my_food_path = Hungry.hunger(you, board, grid_map, self.my_food_path, valid_actions)
             return action
 
         if my_state == States.ANXIOUS:

@@ -34,6 +34,9 @@ class Anxious:
 
         cost = []
 
+        if len(board.snakes[0].body) == 4:
+            print("Hallo")
+
         for action in valid_actions:
             next_position = my_head.advanced(action)
 
@@ -44,13 +47,13 @@ class Anxious:
             distance_food = sum([Distance.manhattan_dist(next_position, food) for food in board.food
                                  if 3 < food.x < grid_map.width - 3 and 3 < food.y < grid_map.height - 3])
 
-            distance = alpha * distance_snakes + beta * distance_corners - gamma * distance_food \
-                       - theta * distance_mid - phi * escape_value
+            distance = alpha * distance_snakes + beta * distance_corners - gamma * distance_food - theta * distance_mid - phi * escape_value
 
             cost.append(distance)
 
         if valid_actions:
             best_action = valid_actions[np.argmax(cost)]
+            print(best_action)
         else:
             possible_actions = my_snake.possible_actions()
             best_action = np.random.choice(possible_actions)

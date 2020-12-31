@@ -153,6 +153,7 @@ class ValidActions:
 
                             for field in neighbour_field_values:
                                 if step - 1 == field:
+                                    # TODO: Nur der nächste Gegner zählt, nicht überlagern
                                     square[x][y] = step
                                     action_square[x][y] = Params_ValidActions.AREA_VALUE
             """

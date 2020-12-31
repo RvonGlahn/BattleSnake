@@ -33,19 +33,19 @@ class ActionPlan:
         elif y == self.value_board.shape[1]-1:
             y -= 1
 
-        if direction == Direction.UP:
+        if direction == Direction.LEFT:
             return np.sum(self.value_board[0:x, y]) + np.sum(self.value_board[0:x, y-1]) + \
                    np.sum(self.value_board[0:x, y+1])
 
-        if direction == Direction.DOWN:
+        if direction == Direction.RIGHT:
             return np.sum(self.value_board[x+1:, y]) + np.sum(self.value_board[x+1:, y-1]) + \
                    np.sum(self.value_board[x+1:, y+1])
 
-        if direction == Direction.LEFT:
+        if direction == Direction.UP:
             return np.sum(self.value_board[x, 0:y]) + np.sum(self.value_board[x-1, 0:y]) + \
                    np.sum(self.value_board[x+1, 0:y])
 
-        if direction == Direction.RIGHT:
+        if direction == Direction.DOWN:
             return np.sum(self.value_board[x, y+1:]) + np.sum(self.value_board[x - 1, y+1:]) + \
                    np.sum(self.value_board[x + 1, y+1:])
 
