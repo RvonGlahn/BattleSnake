@@ -44,6 +44,6 @@ class Params_ActionPlan:
 class Params_ValidActions:
 
     DIST_TO_ENEMY = 15
-    BODY_VALUE = 15
+    BODY_VALUE = 3
     HEAD_VALUE = 25
     AREA_VALUE = 5
