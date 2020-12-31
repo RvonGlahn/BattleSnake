@@ -30,9 +30,9 @@ class Params_MovementProfile:
 class Params_Anxious:
 
     ALPHA_DISTANCE_SNAKE = 3
-    BETA_DISTANCE_CORNERS = 3
+    BETA_DISTANCE_CORNERS = 2
     GAMMA_DISTANCE_FOOD = 3
-    THETA_DISTANCE_MID = 10
+    THETA_DISTANCE_MID = 7
     PHI_ESCAPE_DIRECTION = 5
 
 
