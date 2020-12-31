@@ -9,6 +9,7 @@ from environment.Battlesnake.model.Position import Position
 from agents.Hyperparameters import Params_Anxious
 from agents.heuristics.Distance import Distance
 from agents.gametree.ActionPlan import ActionPlan
+from agents.heuristics.ValidActions import ValidActions
 
 
 class Anxious:
@@ -16,6 +17,10 @@ class Anxious:
     @staticmethod
     def avoid_enemy(my_snake: Snake, board: BoardState, grid_map: GridMap, valid_actions: List[Direction],
                     action_plan: ActionPlan) -> Direction:
+
+        if not valid_actions:
+            possible_actions = my_snake.possible_actions()
+            valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, my_snake, grid_map)
 
         my_head = my_snake.get_head()
         enemy_heads = [snake.get_head() for snake in board.snakes if snake.snake_id != my_snake.snake_id]

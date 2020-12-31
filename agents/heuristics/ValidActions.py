@@ -117,6 +117,13 @@ class ValidActions:
 
     @staticmethod
     def calculate_board(board: BoardState, enemy_snakes: List[Snake], depth: int) -> Tuple[np.ndarray, np.ndarray]:
+
+        #########################
+        #
+        # Idee: Für jede Schlange board einzeln berechnen und dann mit minimalen Werten überlagern
+        #
+        #########################
+
         valid_board = np.zeros((board.width, board.height))
         action_plan = np.zeros((board.width, board.height))
 
@@ -140,17 +147,17 @@ class ValidActions:
                 action_square, (_, _) = ValidActions.get_square(head, action_plan, board.width, board.height, step)
                 square_head = np.where(square == valid_board[head.x][head.y])
 
-                # check for each field in circle if it has right distance
-
-                # TODO adjust fields that get checked
+                # TODO adjust fields that get checked more efficient
                 # fields = Mitte bzw. x Koordinate von square_head
                 # pro step + und - step bis Koordinate von y == y-square-head
                 # danach wieder minus 1 bis step/2
                 # Distance.manhatttan durch step ersetzen
                 # Extra Bedingung für Snake Body
+
                 for x in range(0, square.shape[0]):
                     for y in range(0, square.shape[1]):
 
+                        # check for each field in circle if it has the right distance
                         if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]), Position(x, y)) \
                                 == step and square[x][y] + step >= 0:
 
@@ -158,8 +165,9 @@ class ValidActions:
 
                             for field in neighbour_field_values:
                                 if step - 1 == field:
-                                    # TODO: Nur der nächste Gegner zählt, nicht überlagern
-                                    square[x][y] = step
+                                    # nur der nächste Gegner zählt, nicht überlagern
+                                    if square[x][y] > 0 and step < square[x][y]:
+                                        square[x][y] = step
                                     action_square[x][y] = Params_ValidActions.AREA_VALUE
             """
             # fix empty snake_body fields
@@ -191,6 +199,10 @@ class ValidActions:
                 if all_neighbours_greater:
                     backtrack_positions = [position for position in ValidActions.get_valid_neigbours(x, y, valid_board)
                                            if valid_board[position[0]][position[1]] == valid_board[x][y] + 1]
+
+                    # TODO: 99er besser setzen
+                    # es fehlen noch Einbahnstraßen
+                    # es werden zu viele falsche am Körper gesetzt
                     valid_board[x, y] = 99
                     back_track_list += backtrack_positions
 
