@@ -130,8 +130,8 @@ class Decision:
             return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan)
 
         if my_state == States.PROVOCATIVE:
-            # return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan)
-            return Provocative.provocate(you, board, grid_map, self.states, self.automats)
+            return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan)
+            # return Provocative.provocate(you, board, grid_map, self.states, self.automats)
 
     def set_round(self, this_round):
         self.game_round = this_round
