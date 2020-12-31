@@ -30,6 +30,9 @@ class Snake:
 
     def get_health(self):
         return self.health
+
+    def get_body(self):
+        return self.body
         
     def is_alive(self):
         return self.elimination_event is None

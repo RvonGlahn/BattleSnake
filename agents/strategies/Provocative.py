@@ -27,99 +27,61 @@ class Provocative:
 
     @staticmethod
     def provocate(you: Snake, board: BoardState, grid_map: GridMap, states: Dict, automats: Dict) -> Direction:
-        
+
         possible_actions = you.possible_actions()
         valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, you, grid_map)
         head = you.get_head()
-        target_snake = None
-        hunted = False
-        run = False
-        trap = False
-
-        # alle relevanten snakes = alle mit state AGGRESSIVE
-        aggressive_snakes = []
-        hungry_snakes = []
+        relevant_snakes = []
+        random_action = np.random.choice(valid_actions)
 
         for snake in board.snakes:
             if snake.snake_id == you.snake_id:
                 pass
             else:
-                if states[snake.snake_id] == States.AGRESSIVE:
-                    aggressive_snakes.append(snake)
-                if states[snake.snake_id] == States.HUNGRY:
-                    hungry_snakes.append(snake)
-                hunt_profile = automats[snake.snake_id].movement_profile_predictions["head"]  # prüfen, ob eine Schlange Jürgen jagt
-                if len(hunt_profile) > 0:
-                    target_snake = snake
-                    hunted = True
-                    break
-                target_snake = snake
-                target = snake.get_head()
+                relevant_snakes.append(snake)
 
-        if not hunted and not run and len(aggressive_snakes) > 0:
-            best_distance = 999999
-            for snake in aggressive_snakes:
-                distance = [Distance.manhattan_dist(head, snake.get_head())]
-                if distance < best_distance:
-                    best_distance = distance
-                    target_snake = snake
-                    target = snake.get_head()
-            trap = True
+        while len(relevant_snakes) > 0:
+            target_snake = Provocative._nextsnake(relevant_snakes, head, states)
 
-        if hunted: 
-            
-            # nächste gute Ecke suchen
-            bottom_left, bottom_right, top_left, top_right = (Position(3, 3)), \
-                                                         (Position(3, board.height - 3)), \
-                                                         (Position(board.width - 3, 3)), \
-                                                         (Position(board.width - 3, board.height - 3))
-            allcorners = []
-            allcorners.extend((bottom_left, bottom_right, top_left, top_right))
-            
-            best_corner = allcorners[0]
-            dist = [Distance.manhattan_dist(best_corner, head)]
-            for corner in allcorners:
-                
-                dist_corner = [Distance.manhattan_dist(corner, head)]
-                if dist_corner < dist:
-                    best_corner = corner
-            
-            cost, path = AStar.a_star_search(head, best_corner, board, grid_map)
-            
-            if cost == 0:
-                run = True      # wieder zur mitte weglaufen
-                hunted = False
-            else:
-                _, next_step = path[0]
-                if next_step in valid_actions:
-                    return next_step
+            if states[target_snake.snake_id] == States.HUNGRY:
+                food_pathes = automats[target_snake.snake_id].move_profile_predictions["food"]
+                dist = 99999
+                food = Position(board.width//2, board.height//2)
+                for path in food_pathes:
+                    if len(path) < dist:
+                        dist = len(path)
+                        food, _= path[len(path)-1]
+                cut, direc = Provocative._cuthungryoff(head, board, target_snake.get_head(), food, grid_map)
+                if cut:
+                    if direc in possible_actions:
+                        return direc
+                    else:
+                        return random_action
                 else:
-                    return np.random.choice(valid_actions)
+                    relevant_snakes.remove(target_snake)
 
-        if run:     # zur mitte laufen
-            mid = Position(board.width//2, board.height//2)
-            cost, path = AStar.a_star_search(head, mid, board, grid_map)
-            if cost == 0:
-                hunted = True
-                run = False
-            _, next_step = path[0]
-            if next_step in valid_actions:
-                    return next_step
-            else:
-                return np.random.choice(valid_actions)
+            target_head = None
+            if states[target_snake.snake_id] == States.AGRESSIVE:
+                head_pathes = automats[target_snake.snake_id].move_profile_predictions["head"]
+                dist = 99999
+                for path in head_pathes:
+                    if len(path) < dist:
+                        dist = len(path)
+                        target_head, _ = path[len(path) - 1]
+                if target_head == head:
+                    direc = Provocative._provo(head, board, target_snake.get_head())
+                    if direc in possible_actions:
+                        return direc
+                    else:
+                        return random_action
+                else:
+                    relevant_snakes.remove(target_snake)
 
-        if trap:
-            cost, path = AStar.a_star_search(head, target, board, grid_map)
-            _, next_step = path[0]
-            if next_step in valid_actions:
-                    return next_step
-            else:
-                return np.random.choice(valid_actions)
+        #falls keine andere Action gefunden
 
-        random_action = np.random.choice(valid_actions)
-        # random action ausgeben
         return random_action
 
+        
     @staticmethod
     def _free(position: Position, board: BoardState) -> bool:
         if board.is_out_of_bounds(position):
@@ -127,3 +89,192 @@ class Provocative:
         if board.is_occupied(position):
             return False
         return True
+
+    @staticmethod
+    def _provo(ownpos: Position, board: BoardState, enempos: Position) -> Direction:
+        if Provocative._nearertowall(ownpos, board, enempos):
+            dest = Provocative._nearertowall(ownpos, board)
+            direc = Provocative._nextdirection(ownpos, dest)
+            return direc
+        else:
+            middle = Position(board.width // 2, board.height // 2)
+            direc = Provocative._nextdirection(ownpos, middle)
+            return direc
+
+    @staticmethod
+    def _nextsnake(relevant_snakes: List[Snake], head: Position, states: Dict) -> Snake:
+        nearest_distance = 99999
+        target_snake = None
+        for snake in relevant_snakes:
+            distance = Distance.manhattan_dist(head, snake.get_head())
+            if distance < nearest_distance:
+                nearest_distance = distance
+                target_snake = snake
+            elif distance == nearest_distance:
+                if states[snake.snake_id] == States.HUNGRY:
+                    target_snake = snake
+        return target_snake
+    #
+    # nächste Wandposition finden
+    #    --w--
+    #  |       |
+    #  y       z
+    #  |       |
+    #    --x--
+    #
+    @staticmethod
+    def _nearestwall(position: Position, board: BoardState) -> Position:
+        x = Position(position.x, 0)
+        y = Position(0, position.y)
+        z = Position(board.width, position.x)
+        w = Position(position.x, board.height)
+        allwalls = [x, y, z, w]
+        shortest = 99999
+        nearest_wall = position
+        for wall in allwalls:
+            dist = [Distance.manhattan_dist(wall, position)]
+            if dist < shortest:
+                shortest = dist
+                nearest_wall = wall
+        return nearest_wall
+
+    #
+    # bool ob Weg einer Hungry Snake abgeschnitten werden kann + Direction
+    #
+    @staticmethod
+    def _cuthungryoff(ownpos: Position, board: BoardState, enempos: Position, foodpos: Position, grid_map: GridMap) -> Tuple[bool, Direction]:
+
+        _, enempath = AStar.a_star_search(enempos, foodpos, board, grid_map)
+        db = {k:v for k, v in enempath}
+        foo1 = Position(foodpos.x - 1,foodpos.y - 1)
+        foo2 = Position(foodpos.x - 1, foodpos.y + 1)
+        foo3 = Position(foodpos.x + 1, foodpos.y - 1)
+        foo4 = Position(foodpos.x + 1, foodpos.y + 1)
+        foo5 = Position(foodpos.x - 1, foodpos.y)
+        foo6 = Position(foodpos.x + 1, foodpos.y)
+        foo7 = Position(foodpos.x, foodpos.y - 1)
+        foo8 = Position(foodpos.x, foodpos.y + 1)
+        foods =[foo1, foo2, foo3, foo4, foo5, foo6, foo7, foo8]
+        for food in foods: #TODO dauert vllt zu lange?
+            _, mypath = AStar.a_star_search(ownpos, food, board, grid_map)
+            da = {k:v for k, v in mypath}
+            both = [(da[k], db[k])  for k in da.keys()&db.keys()]
+            if len(both)>0:
+                if len(mypath) < len(enempath):
+                    _, nextdirection = mypath[0]
+                    return True, nextdirection
+        return False, Direction.DOWN
+
+    #
+    # prüfen, ob wir vor oder gleichauf mit dem aggressive Gegener sind, um zu verhindern, dass er uns fressen kann
+    #
+    @staticmethod
+    def _infrontofhead(you: Snake, enemy: Snake, destination: Position) -> bool:
+        ownhead = you.get_head()
+        owndirection = Provocative._nextdirection(destination, ownhead)
+        enemhead = enemy.get_head()
+        enemybody = enemy.get_body()
+        enembody = enemybody[0]
+        enemdirection = AStar.reverse_direction(Provocative._nextdirection(enembody, enemhead))
+
+        rel = Provocative._relativeposition(enemhead, ownhead)
+
+        if owndirection == enemdirection:
+            if owndirection == Direction.UP:
+                if rel == 3 or rel == 4 or rel == 34:
+                    return False
+                else:
+                    return True
+
+            if owndirection == Direction.DOWN:
+                if rel == 1 or rel == 2 or rel == 12:
+                    return False
+                else:
+                    return True
+
+            if owndirection== Direction.LEFT:
+                if rel == 2 or rel == 4 or rel == 42:
+                    return False
+                else:
+                    return True
+
+            if owndirection == Direction.RIGHT:
+                if rel == 1 or rel == 3 or rel == 13:
+                    return False
+                else:
+                    return True
+        else:
+            #TODO ist hier überhaupt relevant, ob wir bereits in die gleiche Richtung laufen?
+
+            pass
+
+
+
+    #
+    # nächste Direction um von aktueller Position in Richtung Ziel zu laufen
+    #
+    @staticmethod
+    def _nextdirection(position: Position, destination: Position) -> Direction:
+        rel = Provocative._relativeposition(destination, position)
+        if rel == 12:
+            return Direction.DOWN
+        if rel == 24:
+            return Direction.LEFT
+        if rel == 34:
+            return Direction.UP
+        if rel == 13:
+            return Direction.RIGHT
+        if rel == 1:
+            return np.random.choice([Direction.DOWN, Direction.RIGHT])
+        if rel == 2:
+            return np.random.choice([Direction.DOWN, Direction.LEFT])
+        if rel == 3:
+            return np.random.choice([Direction.UP, Direction.LEFT])
+        if rel == 4:
+            return np.random.choice([Direction.UP, Direction.RIGHT])
+
+
+    #
+    #  1    |    2
+    #  ---- x -----
+    #  3    |    4
+    #
+    # head ist der eigene Head, target ist das Ziel = anderer Kopf / Food
+    # gibt an, in welchem Qadranten wir relativ zu unserem Ziel sind
+    @staticmethod
+    def _relativeposition(target: Position, head: Position) -> int:
+        if target == head:
+            return 0
+        if (target.x - head.x) == 0:
+            if (target.y - head.y) > 0:
+                return 12
+            else:
+                return 34
+        if (target.y - head.y) == 0:
+            if (target.x - head.x) > 0:
+                return 24
+            else:
+                return 13
+        if (target.x - head.x) > 0:
+            if (target.y - head.y) > 0:
+                return 2
+            else:
+                return 4
+        if (target.y - head.y) > 0:
+            if (target.x - head.x) > 0:
+                return 2
+            else:
+                return 1
+
+    #sind wir näher zur Wall, der Gegner näher zur Mitte -> True
+    #sinf wir näher zur Mitte, der Gegner näher zur Wall -> False
+    @staticmethod
+    def _nearertowall(ownpos: Position, board: BoardState, enempos: Position) -> bool:
+        middle = Position(board.width//2, board.height//2)
+        mydist = Distance.manhattan_dist(ownpos,middle)
+        enemdist = Distance.manhattan_dist(enempos,middle)
+
+        if mydist < enemdist:
+            return False
+        else:
+            return True
