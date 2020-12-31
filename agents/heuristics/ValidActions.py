@@ -47,7 +47,7 @@ class ValidActions:
                 continue
 
             # body crash -> ganze Gegner Schlange minus letzten Teil
-            if grid_map.get_value_at_position(next_position) is Occupant.Snake and next_position not in snake_tails:
+            if grid_map.get_value_at_position(next_position) is Occupant.Snake:
                 continue
 
             # head crash -> Alle möglichen Richtungen des Heads der Gegner Schlange beachten
