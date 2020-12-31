@@ -34,9 +34,6 @@ class Anxious:
 
         cost = []
 
-        if len(board.snakes[0].body) == 4:
-            print("Hallo")
-
         for action in valid_actions:
             next_position = my_head.advanced(action)
 

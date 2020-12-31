@@ -27,7 +27,12 @@ class ValidActions:
         valid_actions = []
 
         for snake in snakes:
-            snake_tails.append(snake.get_tail())
+            for pos in DirectionUtil.neighbor_positions(snake.get_head()):
+                skip = False
+                if pos in board.food:
+                    skip = True
+            if not skip:
+                snake_tails.append(snake.get_tail())
 
         for direction in possible_actions:
             next_position = my_head.advanced(direction)
@@ -203,11 +208,16 @@ class ValidActions:
         for snake in board.snakes:
             if snake.snake_id != my_snake.snake_id:
                 snake_bodies += snake.body
+                for index, position in enumerate(snake.body[::-1]):
+                    valid_board[position.x][position.y] = (index + 21)
+                    help_board[position.x][position.y] = (index + 21)
 
         # mark my snake on board
         for index, position in enumerate(my_snake.body[::-1]):
             valid_board[position.x][position.y] = (index + 11)
             help_board[position.x][position.y] = (index + 11)
+
+
 
         # build new circle for each depth level
         for step in range(1, depth + 1):
@@ -275,6 +285,9 @@ class ValidActions:
         enemy_snakes = [snake for snake in snakes if snake.snake_id != my_snake.snake_id
                         and Distance.manhattan_dist(snake.get_head(), my_snake.get_head())
                         < Params_ValidActions.DIST_TO_ENEMY]
+
+        if len(board.snakes[0].body) == 4:
+            print("Hallo")
 
         enemy_board, action_plan = ValidActions.calculate_board(board, enemy_snakes, depth)
 

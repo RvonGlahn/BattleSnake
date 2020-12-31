@@ -25,17 +25,12 @@ class KILabAgent(BaseAgent):
     def start(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):
         self.food_path: List[Position] = []
         self.Decision = Decision()
-        self.first = True
+        self.Decision.set_up_automats(you, board.snakes)
+        self.Decision.set_default_board(board.width, board.height)
 
     def move(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake) -> MoveResult:
 
         grid_map: GridMap[Occupant] = board.generate_grid_map()
-
-        if self.first:
-            print("Init Automats in move")
-            self.Decision.set_up_automats(you, board.snakes)
-            self.Decision.set_default_board(board.width, board.height)
-            self.first = False
 
         self.Decision.set_round(turn)
         next_action = self.Decision.decide(you, board, grid_map)
