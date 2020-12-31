@@ -166,7 +166,7 @@ class ValidActions:
                             for field in neighbour_field_values:
                                 if step - 1 == field:
                                     # nur der nächste Gegner zählt, nicht überlagern
-                                    if square[x][y] > 0 and step < square[x][y]:
+                                    if square[x][y] == 0 or step <= square[x][y]:
                                         square[x][y] = step
                                     action_square[x][y] = Params_ValidActions.AREA_VALUE
             """
@@ -228,8 +228,6 @@ class ValidActions:
         for index, position in enumerate(my_snake.body[::-1]):
             valid_board[position.x][position.y] = (index + 11)
             help_board[position.x][position.y] = (index + 11)
-
-
 
         # build new circle for each depth level
         for step in range(1, depth + 1):
