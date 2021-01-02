@@ -27,12 +27,9 @@ class ValidActions:
         valid_actions = []
 
         for snake in snakes:
-            skip = False
-            for pos in DirectionUtil.neighbor_positions(snake.get_head()):
-                if pos in board.food:
-                    skip = True
-            if not skip:
-                snake_tails.append(snake.get_tail())
+            if snake.health == 100:
+                continue
+            snake_tails.append(snake.get_tail())
 
         for direction in possible_actions:
             next_position = my_head.advanced(direction)
@@ -204,7 +201,8 @@ class ValidActions:
                     # probleme wenn körper des Gegners voraus geht
                     # es fehlen noch Einbahnstraßen
                     # es werden zu viele falsche am Körper gesetzt
-                    valid_board[x, y] = 99
+                    if valid_board[x, y] < 10:
+                        valid_board[x, y] = 99
                     back_track_list += backtrack_positions
 
                 if back_track_list:
@@ -307,10 +305,10 @@ class ValidActions:
 
             valid_actions = [valid_action for valid_action in valid_actions if valid_action not in invalid_actions]
 
-        if not valid_actions:
-            valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
+        # if not valid_actions:
+        #    valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
 
-        print(valid_actions)
+        print("Valid ACtions:", valid_actions)
 
         return valid_actions, action_plan
 
