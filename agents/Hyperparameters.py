@@ -32,7 +32,7 @@ class Params_MovementProfile:
 
 class Params_Anxious:
 
-    ALPHA_DISTANCE_SNAKE = 1
+    ALPHA_DISTANCE_SNAKE = 5
     BETA_DISTANCE_CORNERS = 4
     GAMMA_DISTANCE_FOOD = 1
     THETA_DISTANCE_MID = 7

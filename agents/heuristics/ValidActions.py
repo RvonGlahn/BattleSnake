@@ -198,6 +198,7 @@ class ValidActions:
                                            if valid_board[position[0]][position[1]] == valid_board[x][y] + 1]
 
                     # TODO: 99er besser setzen
+                    # wenn körper zwischem erreichbaren Feld und Schlange ist dann keine 99
                     # probleme wenn körper des Gegners voraus geht
                     # es fehlen noch Einbahnstraßen
                     # es werden zu viele falsche am Körper gesetzt (x)
