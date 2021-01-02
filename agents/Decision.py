@@ -23,7 +23,6 @@ import time
 # - time_limit in strategien / ActionPlan einbauen
 # - MovementProfile mit der Zeit verbessern
 # - update behaviour
-# - Nachdem man gegessen hat nicht Tail fressen
 ###################
 
 
@@ -48,13 +47,19 @@ class Decision:
     def set_default_board(self, height, width):
         init_board = np.zeros((height, width))
         for x in range(width):
+            if x == 1:
+                init_board[x][:] = 10
+            elif x == width-2:
+                init_board[x][:] = 10
             if x == 0 or x == width-1:
-                init_board[x][:] = 4
+                init_board[x][:] = 25
                 init_board[x][0] = 100
                 init_board[x][-1] = 100
             else:
-                init_board[x][0] = 4
-                init_board[x][-1] = 4
+                init_board[x][0] = 25
+                init_board[x][-1] = 25
+                init_board[x][1] = 10
+                init_board[x][-2] = 10
 
         self.default_board_score = init_board
 

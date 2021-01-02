@@ -5,6 +5,9 @@ class Params_Decision:
     UPDATE_FREQUENCY = 5
     CLOSEST_HEAD_BOUNDARY = 5
     DEPTH = 6
+    BOARD_11 = 0
+    BOARD_15 = 0
+    BOARD_18 = 0
 
 
 class Params_Automat:
@@ -30,10 +33,10 @@ class Params_MovementProfile:
 class Params_Anxious:
 
     ALPHA_DISTANCE_SNAKE = 1
-    BETA_DISTANCE_CORNERS = 1
+    BETA_DISTANCE_CORNERS = 4
     GAMMA_DISTANCE_FOOD = 1
-    THETA_DISTANCE_MID = 2
-    PHI_ESCAPE_DIRECTION = 5
+    THETA_DISTANCE_MID = 7
+    PHI_ESCAPE_DIRECTION = 4
 
 
 class Params_ActionPlan:
@@ -44,6 +47,6 @@ class Params_ActionPlan:
 class Params_ValidActions:
 
     DIST_TO_ENEMY = 15
-    BODY_VALUE = 3
-    HEAD_VALUE = 25
+    BODY_VALUE = 10
+    HEAD_VALUE = 50
     AREA_VALUE = 5
