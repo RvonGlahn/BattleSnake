@@ -306,10 +306,11 @@ class ValidActions:
 
             valid_actions = [valid_action for valid_action in valid_actions if valid_action not in invalid_actions]
 
-        # if not valid_actions:
-        #    valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
+        print("Multi-Valid Actions:", valid_actions)
+        if not valid_actions:
+            valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
 
-        print("Valid ACtions:", valid_actions)
+        print("Valid Actions:", valid_actions)
 
         return valid_actions, action_plan
 
