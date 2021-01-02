@@ -200,7 +200,7 @@ class ValidActions:
                     # TODO: 99er besser setzen
                     # probleme wenn körper des Gegners voraus geht
                     # es fehlen noch Einbahnstraßen
-                    # es werden zu viele falsche am Körper gesetzt
+                    # es werden zu viele falsche am Körper gesetzt (x)
                     if valid_board[x, y] < 10:
                         valid_board[x, y] = 99
                     back_track_list += backtrack_positions

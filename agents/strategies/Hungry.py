@@ -21,6 +21,8 @@ class Hungry:
         food = None
 
         relevant_foods = RelevantFood.get_relevant_food(my_head, board.snakes, board.food)
+        if not relevant_foods:
+            return []
 
         start_distance = 0
 
