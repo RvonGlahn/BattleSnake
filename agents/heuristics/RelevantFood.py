@@ -17,6 +17,7 @@ class RelevantFood:
             my_dist_to_food = Distance.manhattan_dist(food, my_head)
 
             if my_dist_to_food <= enemy_dist_to_food and my_dist_to_food <= 20:
+
                 my_close_food.append(food)
 
         return my_close_food

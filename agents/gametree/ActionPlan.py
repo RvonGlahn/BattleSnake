@@ -15,9 +15,9 @@ class ActionPlan:
     ):
         self.value_board = base_board
 
-    def _evaluate_corridor(self, direction: Direction, x: int, y: int) -> int:
+    def _evaluate_corridor(self, direction: Direction, x: int, y: int):
 
-        # TODO: Länge der Lane einbeziehen und vielleicht abstand zur nächsten Snake
+        # TODO: Breite der Lane einbeziehen ohne Gegner
         # Fluchtweg einberechnen. Pfad muss mind. 2 breit sein
         # check if corridor is valid
         if x == 0:
@@ -30,20 +30,36 @@ class ActionPlan:
             y -= 1
 
         if direction == Direction.LEFT:
-            return (np.sum(self.value_board[0:x, y]) + np.sum(self.value_board[0:x, y-1]) +
-                    np.sum(self.value_board[0:x, y+1])) / x
+            lane = np.sum(self.value_board[0:x, y])
+
+            corridor = lane + np.sum(self.value_board[0:x, y-1]) + np.sum(self.value_board[0:x, y+1])
+            norm_corridor = corridor / x
+
+            return lane, norm_corridor
 
         if direction == Direction.RIGHT:
-            return (np.sum(self.value_board[x+1:, y]) + np.sum(self.value_board[x+1:, y-1]) +
-                    np.sum(self.value_board[x+1:, y+1])) / (self.value_board.shape[0]-x)
+            lane = np.sum(self.value_board[x+1:, y])
+
+            corridor = lane + np.sum(self.value_board[x+1:, y-1]) + np.sum(self.value_board[x+1:, y+1])
+            norm_corridor = corridor / (self.value_board.shape[0]-x)
+
+            return lane, norm_corridor
 
         if direction == Direction.DOWN:
-            return (np.sum(self.value_board[x, 0:y]) + np.sum(self.value_board[x-1, 0:y]) +
-                    np.sum(self.value_board[x+1, 0:y])) / y
+            lane = np.sum(self.value_board[x, 0:y])
+
+            corridor = lane + np.sum(self.value_board[x-1, 0:y]) + np.sum(self.value_board[x+1, 0:y])
+            norm_corridor = corridor / y
+
+            return lane, norm_corridor
 
         if direction == Direction.UP:
-            return (np.sum(self.value_board[x, y+1:]) + np.sum(self.value_board[x - 1, y+1:]) +
-                    np.sum(self.value_board[x + 1, y+1:])) / (self.value_board.shape[1]-y)
+            lane = np.sum(self.value_board[x, y+1:])
+
+            corridor = lane + np.sum(self.value_board[x - 1, y+1:]) + np.sum(self.value_board[x + 1, y+1:])
+            norm_corridor = corridor / (self.value_board.shape[1]-y)
+
+            return lane, norm_corridor
 
     def _add_movement_prediction(self):
         pass
@@ -56,7 +72,8 @@ class ActionPlan:
         # add movement_profile
 
         for direction in valid_actions:
-            new_cost = self._evaluate_corridor(direction, x, y)
+            lane_cost, corridor_cost = self._evaluate_corridor(direction, x, y)
+            new_cost = lane_cost + corridor_cost
             cost_dict[direction] = new_cost
             if new_cost < cost:
                 cost = new_cost

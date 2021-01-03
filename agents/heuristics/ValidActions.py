@@ -166,6 +166,9 @@ class ValidActions:
                                     if square[x][y] == 0 or step <= square[x][y]:
                                         square[x][y] = step
                                     action_square[x][y] = Params_ValidActions.AREA_VALUE
+
+            return valid_board, action_plan
+
             """
             # fix empty snake_body fields
             for body_part in enemy.body[::-1]:
@@ -182,7 +185,6 @@ class ValidActions:
                 else:
                     valid_board[body_part.x][body_part.y] = field_value + 2
             """
-        return valid_board, action_plan
 
     @staticmethod
     def backtrack(coord_list, valid_board: np.ndarray):
@@ -217,6 +219,8 @@ class ValidActions:
         backtrack_list = []
         invalid_actions = []
         snake_bodies = []
+
+        # mark enemy snakes
         for snake in board.snakes:
             if snake.snake_id != my_snake.snake_id:
                 snake_bodies += snake.body
@@ -246,15 +250,13 @@ class ValidActions:
                         snake_body_field = True if Position(x + x_delta, y + y_delta) in snake_bodies and square[x][
                             y] > depth else False
 
-                        # kritische Felder markieren
-                        if 0 < square[x][y] < 99 and square[x][y] - step <= 0:
-                            square[x][y] = 99
-                            continue
-
                         # aktionsradius der Schlange beschreiben
                         if square[x, y] == -step + 1 or step < square[x, y] or square[x, y] == 0:
-                            if square[x, y] < 10:
+                            if square[x, y] < 10 and -(step-1) in neighbour_values:
                                 square[x][y] = -step
+                            # TODO: felder im toten Winkel berücksichtigen
+                            # if square[x, y] == 0 and -(step-1) in neighbour_values:
+                            #    square[x][y] = -step
 
                         # sackgassen erkennen am Rand
                         if border_field:
@@ -262,12 +264,19 @@ class ValidActions:
                                       abs(value) <= abs(square[x][y])]
                             if not values:
                                 backtrack_list.append((x + x_delta, y + y_delta))
+                                print("Sackgasse-Rand: ", x + x_delta, y + y_delta)
 
                         # sackgassen erkennen an Snakebody
                         if snake_body_field:
                             values = [value for value in neighbour_values if value > square[x][y]]
                             if not values:
                                 backtrack_list.append((x + x_delta, y + y_delta))
+                                print("Sackgasse-Body: ", x + x_delta, y + y_delta)
+
+                        # kritische Felder markieren
+                        if 0 < square[x][y] < 99 and square[x][y] - step <= 0:
+                            square[x][y] = 99
+                            continue
 
         if backtrack_list:
             ValidActions.backtrack(backtrack_list, valid_board)
@@ -296,8 +305,8 @@ class ValidActions:
                         and Distance.manhattan_dist(snake.get_head(), my_snake.get_head())
                         < Params_ValidActions.DIST_TO_ENEMY]
 
-        # if len(board.snakes[0].body) == 4:
-        #     print("Hallo")
+        if len(board.snakes[0].body) == 4:
+            print("Hallo")
 
         enemy_board, action_plan = ValidActions.calculate_board(board, enemy_snakes, depth)
 
