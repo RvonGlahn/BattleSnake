@@ -3,7 +3,6 @@ import numpy as np
 
 from agents.heuristics.RelevantFood import RelevantFood
 from agents.heuristics.Distance import Distance
-from agents.heuristics.ValidActions import ValidActions
 
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
@@ -26,10 +25,9 @@ class Hungry:
 
         start_distance = 0
 
-        # get food that is the futhest away from enemies heads
+        # get food that is nearest to my head
         for relevant_food in relevant_foods:
-            distance = min([Distance.manhattan_dist(enemy.get_head(), relevant_food) for enemy in board.snakes
-                            if enemy.get_head() is not my_head])
+            distance = Distance.manhattan_dist(my_head, relevant_food)
             if distance > start_distance:
                 food = relevant_food
 

@@ -169,23 +169,6 @@ class ValidActions:
 
             return valid_board, action_plan
 
-            """
-            # fix empty snake_body fields
-            for body_part in enemy.body[::-1]:
-                body_neighbours = ValidActions.get_valid_neighbour_values(body_part.x, body_part.y, valid_board)
-
-                field_values = [i for i in body_neighbours if i > 0]
-                if field_values:
-                    field_value = min(field_values)
-                else:
-                    continue
-
-                if field_value + valid_board[body_part.x][body_part.y] >= 0:
-                    valid_board[body_part.x][body_part.y] = field_value + 1
-                else:
-                    valid_board[body_part.x][body_part.y] = field_value + 2
-            """
-
     @staticmethod
     def backtrack(coord_list, valid_board: np.ndarray):
         for (x, y) in coord_list:
