@@ -235,7 +235,9 @@ class ValidActions:
 
                         # aktionsradius der Schlange beschreiben
                         if square[x, y] == -step + 1 or step < square[x, y] or square[x, y] == 0:
-                            if square[x, y] < 10 and -(step-1) in neighbour_values:
+                            if square[x, y] < 10 and step == 1:
+                                square[x][y] = -step
+                            if square[x, y] < 10 and -(step - 1) in neighbour_values:
                                 square[x][y] = -step
                             # TODO: felder im toten Winkel berücksichtigen
                             # if square[x, y] == 0 and -(step-1) in neighbour_values:
