@@ -1,3 +1,6 @@
+# TODO: Train Parameters with genetic algorithm
+
+
 class Params_Decision:
 
     MONITOR_TIME = 150
@@ -37,6 +40,7 @@ class Params_Anxious:
     GAMMA_DISTANCE_FOOD = 1
     THETA_DISTANCE_MID = 7
     PHI_ESCAPE_DIRECTION = 4
+    PSI_BORDER_VALUE = 1
 
 
 class Params_ActionPlan:

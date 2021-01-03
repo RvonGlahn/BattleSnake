@@ -36,14 +36,14 @@ class Anxious:
         gamma = Params_Anxious.GAMMA_DISTANCE_FOOD
         theta = Params_Anxious.THETA_DISTANCE_MID
         phi = Params_Anxious.PHI_ESCAPE_DIRECTION
+        psi = Params_Anxious.PSI_BORDER_VALUE
 
         cost = []
 
         for action in valid_actions:
             next_position = my_head.advanced(action)
 
-            # TODO: border bestrafen und/oder single lane bestrafen
-            border_value = 30 if my_head.x == 0 or my_head.y == 0 or my_head.x == grid_map.width or my_head.y == grid_map.height else 0
+            border_value = 50 if my_head.x == 0 or my_head.y == 0 or my_head.x == grid_map.width-1 or my_head.y == grid_map.height-1 else 0
             escape_value = escape_cost_dict[action]
             distance_snakes = sum([Distance.manhattan_dist(next_position, enemy_head) for enemy_head in enemy_heads])
             distance_corners = sum([Distance.manhattan_dist(next_position, corner) for corner in corners])
@@ -51,7 +51,7 @@ class Anxious:
             distance_food = sum([Distance.manhattan_dist(next_position, food) for food in board.food
                                  if 3 < food.x < grid_map.width - 3 and 3 < food.y < grid_map.height - 3])
 
-            distance = alpha * distance_snakes + beta * distance_corners - gamma * distance_food - theta * distance_mid - phi * escape_value - border_value
+            distance = alpha * distance_snakes + beta * distance_corners - gamma * distance_food - theta * distance_mid - phi * escape_value - psi * border_value
 
             cost.append(distance)
 

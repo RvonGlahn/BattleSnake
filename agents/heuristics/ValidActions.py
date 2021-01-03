@@ -12,7 +12,7 @@ from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.Occupant import Occupant
 from environment.Battlesnake.helper.DirectionUtil import DirectionUtil
 
-
+# TODO: Class Refactorn, init einbauen, board calculates aufteilen und backtrack schreiben
 class ValidActions:
 
     @staticmethod
@@ -162,16 +162,17 @@ class ValidActions:
 
                             for field in neighbour_field_values:
                                 if step - 1 == field:
-                                    # nur der nächste Gegner zählt, nicht überlagern
+                                    # nur der naheste Gegner zählt, nicht überlagern
                                     if square[x][y] == 0 or step <= square[x][y]:
                                         square[x][y] = step
                                     action_square[x][y] = Params_ValidActions.AREA_VALUE
 
-            return valid_board, action_plan
+        return valid_board, action_plan
 
+    # TODO: Backtrack zu Tiefensuche nach möglichen Pfaden umbauen -> wenn pfad bis zum Ende der depth ->valid + abbruch
     @staticmethod
-    def backtrack(coord_list, valid_board: np.ndarray):
-        for (x, y) in coord_list:
+    def backtrack(valid_board: np.ndarray, my_head):
+        for (x, y) in []:
             all_neighbours_greater = True
             back_track_list = []
             while all_neighbours_greater:
@@ -198,6 +199,8 @@ class ValidActions:
     def find_invalid_actions(board: BoardState, valid_board: np.ndarray, my_snake: Snake,
                              depth: int) -> List[Direction]:
         help_board = np.zeros((board.width, board.height))
+        enemy_board = valid_board.copy()
+
         head = my_snake.get_head()
         backtrack_list = []
         invalid_actions = []
@@ -227,50 +230,30 @@ class ValidActions:
                 for y in range(0, square.shape[1]):
 
                     if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]), Position(x, y)) == step:
-
                         neighbour_values = ValidActions.get_valid_neighbour_values(x, y, square)
-                        border_field = True if x + x_delta == 0 or x + x_delta == board.width - 1 or y + y_delta == 0 or y + y_delta == board.height - 1 else False
-                        snake_body_field = True if Position(x + x_delta, y + y_delta) in snake_bodies and square[x][
-                            y] > depth else False
 
                         # aktionsradius der Schlange beschreiben
-                        if square[x, y] == -step + 1 or step < square[x, y] or square[x, y] == 0:
+                        if square[x, y] == -step + 1 or square[x, y] == 0 or step < square[x, y]:
                             if square[x, y] < 10 and step == 1:
                                 square[x][y] = -step
                             if square[x, y] < 10 and -(step - 1) in neighbour_values:
                                 square[x][y] = -step
-                            # TODO: felder im toten Winkel berücksichtigen
+                        # eigenenes Schwanzende berücksichtigen
+                        if 10 < square[x, y] < 20 and square[x, y] % 10 <= step and -(step - 1) in neighbour_values:
+                            square[x][y] = -step
+                        # feindliche Schwanzenden berücksichtigen
+                        if 20 < square[x, y] < 30 and square[x, y] % 10 <= step and -(step - 1) in neighbour_values:
+                            square[x][y] = -step
+                            # TODO: felder im toten Winkel berücksichtigen -> modulo 10 und kleiner 20
                             # if square[x, y] == 0 and -(step-1) in neighbour_values:
                             #    square[x][y] = -step
 
-                        # sackgassen erkennen am Rand
-                        if border_field:
-                            values = [value for value in neighbour_values if
-                                      abs(value) <= abs(square[x][y])]
-                            if not values:
-                                backtrack_list.append((x + x_delta, y + y_delta))
-                                print("Sackgasse-Rand: ", x + x_delta, y + y_delta)
-
-                        # sackgassen erkennen an Snakebody
-                        if snake_body_field:
-                            values = [value for value in neighbour_values if value > square[x][y]]
-                            if not values:
-                                backtrack_list.append((x + x_delta, y + y_delta))
-                                print("Sackgasse-Body: ", x + x_delta, y + y_delta)
-
                         # kritische Felder markieren
-                        if 0 < square[x][y] < 99 and square[x][y] - step <= 0:
-                            square[x][y] = 99
-                            continue
+                        if square[x][y] > 0 and square[x][y] - step <= 0:
+                            pass
+                            # square[x][y] = enemy_board[x + x_delta][y + y_delta]
 
-        if backtrack_list:
-            ValidActions.backtrack(backtrack_list, valid_board)
-            for x, y in ValidActions.get_valid_neigbours(head.x, head.y, valid_board):
-                if valid_board[x][y] == 99:
-                    direction = DirectionUtil.direction_to_reach_field(head, Position(x, y))
-                    invalid_actions.append(direction)
-        else:
-            return []
+        # invalid_actions = ValidActions.backtrack(valid_board, head)
 
         print(valid_board)
 
@@ -308,8 +291,11 @@ class ValidActions:
 
         return valid_actions, action_plan
 
-# [Position(1,2),Position(1,3),Position(2,3),Position(2,4),Position(2,5),Position(2,6),Position(2,7),Position(2,8),Position(2,9),Position(3,9),Position(4,9),Position(5,9),Position(6,9)]
-# [Position(0,0),Position(0,1),Position(0,2),Position(0,3)]
 
-# board.snakes[0].body = [Position(1,2),Position(1,3),Position(2,3),Position(2,4),Position(2,5),Position(2,6),Position(2,7),Position(2,8),Position(2,9),Position(3,9),Position(4,9),Position(5,9),Position(6,9)]
-# board.snakes[1].body = [Position(0,0),Position(0,1),Position(0,2),Position(0,3)]
+"""
+board.snakes[0].body = [Position(2,3),Position(2,4),Position(2,5),Position(2,6),Position(2,7),Position(2,8),Position(2,9),Position(3,9),Position(4,9),Position(5,9),Position(6,9)]
+board.snakes[2].body = [Position(0,6),Position(0,7),Position(0,8),Position(0,9),Position(0,10),Position(1,10),Position(2,10),Position(3,10),Position(4,10),Position(5,10)Position(6,10)Position(7,10)]
+board.snakes[1].body = [Position(0,0),Position(0,1),Position(0,2),Position(0,3)]
+board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(1,6)]
+board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(0,5)]
+"""
