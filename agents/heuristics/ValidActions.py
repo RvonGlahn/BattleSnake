@@ -10,10 +10,22 @@ from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.Occupant import Occupant
-from environment.Battlesnake.helper.DirectionUtil import DirectionUtil
 
-# TODO: Class Refactorn, init einbauen, board calculates aufteilen und backtrack schreiben
+
 class ValidActions:
+
+    def __init__(self,
+                 board: BoardState,
+                 grid_map: GridMap,
+                 me: Snake
+                 ):
+
+        self.depth = Params_ValidActions.DEPTH
+        self.board = board
+        self.snakes = board.snakes
+        self.grid_map = grid_map
+        self.my_snake = me
+        self.valid_board = np.zeros((self.board.width, self.board.height))
 
     @staticmethod
     def get_valid_actions(board: BoardState,
@@ -71,10 +83,11 @@ class ValidActions:
 
         return valid_actions
 
-    @staticmethod
-    def get_square(head: Position, valid_board: np.ndarray, width: int, height: int, step: int) -> Tuple[np.ndarray,
-                                                                                                         Tuple[int,
-                                                                                                               int]]:
+    def _get_square(self, head: Position, valid_board: np.ndarray, step: int) -> Tuple[np.ndarray, Tuple[int, int]]:
+
+        width = self.board.width
+        height = self.board.height
+
         x_low = head.x - step if head.x - step > 0 else 0
         x_high = head.x + step + 1 if head.x + step + 1 < width else width
         y_low = head.y - step if head.y - step > 0 else 0
@@ -82,8 +95,7 @@ class ValidActions:
 
         return valid_board[x_low: x_high, y_low: y_high], (x_low, y_low)
 
-    @staticmethod
-    def get_valid_neighbour_values(x: int, y: int, square: np.ndarray) -> List[int]:
+    def _get_valid_neighbour_values(self, x: int, y: int, square: np.ndarray) -> List[int]:
         neighbour_fields = []
 
         if x + 1 < square.shape[0]:
@@ -97,8 +109,7 @@ class ValidActions:
 
         return neighbour_fields
 
-    @staticmethod
-    def get_valid_neigbours(x: int, y: int, square: np.ndarray) -> List[Tuple[int, int]]:
+    def _get_valid_neigbours(self, x: int, y: int, square: np.ndarray) -> List[Tuple[int, int]]:
         neighbour_fields = []
 
         if x + 1 < square.shape[0]:
@@ -112,78 +123,94 @@ class ValidActions:
 
         return neighbour_fields
 
-    @staticmethod
-    def calculate_board(board: BoardState, enemy_snakes: List[Snake], depth: int) -> Tuple[np.ndarray, np.ndarray]:
+    def _calculate_my_square(self, step: int, head: Position, help_board: np.ndarray) -> None:
+        square, (x_delta, y_delta) = self._get_square(head, self.valid_board, step)
+        square_head = np.where(square == help_board[head.x][head.y])
 
-        #########################
-        #
-        # Idee: Für jede Schlange board einzeln berechnen und dann mit minimalen Werten überlagern
-        #
-        #########################
+        # calculate elements in array
+        for x in range(0, square.shape[0]):
+            for y in range(0, square.shape[1]):
 
-        valid_board = np.zeros((board.width, board.height))
-        action_plan = np.zeros((board.width, board.height))
+                if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]), Position(x, y)) == step:
+                    neighbour_values = self._get_valid_neighbour_values(x, y, square)
 
-        # add enemy snakes to board -> ( better with all snakes? )
-        for snake in board.snakes:
-            for index, position in enumerate(snake.body[::-1]):
-                valid_board[position.x][position.y] = -(index + 1)
-                action_plan[position.x][position.y] = Params_ValidActions.BODY_VALUE
-            action_plan[snake.get_head().x][snake.get_head().y] = Params_ValidActions.HEAD_VALUE
+                    # aktionsradius der Schlange beschreiben
+                    if square[x, y] == -step + 1 or square[x, y] == 0 or step < square[x, y]:
+                        if square[x, y] < 10 and step == 1:
+                            square[x][y] = -step
+                        if square[x, y] < 10 and -(step - 1) in neighbour_values:
+                            square[x][y] = -step
+                    # eigenenes Schwanzende berücksichtigen
+                    if 10 < square[x, y] < 20 and square[x, y] % 10 <= step and -(step - 1) in neighbour_values:
+                        square[x][y] = -step
+                    # feindliche Schwanzenden berücksichtigen
+                    if 20 < square[x, y] < 30 and square[x, y] % 10 <= step and -(step - 1) in neighbour_values:
+                        square[x][y] = -step
+                        # TODO: felder im toten Winkel berücksichtigen -> modulo 10 und kleiner 20
+                        # if square[x, y] == 0 and -(step-1) in neighbour_values:
+                        #    square[x][y] = -step
 
-        # build movement area around all enemy snakes near us
-        for enemy in enemy_snakes:
+                    # kritische Felder markieren
+                    if square[x][y] > 0 and square[x][y] - step <= 0:
+                        pass
+                        # square[x][y] = enemy_board[x + x_delta][y + y_delta]
 
-            enemy_depth = enemy.get_length() if depth > enemy.get_length() else depth
-            head = enemy.get_head()
+    def _calculate_enemy_square(self, step: int, head: Position, action_plan: np.ndarray) -> None:
 
-            # build new circle for each depth level
-            for step in range(1, enemy_depth + 1):
+        square, (_, _) = self._get_square(head, self.valid_board, step)
+        action_square, (_, _) = self._get_square(head, action_plan, step)
+        square_head = np.where(square == self.valid_board[head.x][head.y])
 
-                square, (_, _) = ValidActions.get_square(head, valid_board, board.width, board.height, step)
-                action_square, (_, _) = ValidActions.get_square(head, action_plan, board.width, board.height, step)
-                square_head = np.where(square == valid_board[head.x][head.y])
+        # TODO adjust fields that get checked more efficient
+        # fields = Mitte bzw. x Koordinate von square_head
+        # pro step + und - step bis Koordinate von y == y-square-head
+        # danach wieder minus 1 bis step/2
+        # Distance.manhatttan durch step ersetzen
+        # Extra Bedingung für Snake Body
 
-                # TODO adjust fields that get checked more efficient
-                # fields = Mitte bzw. x Koordinate von square_head
-                # pro step + und - step bis Koordinate von y == y-square-head
-                # danach wieder minus 1 bis step/2
-                # Distance.manhatttan durch step ersetzen
-                # Extra Bedingung für Snake Body
+        for x in range(0, square.shape[0]):
+            for y in range(0, square.shape[1]):
 
-                for x in range(0, square.shape[0]):
-                    for y in range(0, square.shape[1]):
+                # check for each field in circle if it has the right distance
+                if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]),
+                                           Position(x, y)) == step and square[x][y] + step >= 0:
 
-                        # check for each field in circle if it has the right distance
-                        if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]), Position(x, y)) \
-                                == step and square[x][y] + step >= 0:
+                    neighbour_field_values = self._get_valid_neighbour_values(x, y, square)
 
-                            neighbour_field_values = ValidActions.get_valid_neighbour_values(x, y, square)
+                    for field in neighbour_field_values:
+                        if step - 1 == field:
+                            # nur der naheste Gegner zählt, nicht überlagern
+                            if square[x][y] == 0 or step <= square[x][y]:
+                                square[x][y] = step
+                            action_square[x][y] = Params_ValidActions.AREA_VALUE
 
-                            for field in neighbour_field_values:
-                                if step - 1 == field:
-                                    # nur der naheste Gegner zählt, nicht überlagern
-                                    if square[x][y] == 0 or step <= square[x][y]:
-                                        square[x][y] = step
-                                    action_square[x][y] = Params_ValidActions.AREA_VALUE
+    def _mark_snakes(self, help_board: np.ndarray) -> None:
+        # mark enemy snakes
+        for snake in self.board.snakes:
+            if snake.snake_id != self.my_snake.snake_id:
+                for index, position in enumerate(snake.body[::-1]):
+                    self.valid_board[position.x][position.y] = (index + 21)
+                    help_board[position.x][position.y] = (index + 21)
 
-        return valid_board, action_plan
+        # mark my snake on board
+        for index, position in enumerate(self.my_snake.body[::-1]):
+            self.valid_board[position.x][position.y] = (index + 11)
+            help_board[position.x][position.y] = (index + 11)
 
-    # TODO: Backtrack zu Tiefensuche nach möglichen Pfaden umbauen -> wenn pfad bis zum Ende der depth ->valid + abbruch
-    @staticmethod
-    def backtrack(valid_board: np.ndarray, my_head):
+    def _expand(self, valid_board: np.ndarray, my_head: Position) -> List[Position]:
+
+        # TODO: Tiefensuche nach möglichen Pfaden -> if pfad bis zum Ende der depth -> valid + abbruch
         for (x, y) in []:
             all_neighbours_greater = True
             back_track_list = []
             while all_neighbours_greater:
-                all_neighbours_greater = [value for value in ValidActions.get_valid_neighbour_values(x, y, valid_board)
+                all_neighbours_greater = [value for value in self._get_valid_neighbour_values(x, y, valid_board)
                                           if value >= valid_board[x, y] and value != 99]
 
                 if all_neighbours_greater:
-                    backtrack_positions = [position for position in ValidActions.get_valid_neigbours(x, y, valid_board)
+                    backtrack_positions = [position for position in self._get_valid_neigbours(x, y, valid_board)
                                            if valid_board[position[0]][position[1]] == valid_board[x][y] + 1]
 
-                    # TODO: 99er besser setzen
                     # wenn körper zwischem erreichbaren Feld und Schlange ist dann keine 99
                     # probleme wenn körper des Gegners voraus geht
                     # es fehlen noch Einbahnstraßen
@@ -195,97 +222,78 @@ class ValidActions:
                 if back_track_list:
                     (x, y) = back_track_list.pop(0)
 
-    @staticmethod
-    def find_invalid_actions(board: BoardState, valid_board: np.ndarray, my_snake: Snake,
-                             depth: int) -> List[Direction]:
-        help_board = np.zeros((board.width, board.height))
-        enemy_board = valid_board.copy()
+    def _calculate_board(self, enemy_snakes: List[Snake]) -> np.ndarray:
 
-        head = my_snake.get_head()
-        backtrack_list = []
+        #########################
+        #
+        # Idee: Für jede Schlange board einzeln berechnen und dann mit minimalen Werten überlagern
+        #
+        #########################
+
+        action_plan = np.zeros((self.board.width, self.board.height))
+
+        # add enemy snakes to board -> ( better with all snakes? )
+        for snake in self.board.snakes:
+            for index, position in enumerate(snake.body[::-1]):
+                self.valid_board[position.x][position.y] = -(index + 1)
+                action_plan[position.x][position.y] = Params_ValidActions.BODY_VALUE
+            action_plan[snake.get_head().x][snake.get_head().y] = Params_ValidActions.HEAD_VALUE
+
+        # build movement area around all enemy snakes near us
+        for enemy in enemy_snakes:
+
+            enemy_depth = enemy.get_length() if self.depth > enemy.get_length() else self.depth
+            head = enemy.get_head()
+
+            # build new circle for each depth level
+            for step in range(1, enemy_depth + 1):
+                self._calculate_enemy_square(step, head, action_plan)
+
+        return action_plan
+
+    def _find_invalid_actions(self) -> List[Direction]:
+
+        help_board = np.zeros((self.board.width, self.board.height))
         invalid_actions = []
-        snake_bodies = []
+        head = self.my_snake.get_head()
 
-        # mark enemy snakes
-        for snake in board.snakes:
-            if snake.snake_id != my_snake.snake_id:
-                snake_bodies += snake.body
-                for index, position in enumerate(snake.body[::-1]):
-                    valid_board[position.x][position.y] = (index + 21)
-                    help_board[position.x][position.y] = (index + 21)
+        # mark snakes on the board
+        self._mark_snakes(help_board)
 
-        # mark my snake on board
-        for index, position in enumerate(my_snake.body[::-1]):
-            valid_board[position.x][position.y] = (index + 11)
-            help_board[position.x][position.y] = (index + 11)
+        # calculate new square for each depth level
+        for step in range(1, self.depth + 1):
+            self._calculate_my_square(step, head, help_board)
 
-        # build new circle for each depth level
-        for step in range(1, depth + 1):
-
-            square, (x_delta, y_delta) = ValidActions.get_square(head, valid_board, board.width, board.height, step)
-            square_head = np.where(square == help_board[head.x][head.y])
-
-            # calculate elements in array
-            for x in range(0, square.shape[0]):
-                for y in range(0, square.shape[1]):
-
-                    if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]), Position(x, y)) == step:
-                        neighbour_values = ValidActions.get_valid_neighbour_values(x, y, square)
-
-                        # aktionsradius der Schlange beschreiben
-                        if square[x, y] == -step + 1 or square[x, y] == 0 or step < square[x, y]:
-                            if square[x, y] < 10 and step == 1:
-                                square[x][y] = -step
-                            if square[x, y] < 10 and -(step - 1) in neighbour_values:
-                                square[x][y] = -step
-                        # eigenenes Schwanzende berücksichtigen
-                        if 10 < square[x, y] < 20 and square[x, y] % 10 <= step and -(step - 1) in neighbour_values:
-                            square[x][y] = -step
-                        # feindliche Schwanzenden berücksichtigen
-                        if 20 < square[x, y] < 30 and square[x, y] % 10 <= step and -(step - 1) in neighbour_values:
-                            square[x][y] = -step
-                            # TODO: felder im toten Winkel berücksichtigen -> modulo 10 und kleiner 20
-                            # if square[x, y] == 0 and -(step-1) in neighbour_values:
-                            #    square[x][y] = -step
-
-                        # kritische Felder markieren
-                        if square[x][y] > 0 and square[x][y] - step <= 0:
-                            pass
-                            # square[x][y] = enemy_board[x + x_delta][y + y_delta]
-
-        # invalid_actions = ValidActions.backtrack(valid_board, head)
-
-        print(valid_board)
+        # invalid_actions = ValidActions.expand(valid_board, head)
+        print(self.valid_board)
 
         return invalid_actions
 
-    @staticmethod
-    def multi_level_valid_actions(board: BoardState,
-                                  snakes: List[Snake],
-                                  my_snake: Snake,
-                                  grid_map: GridMap[Occupant],
-                                  depth: int) -> Tuple[List[Direction], np.ndarray]:
+    def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray]:
 
-        possible_actions = my_snake.possible_actions()
-        valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
+        possible_actions = self.my_snake.possible_actions()
+        valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes, self.my_snake, self.grid_map)
 
-        enemy_snakes = [snake for snake in snakes if snake.snake_id != my_snake.snake_id
-                        and Distance.manhattan_dist(snake.get_head(), my_snake.get_head())
+        enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id
+                        and Distance.manhattan_dist(snake.get_head(), self.my_snake.get_head())
                         < Params_ValidActions.DIST_TO_ENEMY]
 
-        if len(board.snakes[0].body) == 4:
+        if len(self.snakes[0].body) == 4:
             print("Hallo")
 
-        enemy_board, action_plan = ValidActions.calculate_board(board, enemy_snakes, depth)
+        # calculate enemy snakes board
+        action_plan = self._calculate_board(enemy_snakes)
 
         if enemy_snakes:
-            invalid_actions = ValidActions.find_invalid_actions(board, enemy_board, my_snake, depth)
-
+            # calculate range of my snake and find valid actions
+            invalid_actions = self._find_invalid_actions()
             valid_actions = [valid_action for valid_action in valid_actions if valid_action not in invalid_actions]
 
         print("Multi-Valid Actions:", valid_actions)
+
         if not valid_actions:
-            valid_actions = ValidActions.get_valid_actions(board, possible_actions, snakes, my_snake, grid_map)
+            valid_actions = ValidActions.get_valid_actions(self.board, possible_actions, self.snakes, self.my_snake,
+                                                           self.grid_map)
 
         print("Valid Actions:", valid_actions)
 

@@ -7,7 +7,6 @@ class Params_Decision:
     REDUCED_MONITORING_TIME = 100
     UPDATE_FREQUENCY = 5
     CLOSEST_HEAD_BOUNDARY = 5
-    DEPTH = 6
     BOARD_11 = 0
     BOARD_15 = 0
     BOARD_18 = 0
@@ -50,6 +49,7 @@ class Params_ActionPlan:
 
 class Params_ValidActions:
 
+    DEPTH = 6
     DIST_TO_ENEMY = 15
     BODY_VALUE = 10
     HEAD_VALUE = 50

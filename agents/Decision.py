@@ -44,7 +44,7 @@ class Decision:
         self.action_board = None
         self.default_board_score = None
 
-    def set_default_board(self, height, width):
+    def set_default_board(self, height, width) -> None:
         init_board = np.zeros((height, width))
         for x in range(width):
             if x == 1:
@@ -119,8 +119,8 @@ class Decision:
         states = {automat.snake.snake_id: automat.state for automat in self.automats.values()}
         return states
 
-    def _call_strategy(self, you: Snake, board: BoardState, grid_map: GridMap, valid_actions: List[Direction])\
-            -> Direction:
+    def _call_strategy(self, you: Snake, board: BoardState, grid_map: GridMap,
+                       valid_actions: List[Direction]) -> Direction:
 
         my_state = self.automats[self.my_snake_id].get_state()
 
@@ -138,7 +138,7 @@ class Decision:
             return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan)
             # return Provocative.provocate(you, board, grid_map, self.states, self.automats)
 
-    def set_round(self, this_round):
+    def set_round(self, this_round) -> None:
         self.game_round = this_round
 
     def decide(self, you: Snake, board: BoardState, grid_map: GridMap) -> Direction:
@@ -148,9 +148,9 @@ class Decision:
         if len(self.automats) != len(board.snakes):
             self._delete_dead_snake(board.dead_snakes)
 
-        # get valid actions and basic board for action_plan, pass them to other functions
-        valid_actions, self.action_board = ValidActions.multi_level_valid_actions(board, board.snakes, you, grid_map,
-                                                                                  Params_Decision.DEPTH)
+        # init ValidActions object and get basic board for action_plan from multi_level
+        valid_action = ValidActions(board, grid_map, you)
+        valid_actions, self.action_board = valid_action.multi_level_valid_actions()
 
         # decide if we focus on monitoring enemies or on calculating our next move
         dist_to_closest_head = Distance.dist_to_closest_enemy_head(board.snakes, you)
