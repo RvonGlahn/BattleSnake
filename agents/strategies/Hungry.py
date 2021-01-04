@@ -44,9 +44,10 @@ class Hungry:
 
         if not food_path:
             food_path = Hungry.follow_food(snake, board, grid_map)
-        if food_path[0][1] in valid_actions:
-            action = food_path[0][1]
-            food_path.pop(0)
+        if food_path:
+            if food_path[0][1] in valid_actions:
+                action = food_path[0][1]
+                food_path.pop(0)
         else:
             food_path = []
             action = np.random.choice(valid_actions)
