@@ -40,10 +40,14 @@ class Anxious:
 
         cost = []
 
+        # TODO: remove border action from valid_actions
+
         for action in valid_actions:
             next_position = my_head.advanced(action)
 
-            border_value = 50 if my_head.x == 0 or my_head.y == 0 or my_head.x == grid_map.width-1 or my_head.y == grid_map.height-1 else 0
+            if my_head.x == 0 or my_head.y == 0 or my_head.x == grid_map.width-1 or my_head.y == grid_map.height-1:
+                cost.append(-999999999)
+                continue
             escape_value = escape_cost_dict[action]
             distance_snakes = sum([Distance.manhattan_dist(next_position, enemy_head) for enemy_head in enemy_heads])
             distance_corners = sum([Distance.manhattan_dist(next_position, corner) for corner in corners])
