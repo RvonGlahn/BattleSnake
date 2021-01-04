@@ -103,8 +103,9 @@ class Decision:
                 enemy_heads.pop(index)
 
                 if self.game_round != 0:
-                    automat.update_enemy_state(longest_snake)
-                automat.make_movement_profile_prediction(enemy_snakes, enemy_heads, board, grid_map)
+                    pass
+                    # automat.update_enemy_state(longest_snake)
+                # automat.make_movement_profile_prediction(enemy_snakes, enemy_heads, board, grid_map)
                 # automat.update_behaviour()
 
         # update my snake state
