@@ -55,7 +55,7 @@ class Anxious:
             distance_food = sum([Distance.manhattan_dist(next_position, food) for food in board.food
                                  if 3 < food.x < grid_map.width - 3 and 3 < food.y < grid_map.height - 3])
 
-            distance = alpha * distance_snakes + beta * distance_corners - gamma * distance_food - theta * distance_mid - phi * escape_value - psi * border_value
+            distance = alpha * distance_snakes + beta * distance_corners - gamma * distance_food - theta * distance_mid - phi * escape_value
 
             cost.append(distance)
 
