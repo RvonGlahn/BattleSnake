@@ -36,7 +36,6 @@ class Anxious:
         gamma = Params_Anxious.GAMMA_DISTANCE_FOOD
         theta = Params_Anxious.THETA_DISTANCE_MID
         phi = Params_Anxious.PHI_ESCAPE_DIRECTION
-        psi = Params_Anxious.PSI_BORDER_VALUE
 
         cost = []
 
@@ -45,7 +44,8 @@ class Anxious:
         for action in valid_actions:
             next_position = my_head.advanced(action)
 
-            if my_head.x == 0 or my_head.y == 0 or my_head.x == grid_map.width-1 or my_head.y == grid_map.height-1:
+            if next_position.x == 0 or next_position.y == 0 or next_position.x == grid_map.width-1 \
+                    or next_position.y == grid_map.height-1:
                 cost.append(-999999999)
                 continue
             escape_value = escape_cost_dict[action]
