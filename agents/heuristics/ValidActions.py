@@ -26,6 +26,7 @@ class ValidActions:
         self.grid_map = grid_map
         self.my_snake = me
         self.valid_board = np.zeros((self.board.width, self.board.height))
+        self.valid_actions = []
 
     @staticmethod
     def get_valid_actions(board: BoardState,
@@ -197,30 +198,57 @@ class ValidActions:
             self.valid_board[position.x][position.y] = (index + 11)
             help_board[position.x][position.y] = (index + 11)
 
-    def _expand(self, valid_board: np.ndarray, my_head: Position) -> List[Position]:
+    def _expand(self, my_head: Position) -> List[Position]:
 
-        # TODO: Tiefensuche nach möglichen Pfaden -> if pfad bis zum Ende der depth -> valid + abbruch
-        for (x, y) in []:
-            all_neighbours_greater = True
-            back_track_list = []
-            while all_neighbours_greater:
-                all_neighbours_greater = [value for value in self._get_valid_neighbour_values(x, y, valid_board)
-                                          if value >= valid_board[x, y] and value != 99]
+        invalid_actions = []
+        for direction in self.valid_actions:
 
-                if all_neighbours_greater:
-                    backtrack_positions = [position for position in self._get_valid_neigbours(x, y, valid_board)
-                                           if valid_board[position[0]][position[1]] == valid_board[x][y] + 1]
+            step_history = []
+            dead_ends = {}
+            searching = True
+            value = -1
+            dead = False
 
-                    # wenn körper zwischem erreichbaren Feld und Schlange ist dann keine 99
-                    # probleme wenn körper des Gegners voraus geht
-                    # es fehlen noch Einbahnstraßen
-                    # es werden zu viele falsche am Körper gesetzt (x)
-                    if valid_board[x, y] < 10:
-                        valid_board[x, y] = 99
-                    back_track_list += backtrack_positions
+            # get firt field of Direction and check if valid
+            next_position = my_head.advanced(direction)
+            if self.valid_board[next_position.x][next_position.y] != value:
+                continue
+            step_history.append((next_position.x, next_position.y))
+            x_coord, y_coord = next_position.x, next_position.y
 
-                if back_track_list:
-                    (x, y) = back_track_list.pop(0)
+            while searching:
+                positions = self._get_valid_neigbours(x_coord, y_coord, self.valid_board)
+                for x, y in positions:
+
+                    # check if next value is valid and no dead end
+                    if self.valid_board[x][y] == value-1 and (x, y) not in dead_ends.keys():
+                        dead = False
+                        step_history.append((x, y))
+                        x_coord, y_coord = x, y
+                        value -= 1
+                        break
+                    # mark dead ends
+                    else:
+                        dead = True
+                    # break if a valid endnode was found
+                    if self.valid_board[x][y] == 0:
+                        searching = False
+                        dead = False
+                        break
+
+                # check if dead end and no more possible nodes to explore
+                if dead and step_history == []:
+                    invalid_actions.append(direction)
+                    searching = False
+
+                # check if dead end but still valid nodes to explore
+                if dead and step_history:
+                    dead_ends[(x_coord, y_coord)] = value
+                    print(value)
+                    x_coord, y_coord = step_history.pop(-1)
+                    value += 1
+
+        return invalid_actions
 
     def _calculate_board(self, enemy_snakes: List[Snake]) -> np.ndarray:
 
@@ -254,7 +282,6 @@ class ValidActions:
     def _find_invalid_actions(self) -> List[Direction]:
 
         help_board = np.zeros((self.board.width, self.board.height))
-        invalid_actions = []
         head = self.my_snake.get_head()
 
         # mark snakes on the board
@@ -264,22 +291,25 @@ class ValidActions:
         for step in range(1, self.depth + 1):
             self._calculate_my_square(step, head, help_board)
 
-        # invalid_actions = ValidActions.expand(valid_board, head)
-        print(self.valid_board)
+        if len(self.snakes[1].body) == 4:
+            print("Hallo")
+        invalid_actions = self._expand(head)
 
+        print(self.valid_board)
+        print("Invalids: ", invalid_actions)
         return invalid_actions
 
     def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray]:
 
         possible_actions = self.my_snake.possible_actions()
-        valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes, self.my_snake, self.grid_map)
+        self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes, self.my_snake, self.grid_map)
+
+        if len(self.snakes[0].body) == 4:
+            print("Hallo")
 
         enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id
                         and Distance.manhattan_dist(snake.get_head(), self.my_snake.get_head())
                         < Params_ValidActions.DIST_TO_ENEMY]
-
-        if len(self.snakes[0].body) == 4:
-            print("Hallo")
 
         # calculate enemy snakes board
         action_plan = self._calculate_board(enemy_snakes)
@@ -287,23 +317,23 @@ class ValidActions:
         if enemy_snakes:
             # calculate range of my snake and find valid actions
             invalid_actions = self._find_invalid_actions()
-            valid_actions = [valid_action for valid_action in valid_actions if valid_action not in invalid_actions]
+            self.valid_actions = [valid_action for valid_action in self.valid_actions if valid_action not in invalid_actions]
 
-        print("Multi-Valid Actions:", valid_actions)
+        print("Multi-Valid Actions:", self.valid_actions)
 
-        if not valid_actions:
-            valid_actions = ValidActions.get_valid_actions(self.board, possible_actions, self.snakes, self.my_snake,
+        if not self.valid_actions:
+            self.valid_actions = ValidActions.get_valid_actions(self.board, possible_actions, self.snakes, self.my_snake,
                                                            self.grid_map)
 
-        print("Valid Actions:", valid_actions)
+        print("Valid Actions:", self.valid_actions)
 
-        return valid_actions, action_plan
+        return self.valid_actions, action_plan
 
 
 """
-board.snakes[0].body = [Position(2,3),Position(2,4),Position(2,5),Position(2,6),Position(2,7),Position(2,8),Position(2,9),Position(3,9),Position(4,9),Position(5,9),Position(6,9)]
-board.snakes[2].body = [Position(0,6),Position(0,7),Position(0,8),Position(0,9),Position(0,10),Position(1,10),Position(2,10),Position(3,10),Position(4,10),Position(5,10)Position(6,10)Position(7,10)]
-board.snakes[1].body = [Position(0,0),Position(0,1),Position(0,2),Position(0,3)]
-board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(1,6)]
-board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(0,5)]
+self.board.snakes[0].body = [Position(2,3),Position(2,4),Position(2,5),Position(2,6),Position(2,7),Position(2,8),Position(2,9),Position(3,9),Position(4,9),Position(5,9),Position(6,9)]
+self.board.snakes[2].body = [Position(0,6),Position(0,7),Position(0,8),Position(0,9),Position(0,10),Position(1,10),Position(2,10),Position(3,10),Position(4,10),Position(5,10)Position(6,10)Position(7,10)]
+self.board.snakes[1].body = [Position(0,0),Position(0,1),Position(0,2),Position(0,3)]
+self.board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(1,6)]
+self.board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(0,5)]
 """
