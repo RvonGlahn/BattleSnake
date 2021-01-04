@@ -344,7 +344,7 @@ class ValidActions:
             self.valid_actions = [valid_action for valid_action in self.valid_actions
                                   if valid_action not in invalid_actions]
 
-        if food_direction  and len(self.valid_actions) > 1 and food_direction in self.valid_actions:
+        if food_direction and len(self.valid_actions) > 1 and food_direction in self.valid_actions:
             self.valid_actions.remove(food_direction)
 
         print("Multi-Valid Actions:", self.valid_actions)
