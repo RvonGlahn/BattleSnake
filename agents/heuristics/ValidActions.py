@@ -268,7 +268,8 @@ class ValidActions:
                 if v < minimum:
                     minimum = v
                     key = k
-            invalid_actions.remove(key)
+            if key in invalid_actions:
+                invalid_actions.remove(key)
         print("LongestWay:", longest_way)
         return invalid_actions
 
