@@ -12,6 +12,41 @@ from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.Occupant import Occupant
 
 
+# TODO:
+#  Tiefere Suche ermöglichen mit modulo % length oder Längsten Pfad returnen
+#  Felder im toten Winkel berücksichtigen
+#  Längsten Validen Pfad als valide returnen falls sonst keine validen actions
+
+def get_valid_neighbour_values(x: int, y: int, square: np.ndarray) -> List[int]:
+    neighbour_fields = []
+
+    if x + 1 < square.shape[0]:
+        neighbour_fields.append(square[x + 1][y])
+    if x - 1 >= 0:
+        neighbour_fields.append(square[x - 1][y])
+    if y + 1 < square.shape[1]:
+        neighbour_fields.append(square[x][y + 1])
+    if y - 1 >= 0:
+        neighbour_fields.append(square[x][y - 1])
+
+    return neighbour_fields
+
+
+def get_valid_neigbours(x: int, y: int, square: np.ndarray) -> List[Tuple[int, int]]:
+    neighbour_fields = []
+
+    if x + 1 < square.shape[0]:
+        neighbour_fields.append((x + 1, y))
+    if x - 1 >= 0:
+        neighbour_fields.append((x - 1, y))
+    if y + 1 < square.shape[1]:
+        neighbour_fields.append((x, y + 1))
+    if y - 1 >= 0:
+        neighbour_fields.append((x, y - 1))
+
+    return neighbour_fields
+
+
 class ValidActions:
 
     def __init__(self,
@@ -33,11 +68,12 @@ class ValidActions:
                           possible_actions: List[Direction],
                           snakes: List[Snake],
                           my_snake: Snake,
-                          grid_map: GridMap[Occupant]) -> List[Direction]:
+                          grid_map: GridMap[Occupant]) -> Tuple[List[Direction], Direction]:
 
         my_head = my_snake.get_head()
         snake_tails = []
         valid_actions = []
+        food_direction = None
 
         for snake in snakes:
             if snake.health == 100:
@@ -48,8 +84,9 @@ class ValidActions:
             next_position = my_head.advanced(direction)
 
             # avoid eating
-            if my_snake.health > 20:
+            if my_snake.health > Params_ValidActions.FOOD_BOUNDARY:
                 if grid_map.get_value_at_position(next_position) is Occupant.Food:
+                    food_direction = direction
                     continue
 
             # outofbounds
@@ -82,10 +119,9 @@ class ValidActions:
                 if grid_map.get_value_at_position(next_position) is Occupant.Food:
                     valid_actions.append(direction)
 
-        return valid_actions
+        return valid_actions, food_direction
 
     def _get_square(self, head: Position, valid_board: np.ndarray, step: int) -> Tuple[np.ndarray, Tuple[int, int]]:
-
         width = self.board.width
         height = self.board.height
 
@@ -96,36 +132,8 @@ class ValidActions:
 
         return valid_board[x_low: x_high, y_low: y_high], (x_low, y_low)
 
-    def _get_valid_neighbour_values(self, x: int, y: int, square: np.ndarray) -> List[int]:
-        neighbour_fields = []
-
-        if x + 1 < square.shape[0]:
-            neighbour_fields.append(square[x + 1][y])
-        if x - 1 >= 0:
-            neighbour_fields.append(square[x - 1][y])
-        if y + 1 < square.shape[1]:
-            neighbour_fields.append(square[x][y + 1])
-        if y - 1 >= 0:
-            neighbour_fields.append(square[x][y - 1])
-
-        return neighbour_fields
-
-    def _get_valid_neigbours(self, x: int, y: int, square: np.ndarray) -> List[Tuple[int, int]]:
-        neighbour_fields = []
-
-        if x + 1 < square.shape[0]:
-            neighbour_fields.append((x + 1, y))
-        if x - 1 >= 0:
-            neighbour_fields.append((x - 1, y))
-        if y + 1 < square.shape[1]:
-            neighbour_fields.append((x, y + 1))
-        if y - 1 >= 0:
-            neighbour_fields.append((x, y - 1))
-
-        return neighbour_fields
-
     def _calculate_my_square(self, step: int, head: Position, help_board: np.ndarray) -> None:
-        square, (x_delta, y_delta) = self._get_square(head, self.valid_board, step)
+        square, (_, _) = self._get_square(head, self.valid_board, step)  # (x_delta, y_delta)
         square_head = np.where(square == help_board[head.x][head.y])
 
         # calculate elements in array
@@ -133,7 +141,7 @@ class ValidActions:
             for y in range(0, square.shape[1]):
 
                 if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]), Position(x, y)) == step:
-                    neighbour_values = self._get_valid_neighbour_values(x, y, square)
+                    neighbour_values = get_valid_neighbour_values(x, y, square)
 
                     # aktionsradius der Schlange beschreiben
                     if square[x, y] == -step + 1 or square[x, y] == 0 or step < square[x, y]:
@@ -147,9 +155,6 @@ class ValidActions:
                     # feindliche Schwanzenden berücksichtigen
                     if 20 < square[x, y] < 30 and square[x, y] % 10 <= step and -(step - 1) in neighbour_values:
                         square[x][y] = -step
-                        # TODO: felder im toten Winkel berücksichtigen -> modulo 10 und kleiner 20
-                        # if square[x, y] == 0 and -(step-1) in neighbour_values:
-                        #    square[x][y] = -step
 
                     # kritische Felder markieren
                     if square[x][y] > 0 and square[x][y] - step <= 0:
@@ -157,7 +162,6 @@ class ValidActions:
                         # square[x][y] = enemy_board[x + x_delta][y + y_delta]
 
     def _calculate_enemy_square(self, step: int, head: Position, action_plan: np.ndarray) -> None:
-
         square, (_, _) = self._get_square(head, self.valid_board, step)
         action_square, (_, _) = self._get_square(head, action_plan, step)
         square_head = np.where(square == self.valid_board[head.x][head.y])
@@ -176,7 +180,7 @@ class ValidActions:
                 if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]),
                                            Position(x, y)) == step and square[x][y] + step >= 0:
 
-                    neighbour_field_values = self._get_valid_neighbour_values(x, y, square)
+                    neighbour_field_values = get_valid_neighbour_values(x, y, square)
 
                     for field in neighbour_field_values:
                         if step - 1 == field:
@@ -198,9 +202,10 @@ class ValidActions:
             self.valid_board[position.x][position.y] = (index + 11)
             help_board[position.x][position.y] = (index + 11)
 
-    def _expand(self, my_head: Position) -> List[Position]:
-
+    def _expand(self, my_head: Position) -> List[Direction]:
         invalid_actions = []
+        longest_way = {}
+
         for direction in self.valid_actions:
 
             step_history = []
@@ -208,6 +213,7 @@ class ValidActions:
             searching = True
             value = -1
             dead = False
+            longest_way[direction] = 0
 
             # get firt field of Direction and check if valid
             next_position = my_head.advanced(direction)
@@ -217,7 +223,8 @@ class ValidActions:
             x_coord, y_coord = next_position.x, next_position.y
 
             while searching:
-                positions = self._get_valid_neigbours(x_coord, y_coord, self.valid_board)
+                positions = get_valid_neigbours(x_coord, y_coord, self.valid_board)
+
                 for x, y in positions:
 
                     # check if next value is valid and no dead end
@@ -230,8 +237,9 @@ class ValidActions:
                     # mark dead ends
                     else:
                         dead = True
+
                     # break if a valid endnode was found
-                    if self.valid_board[x][y] == 0:
+                    if self.valid_board[x][y] == -Params_ValidActions.DEPTH or self.valid_board[x][y] == 0:
                         searching = False
                         dead = False
                         break
@@ -241,17 +249,30 @@ class ValidActions:
                     invalid_actions.append(direction)
                     searching = False
 
+                print(step_history)
                 # check if dead end but still valid nodes to explore
                 if dead and step_history:
                     dead_ends[(x_coord, y_coord)] = value
-                    print(value)
-                    x_coord, y_coord = step_history.pop(-1)
+                    step_history.pop(-1)
+                    if step_history:
+                        x_coord, y_coord = step_history[-1]
                     value += 1
 
+                if longest_way[direction] > value:
+                    longest_way[direction] = value
+
+        if len(invalid_actions) == len(self.valid_actions):
+            minimum = 0
+            key = None
+            for k, v in longest_way.items():
+                if v < minimum:
+                    minimum = v
+                    key = k
+            invalid_actions.remove(key)
+        print("LongestWay:", longest_way)
         return invalid_actions
 
     def _calculate_board(self, enemy_snakes: List[Snake]) -> np.ndarray:
-
         #########################
         #
         # Idee: Für jede Schlange board einzeln berechnen und dann mit minimalen Werten überlagern
@@ -280,7 +301,6 @@ class ValidActions:
         return action_plan
 
     def _find_invalid_actions(self) -> List[Direction]:
-
         help_board = np.zeros((self.board.width, self.board.height))
         head = self.my_snake.get_head()
 
@@ -300,9 +320,12 @@ class ValidActions:
         return invalid_actions
 
     def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray]:
-
         possible_actions = self.my_snake.possible_actions()
-        self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes, self.my_snake, self.grid_map)
+        self.valid_actions, food_direction = self.get_valid_actions(self.board, possible_actions, self.snakes,
+                                                                    self.my_snake, self.grid_map)
+
+        if food_direction:
+            self.valid_actions.append(food_direction)
 
         if len(self.snakes[0].body) == 4:
             print("Hallo")
@@ -317,13 +340,17 @@ class ValidActions:
         if enemy_snakes:
             # calculate range of my snake and find valid actions
             invalid_actions = self._find_invalid_actions()
-            self.valid_actions = [valid_action for valid_action in self.valid_actions if valid_action not in invalid_actions]
+            self.valid_actions = [valid_action for valid_action in self.valid_actions
+                                  if valid_action not in invalid_actions]
+
+        if food_direction  and len(self.valid_actions) > 1 and food_direction in self.valid_actions:
+            self.valid_actions.remove(food_direction)
 
         print("Multi-Valid Actions:", self.valid_actions)
 
         if not self.valid_actions:
-            self.valid_actions = ValidActions.get_valid_actions(self.board, possible_actions, self.snakes, self.my_snake,
-                                                           self.grid_map)
+            self.valid_actions, _ = ValidActions.get_valid_actions(self.board, possible_actions, self.snakes,
+                                                                   self.my_snake, self.grid_map)
 
         print("Valid Actions:", self.valid_actions)
 
@@ -331,8 +358,10 @@ class ValidActions:
 
 
 """
-self.board.snakes[0].body = [Position(2,3),Position(2,4),Position(2,5),Position(2,6),Position(2,7),Position(2,8),Position(2,9),Position(3,9),Position(4,9),Position(5,9),Position(6,9)]
-self.board.snakes[2].body = [Position(0,6),Position(0,7),Position(0,8),Position(0,9),Position(0,10),Position(1,10),Position(2,10),Position(3,10),Position(4,10),Position(5,10)Position(6,10)Position(7,10)]
+self.board.snakes[0].body = [Position(2,3),Position(2,4),Position(2,5),Position(2,6),Position(2,7),Position(2,8),
+Position(2,9),Position(3,9),Position(4,9),Position(5,9),Position(6,9)]
+self.board.snakes[2].body = [Position(0,6),Position(0,7),Position(0,8),Position(0,9),Position(0,10),Position(1,10),
+Position(2,10),Position(3,10),Position(4,10),Position(5,10)Position(6,10)Position(7,10)]
 self.board.snakes[1].body = [Position(0,0),Position(0,1),Position(0,2),Position(0,3)]
 self.board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(1,6)]
 self.board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(0,5)]

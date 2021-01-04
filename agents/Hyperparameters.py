@@ -49,8 +49,9 @@ class Params_ActionPlan:
 
 class Params_ValidActions:
 
-    DEPTH = 6
+    DEPTH = 8
     DIST_TO_ENEMY = 15
     BODY_VALUE = 10
     HEAD_VALUE = 50
     AREA_VALUE = 5
+    FOOD_BOUNDARY = 20
