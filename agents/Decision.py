@@ -162,6 +162,6 @@ class Decision:
 
         next_action = self._call_strategy(you, board, grid_map, valid_actions)
 
-        # print("MyState:", self.automats[self.my_snake_id].get_state())
+        print("MyState:", self.automats[self.my_snake_id].get_state())
 
         return next_action

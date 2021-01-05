@@ -54,4 +54,4 @@ class Params_ValidActions:
     BODY_VALUE = 10
     HEAD_VALUE = 50
     AREA_VALUE = 5
-    FOOD_BOUNDARY = 20
+    FOOD_BOUNDARY = 25
