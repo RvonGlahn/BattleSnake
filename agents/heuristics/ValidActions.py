@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 import numpy as np
 
 from agents.heuristics.Distance import Distance
@@ -64,6 +64,7 @@ class ValidActions:
         self.my_snake = me
         self.valid_board = np.zeros((self.board.width, self.board.height))
         self.valid_actions = []
+        self.direction_depth = {}
 
     @staticmethod
     def get_valid_actions(board: BoardState,
@@ -74,7 +75,7 @@ class ValidActions:
 
         my_head = my_snake.get_head()
         snake_tails = []
-        valid_actions = []
+        val_actions = []
         food_direction = None
 
         for snake in snakes:
@@ -99,29 +100,16 @@ class ValidActions:
             if grid_map.get_value_at_position(next_position) is Occupant.Snake and next_position not in snake_tails:
                 continue
 
-            # head crash -> Alle möglichen Richtungen des Heads der Gegner Schlange beachten
-            cont = False
-            for en_snake in snakes:
-                if en_snake.snake_id != my_snake.snake_id:
+            val_actions.append(direction)
 
-                    if en_snake.get_length() >= my_snake.get_length():
-                        enemy_head = en_snake.get_head()
-                        positions_enemy = [enemy_head.advanced(action) for action in en_snake.possible_actions()]
-
-                        if next_position in positions_enemy:
-                            cont = True
-            if cont:
-                continue
-            valid_actions.append(direction)
-
-        if not valid_actions:
+        if not val_actions:
             for direction in possible_actions:
                 next_position = my_head.advanced(direction)
-                # avoid eating
+                # eat if its the only possible valid action
                 if grid_map.get_value_at_position(next_position) is Occupant.Food:
-                    valid_actions.append(direction)
+                    val_actions.append(direction)
 
-        return valid_actions, food_direction
+        return val_actions, food_direction
 
     def _get_square(self, head: Position, valid_board: np.ndarray, step: int) -> Tuple[np.ndarray, Tuple[int, int]]:
         width = self.board.width
@@ -204,7 +192,7 @@ class ValidActions:
             self.valid_board[position.x][position.y] = (index + 11)
             help_board[position.x][position.y] = (index + 11)
 
-    def _expand(self, my_head: Position) -> List[Direction]:
+    def _expand(self, my_head: Position) -> Tuple[List[Direction], Dict]:
         invalid_actions = []
         longest_way = {}
 
@@ -217,7 +205,7 @@ class ValidActions:
             dead = False
             longest_way[direction] = 0
 
-            # get firt field of Direction and check if valid
+            # get first field of Direction and check if valid
             next_position = my_head.advanced(direction)
             if self.valid_board[next_position.x][next_position.y] != value:
                 continue
@@ -248,10 +236,8 @@ class ValidActions:
 
                 # check if dead end and no more possible nodes to explore
                 if dead and step_history == []:
-                    invalid_actions.append(direction)
                     searching = False
 
-                print(step_history)
                 # check if dead end but still valid nodes to explore
                 if dead and step_history:
                     dead_ends[(x_coord, y_coord)] = value
@@ -263,17 +249,24 @@ class ValidActions:
                 if longest_way[direction] > value:
                     longest_way[direction] = value
 
-        if len(invalid_actions) == len(self.valid_actions):
-            minimum = 0
-            key = None
-            for k, v in longest_way.items():
-                if v < minimum:
-                    minimum = v
-                    key = k
-            if key in invalid_actions:
-                invalid_actions.remove(key)
+        escape_direction_keys = []
+        escape_path_value = []
+
+        for k, v in longest_way.items():
+            if v > -Params_ValidActions.DEPTH:
+                invalid_actions.append(k)
+
+            escape_direction_keys.append(k)
+            escape_path_value.append(v)
+
+        # sort dict
+        order = np.argsort(escape_path_value)
+        escape_direction_keys = [escape_direction_keys[i] for i in order]
+        escape_path_value = [escape_path_value[i] for i in order]
+        longest_way = dict(zip(escape_direction_keys,  escape_path_value))
+
         print("LongestWay:", longest_way)
-        return invalid_actions
+        return invalid_actions, longest_way
 
     def _calculate_board(self, enemy_snakes: List[Snake]) -> np.ndarray:
         #########################
@@ -314,9 +307,7 @@ class ValidActions:
         for step in range(1, self.depth + 1):
             self._calculate_my_square(step, head, help_board)
 
-        if len(self.snakes[1].body) == 4:
-            print("Hallo")
-        invalid_actions = self._expand(head)
+        invalid_actions, self.direction_depth = self._expand(head)
 
         print(self.valid_board)
         print("Invalids: ", invalid_actions)
@@ -326,22 +317,19 @@ class ValidActions:
         possible_actions = self.my_snake.possible_actions()
         self.valid_actions, food_direction = self.get_valid_actions(self.board, possible_actions, self.snakes,
                                                                     self.my_snake, self.grid_map)
-
+        print("FirstValid: ", self.valid_actions)
         if food_direction:
             self.valid_actions.append(food_direction)
 
         if len(self.snakes[0].body) == 4:
             print("Hallo")
 
-        enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id
-                        and Distance.manhattan_dist(snake.get_head(), self.my_snake.get_head())
-                        < Params_ValidActions.DIST_TO_ENEMY]
+        enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id]
 
         # calculate enemy snakes board
         action_plan = self._calculate_board(enemy_snakes)
 
-        # TODO: Invalid Actions iterativ erhöhen
-
+        # TODO: Invalid Actions depth iterativ erhöhen while time
         if enemy_snakes:
             # calculate range of my snake and find valid actions
             invalid_actions = self._find_invalid_actions()
@@ -354,20 +342,23 @@ class ValidActions:
         print("Multi-Valid Actions:", self.valid_actions)
 
         if not self.valid_actions:
-            self.valid_actions, _ = ValidActions.get_valid_actions(self.board, possible_actions, self.snakes,
-                                                                   self.my_snake, self.grid_map)
+            longest_path = list(self.direction_depth.values())[0]
+            for k, v in self.direction_depth.items():
+                if v < longest_path+2:
+                    self.valid_actions.append(k)
 
-        print("Valid Actions:", self.valid_actions)
+            if food_direction:
+                self.valid_actions.append(food_direction)
+            print("Valid Actions:", self.valid_actions)
 
         return self.valid_actions, action_plan
 
 
 """
-self.board.snakes[0].body = [Position(2,3),Position(2,4),Position(2,5),Position(2,6),Position(2,7),Position(2,8),
-Position(2,9),Position(3,9),Position(4,9),Position(5,9),Position(6,9)]
-self.board.snakes[2].body = [Position(0,6),Position(0,7),Position(0,8),Position(0,9),Position(0,10),Position(1,10),
-Position(2,10),Position(3,10),Position(4,10),Position(5,10)Position(6,10)Position(7,10)]
+self.board.snakes[0].body = [Position(2,3),Position(2,4),Position(2,5),Position(2,6),Position(2,7),Position(2,8), Position(2,9),Position(3,9),Position(4,9),Position(5,9),Position(6,9)]
+self.board.snakes[2].body = [Position(0,6),Position(0,7),Position(0,8),Position(0,9),Position(0,10),Position(1,10), Position(2,10),Position(3,10),Position(4,10),Position(5,10)Position(6,10)Position(7,10)]
 self.board.snakes[1].body = [Position(0,0),Position(0,1),Position(0,2),Position(0,3)]
 self.board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(1,6)]
 self.board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(0,5)]
+self.board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(0,5),Position(0,6),Position(0,7),Position(0,8)]
 """
