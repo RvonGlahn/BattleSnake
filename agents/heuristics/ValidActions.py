@@ -15,7 +15,9 @@ from environment.Battlesnake.model.Occupant import Occupant
 # TODO:
 #  Tiefere Suche ermöglichen mit modulo % length oder Längsten Pfad returnen
 #  Felder im toten Winkel berücksichtigen
-#  Längsten Validen Pfad als valide returnen falls sonst keine validen actions
+#  Längsten Validen Pfad als valide returnen falls sonst keine validen actions (x)
+#  Gegner Square besser vorraussagen
+#  Food als valide action 
 
 def get_valid_neighbour_values(x: int, y: int, square: np.ndarray) -> List[int]:
     neighbour_fields = []
