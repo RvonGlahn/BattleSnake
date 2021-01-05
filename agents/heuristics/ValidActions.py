@@ -340,6 +340,8 @@ class ValidActions:
         # calculate enemy snakes board
         action_plan = self._calculate_board(enemy_snakes)
 
+        # TODO: Invalid Actions iterativ erhöhen
+
         if enemy_snakes:
             # calculate range of my snake and find valid actions
             invalid_actions = self._find_invalid_actions()
