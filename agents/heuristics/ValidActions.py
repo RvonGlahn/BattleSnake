@@ -76,9 +76,14 @@ class ValidActions:
         my_head = my_snake.get_head()
         snake_tails = []
         val_actions = []
+        forbidden_fields = []
         food_direction = None
 
         for snake in snakes:
+            if snake.snake_id != my_snake.snake_id:
+                for direc in snake.possible_actions():
+                    enemy_head = snake.get_head()
+                    forbidden_fields.append(enemy_head.advanced(direc))
             if snake.health == 100:
                 continue
             snake_tails.append(snake.get_tail())
@@ -98,6 +103,9 @@ class ValidActions:
 
             # body crash -> ganze Gegner Schlange minus letzten Teil
             if grid_map.get_value_at_position(next_position) is Occupant.Snake and next_position not in snake_tails:
+                continue
+
+            if next_position in forbidden_fields:
                 continue
 
             val_actions.append(direction)
