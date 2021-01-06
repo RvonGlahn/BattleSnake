@@ -1,5 +1,6 @@
 from typing import List, Tuple, Dict
 import numpy as np
+import time
 
 from agents.heuristics.Distance import Distance
 from agents.Hyperparameters import Params_ValidActions
@@ -65,6 +66,7 @@ class ValidActions:
         self.valid_board = np.zeros((self.board.width, self.board.height))
         self.valid_actions = []
         self.direction_depth = {}
+        self.hungry = False
 
     @staticmethod
     def get_valid_actions(board: BoardState,
@@ -315,7 +317,18 @@ class ValidActions:
         for step in range(1, self.depth + 1):
             self._calculate_my_square(step, head, help_board)
 
-        invalid_actions, self.direction_depth = self._expand(head)
+        if self.hungry:
+            invalid_actions, self.direction_depth = self._expand(head)
+        else:
+            old_board = self.valid_board.copy()
+            for food_pos in self.board.food:
+                self.valid_board[food_pos.x][food_pos.y] = 99
+
+            invalid_actions, self.direction_depth = self._expand(head)
+
+            if len(invalid_actions) == len(self.valid_actions):
+                self.valid_board = old_board
+                invalid_actions, self.direction_depth = self._expand(head)
 
         print(self.valid_board)
         print("Invalids: ", invalid_actions)
@@ -327,31 +340,39 @@ class ValidActions:
                                                                     self.my_snake, self.grid_map)
         if food_direction:
             self.valid_actions.append(food_direction)
+
         if self.my_snake.health < 25:
-            itter_steps = 1
+            self.hungry = True
+            self.depth = 4
         else:
-            itter_steps = 4
+            self.hungry = False
+            self.depth = Params_ValidActions.DEPTH
 
         # if len(self.snakes[0].body) == 4:
         #    print("Hallo")
 
         enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id]
 
+        start_time = time.time()
+
         # calculate enemy snakes board
-        for iterr_depth in range(self.depth, self.depth + itter_steps):
-            self.depth = iterr_depth
+        while time.time() - start_time < 0.04:
             action_plan = self._calculate_board(enemy_snakes)
 
-            # TODO: Invalid Actions depth iterativ erhöhen while time
             if enemy_snakes:
                 # calculate range of my snake and find valid actions
                 invalid_actions = self._find_invalid_actions()
 
+                if not invalid_actions:
+                    invalid_actions = self._find_invalid_actions()
+
                 self.valid_actions = [valid_action for valid_action in self.valid_actions
                                       if valid_action not in invalid_actions]
 
-            if not self.valid_actions:
+            if not self.valid_actions or self.my_snake.health < 25:
                 break
+
+            self.depth += 1
 
         print("Multi-Valid Actions:", self.valid_actions)
 

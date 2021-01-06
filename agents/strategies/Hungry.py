@@ -48,6 +48,9 @@ class Hungry:
             if food_path[0][1] in valid_actions:
                 action = food_path[0][1]
                 food_path.pop(0)
+            elif snake.health < 10:
+                action = food_path[0][1]
+                food_path.pop(0)
         else:
             food_path = []
 
