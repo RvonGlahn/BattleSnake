@@ -143,7 +143,7 @@ class ValidActions:
 
                     # aktionsradius der Schlange beschreiben
                     if square[x, y] == -step + 1 or square[x, y] == 0 or step < square[x, y]:
-                        if square[x, y] < 10 and step == 1:
+                        if square[x, y] < 10 and step == 1 and square[x, y] != 1:
                             square[x][y] = -step
                         if square[x, y] < 10 and -(step - 1) in neighbour_values:
                             square[x][y] = -step
@@ -163,6 +163,7 @@ class ValidActions:
         square, (_, _) = self._get_square(head, self.valid_board, step)
         action_square, (_, _) = self._get_square(head, action_plan, step)
         square_head = np.where(square == self.valid_board[head.x][head.y])
+        head_pos = Position(square_head[0][0], square_head[1][0])
 
         # TODO adjust fields that get checked more efficient
         # fields = Mitte bzw. x Koordinate von square_head
@@ -175,9 +176,7 @@ class ValidActions:
             for y in range(0, square.shape[1]):
 
                 # check for each field in circle if it has the right distance
-                if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]),
-                                           Position(x, y)) == step and square[x][y] + step >= 0:
-
+                if Distance.manhattan_dist(head_pos, Position(x, y)) == step and square[x][y] + step >= 0:
                     neighbour_field_values = get_valid_neighbour_values(x, y, square)
 
                     for field in neighbour_field_values:
