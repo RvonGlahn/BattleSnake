@@ -13,7 +13,7 @@ class FloodFill:
 
     @staticmethod
     def get_fill_stats(board: BoardState) -> Dict:
-
+        flood_queue = []
         calculating = True
         fill_stats = {}
         fill_board = np.zeros(board.width, board.height)
@@ -27,6 +27,7 @@ class FloodFill:
         snakes = [copy_snakes[i] for i in order]
 
         for snake in snakes:
+            flood_queue.append([snake.get_head()])
             for pos in snake.body:
                 fill_board[pos.x][pos.y] = 99
 

@@ -144,8 +144,6 @@ class Decision:
 
     def decide(self, you: Snake, board: BoardState, grid_map: GridMap) -> Direction:
 
-        start_time = time.time()
-
         if len(self.automats) != len(board.snakes):
             self._delete_dead_snake(board.dead_snakes)
 
