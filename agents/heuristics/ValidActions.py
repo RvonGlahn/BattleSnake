@@ -183,7 +183,7 @@ class ValidActions:
                     for field in neighbour_field_values:
                         if step - 1 == field:
                             # nur der naheste Gegner zählt, nicht überlagern
-                            if square[x][y] == 0 or step <= square[x][y]:
+                            if square[x][y] == 0 or step <= abs(square[x][y]):
                                 square[x][y] = step
                             action_square[x][y] = Params_ValidActions.AREA_VALUE
 
@@ -226,6 +226,7 @@ class ValidActions:
                 for x, y in positions:
 
                     # check if next value is valid and no dead end
+                    # TODO teilweise noch kein korrektes backtracking bzw ausbreiten bis zum letzten node -> 0 als Ziel?
                     if self.valid_board[x][y] == value-1 and (x, y) not in dead_ends.keys():
                         dead = False
                         step_history.append((x, y))
@@ -340,7 +341,12 @@ class ValidActions:
         # TODO: Invalid Actions depth iterativ erhöhen while time
         if enemy_snakes:
             # calculate range of my snake and find valid actions
-            invalid_actions = self._find_invalid_actions()
+            for iterr_depth in range(self.depth, self.depth + 4):
+                self.depth = iterr_depth
+                invalid_actions = self._find_invalid_actions()
+                if len(invalid_actions) == len(self.valid_actions):
+                    break
+
             self.valid_actions = [valid_action for valid_action in self.valid_actions
                                   if valid_action not in invalid_actions]
 
