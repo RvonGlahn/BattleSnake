@@ -336,19 +336,20 @@ class ValidActions:
         enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id]
 
         # calculate enemy snakes board
-        action_plan = self._calculate_board(enemy_snakes)
+        for iterr_depth in range(self.depth, self.depth + 4):
+            self.depth = iterr_depth
+            action_plan = self._calculate_board(enemy_snakes)
 
-        # TODO: Invalid Actions depth iterativ erhöhen while time
-        if enemy_snakes:
-            # calculate range of my snake and find valid actions
-            for iterr_depth in range(self.depth, self.depth + 4):
-                self.depth = iterr_depth
+            # TODO: Invalid Actions depth iterativ erhöhen while time
+            if enemy_snakes:
+                # calculate range of my snake and find valid actions
                 invalid_actions = self._find_invalid_actions()
-                if len(invalid_actions) == len(self.valid_actions):
-                    break
 
-            self.valid_actions = [valid_action for valid_action in self.valid_actions
-                                  if valid_action not in invalid_actions]
+                self.valid_actions = [valid_action for valid_action in self.valid_actions
+                                      if valid_action not in invalid_actions]
+
+            if not self.valid_actions:
+                break
 
         if food_direction and len(self.valid_actions) > 1 and food_direction in self.valid_actions:
             self.valid_actions.remove(food_direction)
