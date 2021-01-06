@@ -3,7 +3,7 @@
 
 class Params_Decision:
 
-    MONITOR_TIME = 150
+    MONITOR_TIME = 0.150
     REDUCED_MONITORING_TIME = 100
     UPDATE_FREQUENCY = 5
     CLOSEST_HEAD_BOUNDARY = 5
@@ -21,7 +21,7 @@ class Params_Automat:
     MONITOR_DISTANCE = 10
     PATH_LENGTH = 10
 
-    MY_HEALTH_BOUNDARY = 25
+    HUNGER_HEALTH_BOUNDARY = 25
     ROUND_NUMBER_BOUNDARY = 150
     ENEMIES_ALIVE = 3
 
@@ -54,4 +54,4 @@ class Params_ValidActions:
     BODY_VALUE = 10
     HEAD_VALUE = 50
     AREA_VALUE = 5
-    FOOD_BOUNDARY = 25
+    FOOD_BOUNDARY = 20

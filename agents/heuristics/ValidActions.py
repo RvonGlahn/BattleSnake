@@ -341,7 +341,7 @@ class ValidActions:
         if food_direction:
             self.valid_actions.append(food_direction)
 
-        if self.my_snake.health < 25:
+        if self.my_snake.health < 20:
             self.hungry = True
             self.depth = 4
         else:

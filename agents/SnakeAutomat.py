@@ -3,6 +3,7 @@ from typing import List, Dict
 from agents.heuristics.MovementProfile import MovementProfile
 from agents.States import States
 from agents.heuristics.Distance import Distance
+from agents.Hyperparameters import Params_Automat
 
 from environment.Battlesnake.model.board_state import GridMap
 from environment.Battlesnake.model.board_state import BoardState
@@ -50,17 +51,17 @@ class SnakeAutomat:
 
     def monitor_length(self, length: int) -> None:
         self.length_history.append(length)
-        if len(self.length_history) > 20:
+        if len(self.length_history) > Params_Automat.MONITOR_LENGTH:
             self.length_history.pop(0)
 
     def monitor_dist_to_enemies(self, dist: int) -> None:
         self.distance_to_enemy_heads.append(dist)
-        if len(self.distance_to_enemy_heads) > 10:
+        if len(self.distance_to_enemy_heads) > Params_Automat.MONITOR_DISTANCE:
             self.distance_to_enemy_heads.pop(0)
 
     def add_position(self, position: Position) -> None:
         self.previous_positions.append(position)
-        if len(self.previous_positions) > 10:
+        if len(self.previous_positions) > Params_Automat.MONITOR_DISTANCE:
             self.previous_positions.pop(0)
 
     def reset_positions(self) -> None:
@@ -80,14 +81,14 @@ class SnakeAutomat:
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
         print(self.snake.health)
-        if self.snake.health < 25:
+        if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
             self.state = States.HUNGRY
             return
         else:
             self.state = States.ANXIOUS
 
         # check if game is in early stage and how many enemies are left
-        if round_number < 150 or len(enemy_snakes) >= 3:
+        if round_number < Params_Automat.ROUND_NUMBER_BOUNDARY or len(enemy_snakes) >= Params_Automat.ENEMIES_ALIVE:
 
             for enemy in enemy_snakes:
                 # check if we are shorter than near snakes and if snakes are agressive

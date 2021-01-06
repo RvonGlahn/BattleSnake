@@ -3,13 +3,15 @@ import numpy as np
 
 from agents.heuristics.RelevantFood import RelevantFood
 from agents.heuristics.Distance import Distance
+from agents.gametree.AStar import AStar
+from agents.heuristics.ValidActions import ValidActions
 
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.grid_map import GridMap
-from agents.gametree.AStar import AStar
+
 
 
 class Hungry:
@@ -41,6 +43,8 @@ class Hungry:
                valid_actions: List[Direction]) -> Tuple[Direction, List[Position]]:
 
         action = np.random.choice(valid_actions)
+        possible_actions = snake.possible_actions()
+        back_up_actions, _ = ValidActions.get_valid_actions(board, possible_actions, board.snakes, snake, grid_map)
 
         if not food_path:
             food_path = Hungry.follow_food(snake, board, grid_map)
@@ -48,7 +52,7 @@ class Hungry:
             if food_path[0][1] in valid_actions:
                 action = food_path[0][1]
                 food_path.pop(0)
-            elif snake.health < 10:
+            elif snake.health < 10 and food_path[0][1] in ValidActions.get_valid_actions():
                 action = food_path[0][1]
                 food_path.pop(0)
         else:
