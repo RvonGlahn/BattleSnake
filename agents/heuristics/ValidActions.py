@@ -339,7 +339,7 @@ class ValidActions:
 
         if self.my_snake.health < 20:
             self.hungry = True
-            self.depth = 3
+            self.depth = 4
         else:
             self.hungry = False
             self.depth = Params_ValidActions.DEPTH
@@ -365,7 +365,7 @@ class ValidActions:
                 self.valid_actions = [valid_action for valid_action in self.valid_actions
                                       if valid_action not in invalid_actions]
 
-            if not self.valid_actions or self.my_snake.health < 25:
+            if not self.valid_actions or self.my_snake.health < 20:
                 break
 
             self.depth += 1

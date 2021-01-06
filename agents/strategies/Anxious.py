@@ -46,19 +46,19 @@ class Anxious:
 
             if next_position.x == 0 or next_position.y == 0 or next_position.x == grid_map.width-1 \
                     or next_position.y == grid_map.height-1:
-                cost.append(-9999)
+                cost.append(-99999)
                 continue
             if next_position.x == 1 and my_head.x != 0:
-                cost.append(-999)
+                cost.append(-9999)
                 continue
             if next_position.y == 1 and my_head.y != 0:
-                cost.append(-999)
+                cost.append(-9999)
                 continue
             if next_position.x == grid_map.width-2 and my_head.x != grid_map.width-1:
-                cost.append(-999)
+                cost.append(-9999)
                 continue
             if next_position.y == grid_map.height-2 and my_head.x != grid_map.height-1:
-                cost.append(-999)
+                cost.append(-9999)
                 continue
 
             escape_value = escape_cost_dict[action]
