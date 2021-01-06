@@ -15,7 +15,7 @@ from environment.Battlesnake.model.Occupant import Occupant
 
 # TODO:
 #  Felder im toten Winkel berücksichtigen
-#  Gegner Square besser vorraussagen !!! Gibt probleme bei head to head
+#  Gegner Square besser vorraussagen !!! Gibt probleme bei head to head und enemy head radius -> Fälle simulieren
 #  Chase Tail für Gegner Body berücksichtigen
 #  Teilweise Body-Collision
 #  Auswahl von Food nicht optimal -> RelevantFood
@@ -339,7 +339,7 @@ class ValidActions:
 
         if self.my_snake.health < 20:
             self.hungry = True
-            self.depth = 4
+            self.depth = 5
         else:
             self.hungry = False
             self.depth = Params_ValidActions.DEPTH

@@ -21,7 +21,7 @@ class Params_Automat:
     MONITOR_DISTANCE = 10
     PATH_LENGTH = 10
 
-    HUNGER_HEALTH_BOUNDARY = 25
+    HUNGER_HEALTH_BOUNDARY = 30
     ROUND_NUMBER_BOUNDARY = 150
     ENEMIES_ALIVE = 3
 
@@ -54,4 +54,4 @@ class Params_ValidActions:
     BODY_VALUE = 10
     HEAD_VALUE = 50
     AREA_VALUE = 5
-    FOOD_BOUNDARY = 20
+    FOOD_BOUNDARY = 30
