@@ -81,7 +81,7 @@ class SnakeAutomat:
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
         print(self.snake.health)
-        if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
+        if self.snake.health < 30:
             self.state = States.HUNGRY
             return
         else:
