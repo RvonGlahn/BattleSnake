@@ -49,7 +49,7 @@ class Params_ActionPlan:
 
 class Params_ValidActions:
 
-    DEPTH = 5
+    DEPTH = 7
     DIST_TO_ENEMY = 15
     BODY_VALUE = 10
     HEAD_VALUE = 50
