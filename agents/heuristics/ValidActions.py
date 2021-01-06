@@ -73,13 +73,12 @@ class ValidActions:
                           possible_actions: List[Direction],
                           snakes: List[Snake],
                           my_snake: Snake,
-                          grid_map: GridMap[Occupant]) -> Tuple[List[Direction], Direction]:
+                          grid_map: GridMap[Occupant]) -> List[Direction]:
 
         my_head = my_snake.get_head()
         snake_tails = []
         val_actions = []
         forbidden_fields = []
-        food_direction = None
 
         for snake in snakes:
             if snake.snake_id != my_snake.snake_id:
@@ -96,7 +95,6 @@ class ValidActions:
             # avoid eating
             if my_snake.health > Params_ValidActions.FOOD_BOUNDARY:
                 if grid_map.get_value_at_position(next_position) is Occupant.Food:
-                    food_direction = direction
                     continue
 
             # outofbounds
@@ -119,7 +117,7 @@ class ValidActions:
                 if grid_map.get_value_at_position(next_position) is Occupant.Food:
                     val_actions.append(direction)
 
-        return val_actions, food_direction
+        return val_actions
 
     def _get_square(self, head: Position, valid_board: np.ndarray, step: int) -> Tuple[np.ndarray, Tuple[int, int]]:
         width = self.board.width
@@ -336,10 +334,8 @@ class ValidActions:
 
     def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray]:
         possible_actions = self.my_snake.possible_actions()
-        self.valid_actions, food_direction = self.get_valid_actions(self.board, possible_actions, self.snakes,
+        self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
                                                                     self.my_snake, self.grid_map)
-        if food_direction:
-            self.valid_actions.append(food_direction)
 
         if self.my_snake.health < 20:
             self.hungry = True
@@ -382,12 +378,7 @@ class ValidActions:
                 if v < longest_path+2:
                     self.valid_actions.append(k)
 
-            if food_direction:
-                self.valid_actions.append(food_direction)
             print("Valid Actions:", self.valid_actions)
-
-        if food_direction and len(self.valid_actions) > 1 and food_direction in self.valid_actions:
-            self.valid_actions.remove(food_direction)
 
         return self.valid_actions, action_plan
 
