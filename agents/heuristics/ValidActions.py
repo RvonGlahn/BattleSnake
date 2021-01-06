@@ -356,7 +356,7 @@ class ValidActions:
         start_time = time.time()
 
         # calculate enemy snakes board
-        while time.time() - start_time < 0.04:
+        while time.time() - start_time < 0.06:
             action_plan = self._calculate_board(enemy_snakes)
 
             if enemy_snakes:
