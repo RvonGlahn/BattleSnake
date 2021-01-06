@@ -325,17 +325,20 @@ class ValidActions:
         possible_actions = self.my_snake.possible_actions()
         self.valid_actions, food_direction = self.get_valid_actions(self.board, possible_actions, self.snakes,
                                                                     self.my_snake, self.grid_map)
-        print("FirstValid: ", self.valid_actions)
         if food_direction:
             self.valid_actions.append(food_direction)
+        if self.my_snake.health < 25:
+            itter_steps = 1
+        else:
+            itter_steps = 4
 
-        if len(self.snakes[0].body) == 4:
-            print("Hallo")
+        # if len(self.snakes[0].body) == 4:
+        #    print("Hallo")
 
         enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id]
 
         # calculate enemy snakes board
-        for iterr_depth in range(self.depth, self.depth + 4):
+        for iterr_depth in range(self.depth, self.depth + itter_steps):
             self.depth = iterr_depth
             action_plan = self._calculate_board(enemy_snakes)
 
@@ -355,7 +358,7 @@ class ValidActions:
 
         print("Multi-Valid Actions:", self.valid_actions)
 
-        if not self.valid_actions:
+        if not self.valid_actions and self.direction_depth:
             longest_path = list(self.direction_depth.values())[0]
             for k, v in self.direction_depth.items():
                 if v < longest_path+2:
