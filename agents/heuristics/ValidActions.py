@@ -322,7 +322,7 @@ class ValidActions:
         else:
             old_board = self.valid_board.copy()
             for food_pos in self.board.food:
-                self.valid_board[food_pos.x][food_pos.y] = 99
+                self.valid_board[food_pos.x][food_pos.y] = 1
 
             invalid_actions, self.direction_depth = self._expand(head)
 
