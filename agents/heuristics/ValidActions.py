@@ -353,9 +353,6 @@ class ValidActions:
             if not self.valid_actions:
                 break
 
-        if food_direction and len(self.valid_actions) > 1 and food_direction in self.valid_actions:
-            self.valid_actions.remove(food_direction)
-
         print("Multi-Valid Actions:", self.valid_actions)
 
         if not self.valid_actions and self.direction_depth:
@@ -367,6 +364,9 @@ class ValidActions:
             if food_direction:
                 self.valid_actions.append(food_direction)
             print("Valid Actions:", self.valid_actions)
+
+        if food_direction and len(self.valid_actions) > 1 and food_direction in self.valid_actions:
+            self.valid_actions.remove(food_direction)
 
         return self.valid_actions, action_plan
 
