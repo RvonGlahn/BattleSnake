@@ -13,7 +13,6 @@ from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.grid_map import GridMap
 
 
-
 class Hungry:
 
     @staticmethod
@@ -52,7 +51,7 @@ class Hungry:
             if food_path[0][1] in valid_actions:
                 action = food_path[0][1]
                 food_path.pop(0)
-            elif snake.health < 10 and food_path[0][1] in ValidActions.get_valid_actions():
+            elif snake.health < 10 and food_path[0][1] in back_up_actions:
                 action = food_path[0][1]
                 food_path.pop(0)
         else:

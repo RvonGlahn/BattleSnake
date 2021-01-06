@@ -14,11 +14,11 @@ from environment.Battlesnake.model.Occupant import Occupant
 
 
 # TODO:
-#  Tiefere Suche ermöglichen mit modulo % length oder Längsten Pfad returnen
 #  Felder im toten Winkel berücksichtigen
-#  Längsten Validen Pfad als valide returnen falls sonst keine validen actions (x)
 #  Gegner Square besser vorraussagen !!! Gibt probleme bei head to head
-#  Food als valide action 
+#  Chase Tail für Gegner Body berücksichtigen
+#  Teilweise Body-Collision
+#  Auswahl von Food nicht optimal -> RelevantFood
 
 def get_valid_neighbour_values(x: int, y: int, square: np.ndarray) -> List[int]:
     neighbour_fields = []

@@ -7,7 +7,8 @@ from environment.Battlesnake.model.board_state import BoardState
 
 class FloodFill:
 
-    def calcuate_circle(self):
+    @staticmethod
+    def calcuate_circle(head, depth, fill_board, snake_index):
         pass
 
     @staticmethod
@@ -22,17 +23,23 @@ class FloodFill:
         snake_ids = [snake.snake_id for snake in board.snakes]
         order = np.argsort(snake_length)
 
-        snakes = board.snakes.copy()
-        snakes = [snakes[i] for i in order]
+        copy_snakes = board.snakes.copy()
+        snakes = [copy_snakes[i] for i in order]
+
+        for snake in snakes:
+            for pos in snake.body:
+                fill_board[pos.x][pos.y] = 99
 
         # iterativ Kreise um Schlange ziehen
         depth = 1
         while calculating:
-            # größte Schlange zuwerst
+            # größte Schlange zuerst
+            snake_index = 0
             for snake in snakes:
-                FloodFill.calcuate_circle(snake.get_head(), depth)
-                # wie in valid actionsn ur erreichbare Felder markieren
+                fill_stats = FloodFill.calcuate_circle(snake.get_head(), depth, fill_board, snake_index)
+                # wie in valid actions nur erreichbare Felder markieren
                 # wenn alle Felder verteilt auffüllen
-                depth += 1
+                snake_index += 1
+            depth += 1
         return fill_stats
 
