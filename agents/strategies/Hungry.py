@@ -20,16 +20,15 @@ class Hungry:
         my_head = snake.get_head()
         food = None
 
-        relevant_foods = RelevantFood.get_relevant_food(my_head, board.snakes, board.food)
+        relevant_foods = RelevantFood.get_relevant_food(my_head, board.snakes, board.food, board.width, board.height)
         if not relevant_foods:
             return []
 
         start_distance = 0
-
         # get food that is nearest to my head
         for relevant_food in relevant_foods:
             distance = Distance.manhattan_dist(my_head, relevant_food)
-            if distance > start_distance:
+            if distance < start_distance:
                 food = relevant_food
 
         cost, path = AStar.a_star_search(my_head, food, board, grid_map)
