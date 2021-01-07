@@ -10,6 +10,7 @@ from agents.Hyperparameters import Params_Anxious
 from agents.heuristics.Distance import Distance
 from agents.gametree.ActionPlan import ActionPlan
 from agents.heuristics.ValidActions import ValidActions
+from agents.heuristics.FloodFill import FloodFill
 
 
 class Anxious:
@@ -36,6 +37,7 @@ class Anxious:
         gamma = Params_Anxious.GAMMA_DISTANCE_FOOD
         theta = Params_Anxious.THETA_DISTANCE_MID
         phi = Params_Anxious.PHI_ESCAPE_DIRECTION
+        omega = Params_Anxious.OMEGA_FLOOD_FILL
 
         cost = []
 
@@ -62,13 +64,19 @@ class Anxious:
                 continue
 
             escape_value = escape_cost_dict[action]
+
             distance_snakes = sum([Distance.manhattan_dist(next_position, enemy_head) for enemy_head in enemy_heads])
+
             distance_corners = sum([Distance.manhattan_dist(next_position, corner) for corner in corners])
+
             distance_mid = Distance.manhattan_dist(next_position, middle)
+
             distance_food = sum([Distance.manhattan_dist(next_position, food) for food in board.food
                                  if 3 < food.x < grid_map.width - 3 and 3 < food.y < grid_map.height - 3])
 
-            distance = beta * distance_corners - gamma * distance_food - theta * distance_mid - phi * escape_value
+            flood_fill_value = FloodFill.get_fill_stats(board)[my_snake.snake_id]
+
+            distance = beta * distance_corners - gamma * distance_food - theta * distance_mid + omega * flood_fill_value
 
             cost.append(distance)
 

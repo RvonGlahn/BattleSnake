@@ -40,6 +40,7 @@ class Params_Anxious:
     THETA_DISTANCE_MID = 7
     PHI_ESCAPE_DIRECTION = 1
     PSI_BORDER_VALUE = 1
+    OMEGA_FLOOD_FILL = 10
 
 
 class Params_ActionPlan:

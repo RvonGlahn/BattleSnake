@@ -344,8 +344,8 @@ class ValidActions:
             self.hungry = False
             self.depth = Params_ValidActions.DEPTH
 
-        # if len(self.snakes[0].body) == 4:
-        #    print("Hallo")
+        if len(self.snakes[0].body) == 4:
+            print("Hallo")
 
         enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id]
 
