@@ -18,7 +18,8 @@ from environment.Battlesnake.model.Occupant import Occupant
 #  Gegner Square besser vorraussagen !!! Gibt probleme bei head to head und enemy head radius -> Fälle simulieren
 #  Chase Tail für Gegner Body berücksichtigen
 #  Teilweise Body-Collision
-#  Auswahl von Food nicht optimal -> RelevantFood
+#  Auswahl von Food nicht optimal -> RelevantFood -> möglichst mittiges Food wählen
+#  Wenn keine validen Actions dann head tot head
 
 def get_valid_neighbour_values(x: int, y: int, square: np.ndarray) -> List[int]:
     neighbour_fields = []
@@ -186,6 +187,41 @@ class ValidActions:
                                 square[x][y] = step
                             action_square[x][y] = Params_ValidActions.AREA_VALUE
 
+    def _enemy_flood_fill(self, flood_queue, step, visited, action_plan):
+        x_size, y_size = (self.board.width, self.board.height)
+        new_queue = []
+
+        for (x, y) in flood_queue:
+
+            if (x, y) in visited:
+                continue
+
+            if self.valid_board[x][y] + step < 0:
+                continue
+
+            # neighbour_field_values = get_valid_neighbour_values(x, y, self.valid_board)
+            # for field in neighbour_field_values:
+            #     if step - 1 == field:
+            # nur der naheste Gegner zählt, nicht überlagern
+            if self.valid_board[x][y] == 0 or step <= abs(self.valid_board[x][y]):
+                self.valid_board[x][y] = step
+            action_plan[x][y] = Params_ValidActions.AREA_VALUE
+
+            # self.valid_board[x][y] = step
+            visited.append((x, y))
+
+            # add next steps to queue
+            if x > 0 and (x - 1, y) not in visited:
+                new_queue.append((x - 1, y))
+            if x < (x_size - 1) and (x + 1, y) not in visited:
+                new_queue.append((x + 1, y))
+            if y > 0 and (x, y - 1) not in visited:
+                new_queue.append((x, y - 1))
+            if y < (y_size - 1) and (x, y + 1) not in visited:
+                new_queue.append((x, y + 1))
+
+        return new_queue, visited, action_plan
+
     def _mark_snakes(self, help_board: np.ndarray) -> None:
         # mark enemy snakes
         for snake in self.board.snakes:
@@ -298,9 +334,14 @@ class ValidActions:
             enemy_depth = enemy.get_length() if self.depth > enemy.get_length() else self.depth
             head = enemy.get_head()
 
-            # build new circle for each depth level
-            for step in range(1, enemy_depth + 1):
-                self._calculate_enemy_square(step, head, action_plan)
+            flood_queue = get_valid_neigbours(head.x, head.y, self.valid_board)
+            # visited = [(pos.x, pos.y) for pos in enemy.body]
+            visited = [(head.x, head.y)]
+
+            # build new flood for each depth level
+            for step in range(1, self.depth + 1):
+                # self._calculate_enemy_square(step, head, action_plan)
+                flood_queue, visited, action_plan = self._enemy_flood_fill(flood_queue, step, visited, action_plan)
 
         return action_plan
 
@@ -333,9 +374,11 @@ class ValidActions:
         return invalid_actions
 
     def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray]:
+
+        action_plan = None
         possible_actions = self.my_snake.possible_actions()
         self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
-                                                                    self.my_snake, self.grid_map)
+                                                    self.my_snake, self.grid_map)
 
         if self.my_snake.health < 20:
             self.hungry = True

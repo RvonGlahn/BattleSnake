@@ -7,7 +7,7 @@ from environment.Battlesnake.model.board_state import BoardState
 class FloodFill:
 
     @staticmethod
-    def calcuate_step(fill_board, queue, snake_index, visited):
+    def calcuate_step(fill_board, queue, snake_index, visited) -> int:
         x_size, y_size = fill_board.shape
         count = 0
         next_queue = []
