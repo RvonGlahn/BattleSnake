@@ -18,7 +18,9 @@ class RelevantFood:
             my_dist_to_food = Distance.manhattan_dist(food, my_head)
 
             if food.x == 0 or food.y == 0 or food.x == width-1 or food.y == height-1:
-                if enemy_dist_to_food < 4:
+                enemy_dist_to_me = min([Distance.manhattan_dist(head, my_head) for head in enemy_heads])
+
+                if enemy_dist_to_me < 4:
                     continue
 
             if my_dist_to_food <= enemy_dist_to_food:
