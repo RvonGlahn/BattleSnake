@@ -24,7 +24,7 @@ class Hungry:
         if not relevant_foods:
             return []
 
-        start_distance = 0
+        start_distance = 99
         # get food that is nearest to my head
         for relevant_food in relevant_foods:
             distance = Distance.manhattan_dist(my_head, relevant_food)
@@ -49,9 +49,11 @@ class Hungry:
             food_path = Hungry.follow_food(snake, board, grid_map)
         if food_path:
             if food_path[0][1] in valid_actions:
+                print("Läuft")
                 action = food_path[0][1]
                 food_path.pop(0)
             elif snake.health < 10 and food_path[0][1] in back_up_actions:
+                print("Backup Actions")
                 action = food_path[0][1]
                 food_path.pop(0)
         else:

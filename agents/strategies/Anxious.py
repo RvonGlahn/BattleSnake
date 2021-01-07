@@ -73,10 +73,15 @@ class Anxious:
 
             distance_food = sum([Distance.manhattan_dist(next_position, food) for food in board.food])
 
+            if len(board.snakes) > 2:
+                flood_fill_value = FloodFill.get_fill_stats(board, next_position, my_snake.snake_id)[my_snake.snake_id]
+                distance = omega * flood_fill_value + alpha * distance_snakes - gamma * distance_food - theta * distance_mid
+            else:
+                # enemy dist to food minimieren
+                enemy_id = [snake.snake_id for snake in board.snakes if snake.snake_id != my_snake.snake_id][0]
+                flood_fill_value = FloodFill.get_fill_stats(board, next_position, my_snake.snake_id)
 
-            flood_fill_value = FloodFill.get_fill_stats(board)[my_snake.snake_id]
-
-            distance = omega * flood_fill_value - gamma * distance_food - theta * distance_mid
+                distance = omega * flood_fill_value[my_snake.snake_id] - distance_snakes - omega * flood_fill_value[enemy_id]
 
             cost.append(distance)
 

@@ -2,7 +2,7 @@ from typing import Dict
 import numpy as np
 
 from environment.Battlesnake.model.board_state import BoardState
-
+from environment.Battlesnake.model.Position import Position
 
 class FloodFill:
 
@@ -42,7 +42,7 @@ class FloodFill:
         return count
 
     @staticmethod
-    def get_fill_stats(board: BoardState) -> Dict:
+    def get_fill_stats(board: BoardState, next_position: Position, my_id: str) -> Dict:
 
         flood_queue = []
         fill_stats = {}
@@ -58,9 +58,15 @@ class FloodFill:
         snakes = [copy_snakes[i] for i in order]
 
         for snake in snakes:
-            flood_queue.append([(snake.get_head().x, snake.get_head().y)])
+            if snake.snake_id == my_id:
+                flood_queue.append([(next_position.x, next_position.y)])
+            else:
+                flood_queue.append([(snake.get_head().x, snake.get_head().y)])
             for pos in snake.body:
+                if snake.snake_id == my_id and pos == snake.body[-1]:
+                    continue
                 fill_board[pos.x][pos.y] = -99
+
             fill_stats[snake.snake_id] = 0
 
         # iterativ Bewegungsbereich erschließen
@@ -73,5 +79,6 @@ class FloodFill:
                 fill_stats[snake_id] += filled_fields_count
 
                 snake_index += 1
+        print(fill_board)
         # calculate fill stats
         return fill_stats

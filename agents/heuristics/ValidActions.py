@@ -309,7 +309,7 @@ class ValidActions:
         escape_path_value = [escape_path_value[i] for i in order]
         longest_way = dict(zip(escape_direction_keys,  escape_path_value))
 
-        print("LongestWay:", longest_way)
+        # print("LongestWay:", longest_way)
         return invalid_actions, longest_way
 
     def _calculate_board(self, enemy_snakes: List[Snake]) -> np.ndarray:
@@ -369,8 +369,8 @@ class ValidActions:
                 self.valid_board = old_board
                 invalid_actions, self.direction_depth = self._expand(head)
 
-        print(self.valid_board)
-        print("Invalids: ", invalid_actions)
+        # print(self.valid_board)
+        # print("Invalids: ", invalid_actions)
         return invalid_actions
 
     def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray]:
@@ -380,15 +380,15 @@ class ValidActions:
         self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
                                                     self.my_snake, self.grid_map)
 
-        if self.my_snake.health < 20:
+        if self.my_snake.health < 30:
             self.hungry = True
             self.depth = 4
         else:
             self.hungry = False
             self.depth = Params_ValidActions.DEPTH
 
-        if len(self.snakes[0].body) == 4:
-            print("Hallo")
+        # if len(self.snakes[0].body) == 4:
+        #    print("Hallo")
 
         enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id]
 
@@ -413,7 +413,7 @@ class ValidActions:
 
             self.depth += 1
 
-        print("Multi-Valid Actions:", self.valid_actions)
+        # print("Multi-Valid Actions:", self.valid_actions)
 
         if not self.valid_actions and self.direction_depth:
             longest_path = list(self.direction_depth.values())[0]
@@ -421,7 +421,7 @@ class ValidActions:
                 if v < longest_path+2:
                     self.valid_actions.append(k)
 
-            print("Valid Actions:", self.valid_actions)
+            # print("Valid Actions:", self.valid_actions)
 
         return self.valid_actions, action_plan
 
