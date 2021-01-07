@@ -40,7 +40,7 @@ class Params_Anxious:
     THETA_DISTANCE_MID = 7
     PHI_ESCAPE_DIRECTION = 1
     PSI_BORDER_VALUE = 1
-    OMEGA_FLOOD_FILL = 10
+    OMEGA_FLOOD_FILL = 15
 
 
 class Params_ActionPlan:
@@ -50,7 +50,7 @@ class Params_ActionPlan:
 
 class Params_ValidActions:
 
-    DEPTH = 5
+    DEPTH = 8
     DIST_TO_ENEMY = 15
     BODY_VALUE = 10
     HEAD_VALUE = 50

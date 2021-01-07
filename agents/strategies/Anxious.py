@@ -76,7 +76,7 @@ class Anxious:
 
             flood_fill_value = FloodFill.get_fill_stats(board)[my_snake.snake_id]
 
-            distance = beta * distance_corners - gamma * distance_food - theta * distance_mid + omega * flood_fill_value
+            distance = omega * flood_fill_value - gamma * distance_food - theta * distance_mid
 
             cost.append(distance)
 
