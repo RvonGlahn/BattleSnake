@@ -14,12 +14,14 @@ from environment.Battlesnake.model.Occupant import Occupant
 
 
 # TODO:
-#  Felder im toten Winkel berücksichtigen
+#  Felder im toten Winkel berücksichtigen -> Flood Fill bei my square
 #  Gegner Square besser vorraussagen !!! Gibt probleme bei head to head und enemy head radius -> Fälle simulieren
 #  Chase Tail für Gegner Body berücksichtigen
 #  Teilweise Body-Collision
-#  Auswahl von Food nicht optimal -> RelevantFood -> möglichst mittiges Food wählen
+#  Food ausschluss in anxious mit ermöglichen. In valid actions Food mit einbeziehen als option
 #  Wenn keine validen Actions dann head tot head
+#  A-Star korrigieren für Hindernisse
+
 
 def get_valid_neighbour_values(x: int, y: int, square: np.ndarray) -> List[int]:
     neighbour_fields = []
@@ -369,8 +371,8 @@ class ValidActions:
                 self.valid_board = old_board
                 invalid_actions, self.direction_depth = self._expand(head)
 
-        # print(self.valid_board)
-        # print("Invalids: ", invalid_actions)
+        print(self.valid_board)
+        print("Invalids: ", invalid_actions)
         return invalid_actions
 
     def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray]:
