@@ -30,7 +30,8 @@ class Hungry:
             distance = Distance.manhattan_dist(my_head, relevant_food)
             if distance < start_distance:
                 food = relevant_food
-
+        if not food:
+            return []
         cost, path = AStar.a_star_search(my_head, food, board, grid_map)
         path_array = path
 

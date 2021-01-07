@@ -71,8 +71,8 @@ class Anxious:
 
             distance_mid = Distance.manhattan_dist(next_position, middle)
 
-            distance_food = sum([Distance.manhattan_dist(next_position, food) for food in board.food
-                                 if 3 < food.x < grid_map.width - 3 and 3 < food.y < grid_map.height - 3])
+            distance_food = sum([Distance.manhattan_dist(next_position, food) for food in board.food])
+
 
             flood_fill_value = FloodFill.get_fill_stats(board)[my_snake.snake_id]
 
