@@ -1,8 +1,6 @@
-from typing import List, Dict
+from typing import Dict
 import numpy as np
-import time
 
-from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.board_state import BoardState
 
 
@@ -14,30 +12,30 @@ class FloodFill:
         count = 0
         next_queue = []
 
-        for position in queue[snake_index]:
+        for (x, y) in queue[snake_index]:
 
-            if position in visited:
+            if (x, y) in visited:
                 continue
 
-            if fill_board[position.x][position.y] != 10 and fill_board[position.x][position.y] != -99:
+            if fill_board[x][y] != 10 and fill_board[x][y] != -99:
                 continue
 
-            fill_board[position.x][position.y] = snake_index
+            fill_board[x][y] = snake_index
             count += 1
 
-            if position.x > 0 and Position(position.x - 1, position.y) not in visited:
-                next_queue.append(Position(position.x - 1, position.y))
+            if x > 0 and (x - 1, y) not in visited:
+                next_queue.append((x - 1, y))
 
-            if position.x < (x_size - 1) and Position(position.x + 1, position.y) not in visited:
-                next_queue.append(Position(position.x + 1, position.y))
+            if x < (x_size - 1) and (x + 1, y) not in visited:
+                next_queue.append((x + 1, y))
 
-            if position.y > 0 and Position(position.x, position.y - 1) not in visited:
-                next_queue.append(Position(position.x, position.y - 1))
+            if y > 0 and (x, y - 1) not in visited:
+                next_queue.append((x, y - 1))
 
-            if position.y < (y_size - 1) and Position(position.x, position.y + 1) not in visited:
-                next_queue.append(Position(position.x, position.y + 1))
+            if y < (y_size - 1) and (x, y + 1) not in visited:
+                next_queue.append((x, y + 1))
 
-            visited.append(Position(position.x, position.y))
+            visited.append((x, y))
 
         queue[snake_index] = next_queue
 
@@ -46,7 +44,6 @@ class FloodFill:
     @staticmethod
     def get_fill_stats(board: BoardState) -> Dict:
 
-        start_time = time.time()
         flood_queue = []
         fill_stats = {}
         fill_board = np.full((board.width, board.height), 10)
@@ -61,7 +58,7 @@ class FloodFill:
         snakes = [copy_snakes[i] for i in order]
 
         for snake in snakes:
-            flood_queue.append([snake.get_head()])
+            flood_queue.append([(snake.get_head().x, snake.get_head().y)])
             for pos in snake.body:
                 fill_board[pos.x][pos.y] = -99
             fill_stats[snake.snake_id] = 0
@@ -77,5 +74,4 @@ class FloodFill:
 
                 snake_index += 1
         # calculate fill stats
-        print(time.time() - start_time)
         return fill_stats
