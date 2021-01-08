@@ -380,7 +380,7 @@ class ValidActions:
         if not self.valid_actions and not self.hungry:
             # calculate valid_actions and allow snake to eat
             self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
-                                                        self.my_snake, self.grid_map, True)
+                                                        self.my_snake, self.grid_map, False)
             self.valid_check(enemy_snakes)
 
         print("DAUER", time.time() - start_time)
