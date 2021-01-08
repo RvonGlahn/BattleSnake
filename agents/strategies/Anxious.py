@@ -49,25 +49,20 @@ class Anxious:
 
         for action in valid_actions:
             next_position = my_head.advanced(action)
+            distance_no_border = 0
 
-            """
-            if next_position.x == 0 or next_position.y == 0 or next_position.x == grid_map.width-1 \
-                    or next_position.y == grid_map.height-1:
-                cost.append(-99999)
-                continue
-            if next_position.x == 1 and my_head.x != 0:
-                cost.append(-9999)
-                continue
-            if next_position.y == 1 and my_head.y != 0:
-                cost.append(-9999)
-                continue
-            if next_position.x == grid_map.width-2 and my_head.x != grid_map.width-1:
-                cost.append(-9999)
-                continue
-            if next_position.y == grid_map.height-2 and my_head.x != grid_map.height-1:
-                cost.append(-9999)
-                continue
-            """
+            if len(board.snakes) > 2:
+                if next_position.x == 0 or next_position.y == 0 or next_position.x == grid_map.width-1 \
+                        or next_position.y == grid_map.height-1:
+                    distance_no_border = -99999
+                if next_position.x == 1 and my_head.x != 0:
+                    distance_no_border = -9999
+                if next_position.y == 1 and my_head.y != 0:
+                    distance_no_border = -9999
+                if next_position.x == grid_map.width-2 and my_head.x != grid_map.width-1:
+                    distance_no_border = -9999
+                if next_position.y == grid_map.height-2 and my_head.x != grid_map.height-1:
+                    distance_no_border = -9999
 
             escape_value = escape_cost_dict[action]
 
@@ -81,13 +76,13 @@ class Anxious:
 
             if len(board.snakes) > 2:
                 flood_fill_value = FloodFill.get_fill_stats(board, next_position, my_snake.snake_id)[my_snake.snake_id]
-                distance = omega * flood_fill_value + alpha * distance_snakes - gamma * distance_food - theta * distance_mid
+                distance = omega * flood_fill_value + alpha * distance_snakes - gamma * distance_food - theta * distance_mid + distance_no_border
             else:
                 # enemy dist to food minimieren
                 enemy_id = [snake.snake_id for snake in board.snakes if snake.snake_id != my_snake.snake_id][0]
                 flood_fill_value = FloodFill.get_fill_stats(board, next_position, my_snake.snake_id)
 
-                distance = - distance_snakes - omega * flood_fill_value[enemy_id]
+                distance = omega * flood_fill_value[my_snake.snake_id] - distance_snakes - omega * flood_fill_value[enemy_id] + distance_no_border
 
             cost.append(distance)
 

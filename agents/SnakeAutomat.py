@@ -1,4 +1,5 @@
 from typing import List, Dict
+import statistics
 
 from agents.heuristics.MovementProfile import MovementProfile
 from agents.States import States
@@ -27,6 +28,7 @@ class SnakeAutomat:
         self.state = States.HUNGRY if self.enemy else States.ANXIOUS
         self.previous_positions: List[Position] = []
         self.length_history: List[int] = []
+        self.food_history = []
         self.distance_to_enemy_heads: List[int] = []
 
         self.move_profil = MovementProfile()
@@ -52,6 +54,11 @@ class SnakeAutomat:
     def monitor_length(self, length: int) -> None:
         self.length_history.append(length)
         if len(self.length_history) > Params_Automat.MONITOR_LENGTH:
+            self.length_history.pop(0)
+
+    def monitor_food(self, food_number: int) -> None:
+        self.food_history.append(food_number)
+        if len(self.length_history) > Params_Automat.MONITOR_FOOD:
             self.length_history.pop(0)
 
     def monitor_dist_to_enemies(self, dist: int) -> None:
@@ -81,7 +88,10 @@ class SnakeAutomat:
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
         print(self.snake.health)
-        if self.snake.health < 30:
+        if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY + 20 and statistics.mean(self.food_history) < 4:
+            self.state = States.HUNGRY
+            return
+        if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
             self.state = States.HUNGRY
             return
         else:

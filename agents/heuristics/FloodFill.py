@@ -67,6 +67,8 @@ class FloodFill:
                 if snake.snake_id == my_id and pos == snake.body[-1]:
                     continue
                 fill_board[pos.x][pos.y] = -99
+                if pos is not snake.get_head():
+                    visited.append((pos.x, pos.y))
 
             fill_stats[snake.snake_id] = 0
 

@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 from agents.heuristics.Distance import Distance
-from agents.Hyperparameters import Params_ValidActions
+from agents.Hyperparameters import Params_ValidActions, Params_Automat
 
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
@@ -351,22 +351,18 @@ class ValidActions:
         self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
                                                     self.my_snake, self.grid_map)
 
-        if self.my_snake.health < 30:
+        if self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
             self.hungry = True
-            self.depth = 4
+            self.depth = 5
         else:
             self.hungry = False
             self.depth = Params_ValidActions.DEPTH
 
-        # if len(self.snakes[0].body) == 4:
-        #    print("Hallo")
-
         enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id]
 
         start_time = time.time()
-
         # calculate enemy snakes board
-        while time.time() - start_time < 0.06:
+        while time.time() - start_time < 0.06 and self.depth < 10:
             action_plan = self._calculate_board(enemy_snakes)
 
             if enemy_snakes:

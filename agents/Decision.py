@@ -91,6 +91,7 @@ class Decision:
             automat.update_snake(snake)
             automat.add_position(snake.get_head())
             automat.monitor_dist_to_enemies(Distance.dist_to_closest_enemy_head(board.snakes, snake))
+            automat.monitor_food(len(board.food))
             self.states[snake.snake_id] = self.automats[snake.snake_id].state
 
             if self.game_round % self.update_frequency == 0 and snake.snake_id != self.my_snake_id:
