@@ -4,6 +4,7 @@ import numpy as np
 from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.Position import Position
 
+
 class FloodFill:
 
     @staticmethod

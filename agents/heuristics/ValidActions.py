@@ -14,13 +14,14 @@ from environment.Battlesnake.model.Occupant import Occupant
 
 
 # TODO:
-#  Felder im toten Winkel berücksichtigen -> Flood Fill bei my square
-#  Gegner Square besser vorraussagen !!! Gibt probleme bei head to head und enemy head radius -> Fälle simulieren
+#  Felder im toten Winkel berücksichtigen -> Flood Fill bei my square und überschreiben von enemy actions
 #  Chase Tail für Gegner Body berücksichtigen
-#  Teilweise Body-Collision
 #  Food ausschluss in anxious mit ermöglichen. In valid actions Food mit einbeziehen als option
-#  Wenn keine validen Actions dann head tot head
+#  Wenn keine validen Actions dann head to head
 #  A-Star korrigieren für Hindernisse
+#  besser food chasen -> Anzahl des foods auf boards berücksichitgen -> früher essen?
+#  invalids_werden nicht richtig gesetzt -> expand falsch?
+#
 
 
 def get_valid_neighbour_values(x: int, y: int, square: np.ndarray) -> List[int]:
@@ -133,63 +134,7 @@ class ValidActions:
 
         return valid_board[x_low: x_high, y_low: y_high], (x_low, y_low)
 
-    def _calculate_my_square(self, step: int, head: Position, help_board: np.ndarray) -> None:
-        square, (_, _) = self._get_square(head, self.valid_board, step)  # (x_delta, y_delta)
-        square_head = np.where(square == help_board[head.x][head.y])
-
-        # calculate elements in array
-        for x in range(0, square.shape[0]):
-            for y in range(0, square.shape[1]):
-
-                if Distance.manhattan_dist(Position(square_head[0][0], square_head[1][0]), Position(x, y)) == step:
-                    neighbour_values = get_valid_neighbour_values(x, y, square)
-
-                    # aktionsradius der Schlange beschreiben
-                    if square[x, y] == -step + 1 or square[x, y] == 0 or step < square[x, y]:
-                        if square[x, y] < 10 and step == 1 and square[x, y] != 1:
-                            square[x][y] = -step
-                        if square[x, y] < 10 and -(step - 1) in neighbour_values:
-                            square[x][y] = -step
-                    # eigenenes Schwanzende berücksichtigen
-                    if 10 < square[x, y] < 20 and square[x, y] % 10 <= step and -(step - 1) in neighbour_values:
-                        square[x][y] = -step
-                    # feindliche Schwanzenden berücksichtigen
-                    if 20 < square[x, y] < 30 and square[x, y] % 10 <= step and -(step - 1) in neighbour_values:
-                        square[x][y] = -step
-
-                    # kritische Felder markieren
-                    if square[x][y] > 0 and square[x][y] - step <= 0:
-                        pass
-                        # square[x][y] = enemy_board[x + x_delta][y + y_delta]
-
-    def _calculate_enemy_square(self, step: int, head: Position, action_plan: np.ndarray) -> None:
-        square, (_, _) = self._get_square(head, self.valid_board, step)
-        action_square, (_, _) = self._get_square(head, action_plan, step)
-        square_head = np.where(square == self.valid_board[head.x][head.y])
-        head_pos = Position(square_head[0][0], square_head[1][0])
-
-        # TODO adjust fields that get checked more efficient
-        # fields = Mitte bzw. x Koordinate von square_head
-        # pro step + und - step bis Koordinate von y == y-square-head
-        # danach wieder minus 1 bis step/2
-        # Distance.manhatttan durch step ersetzen
-        # Extra Bedingung für Snake Body
-
-        for x in range(0, square.shape[0]):
-            for y in range(0, square.shape[1]):
-
-                # check for each field in circle if it has the right distance
-                if Distance.manhattan_dist(head_pos, Position(x, y)) == step and square[x][y] + step >= 0:
-                    neighbour_field_values = get_valid_neighbour_values(x, y, square)
-
-                    for field in neighbour_field_values:
-                        if step - 1 == field:
-                            # nur der naheste Gegner zählt, nicht überlagern
-                            if square[x][y] == 0 or step <= abs(square[x][y]):
-                                square[x][y] = step
-                            action_square[x][y] = Params_ValidActions.AREA_VALUE
-
-    def _enemy_flood_fill(self, flood_queue, step, visited, action_plan):
+    def _action_flood_fill(self, flood_queue: List, step: int, visited: List, action_plan: np.ndarray, enemy: bool):
         x_size, y_size = (self.board.width, self.board.height)
         new_queue = []
 
@@ -198,18 +143,35 @@ class ValidActions:
             if (x, y) in visited:
                 continue
 
-            if self.valid_board[x][y] + step < 0:
-                continue
+            if enemy:
+                if self.valid_board[x][y] + step < 0:
+                    continue
 
-            # neighbour_field_values = get_valid_neighbour_values(x, y, self.valid_board)
-            # for field in neighbour_field_values:
-            #     if step - 1 == field:
-            # nur der naheste Gegner zählt, nicht überlagern
-            if self.valid_board[x][y] == 0 or step <= abs(self.valid_board[x][y]):
-                self.valid_board[x][y] = step
-            action_plan[x][y] = Params_ValidActions.AREA_VALUE
+                if self.valid_board[x][y] == 0 or step <= abs(self.valid_board[x][y]):
+                    self.valid_board[x][y] = step
+                action_plan[x][y] = Params_ValidActions.AREA_VALUE
 
-            # self.valid_board[x][y] = step
+            if not enemy:
+
+                neighbour_values = get_valid_neighbour_values(x, y, self.valid_board)
+
+                # aktionsradius der Schlange beschreiben
+                if self.valid_board[x, y] == -step + 1 or self.valid_board[x, y] == 0 or step < self.valid_board[x, y]:
+                    if self.valid_board[x, y] < 10 and step == 1 and self.valid_board[x, y] != 1:
+                        self.valid_board[x][y] = -step
+                    if self.valid_board[x, y] < 10 and -(step - 1) in neighbour_values:
+                        self.valid_board[x][y] = -step
+
+                # eigenenes Schwanzende berücksichtigen
+                if 10 < self.valid_board[x, y] < 20 and self.valid_board[x, y] % 10 <= step \
+                        and -(step - 1) in neighbour_values:
+                    self.valid_board[x][y] = -step
+
+                # feindliche Schwanzenden berücksichtigen
+                if 20 < self.valid_board[x, y] < 30 and self.valid_board[x, y] % 10 <= step \
+                        and -(step - 1) in neighbour_values:
+                    self.valid_board[x][y] = -step
+
             visited.append((x, y))
 
             # add next steps to queue
@@ -274,14 +236,21 @@ class ValidActions:
                     else:
                         dead = True
 
+                    # break if food was found
+                    if self.valid_board[x][y] == -99:
+                        longest_way[direction] = -99
+                        searching = False
+                        dead = False
+                        break
+
                     # break if a valid endnode was found
-                    if self.valid_board[x][y] == -Params_ValidActions.DEPTH or self.valid_board[x][y] == 0:
+                    if self.valid_board[x][y] == 0:   # or self.valid_board[x][y] == -Params_ValidActions.DEPTH
                         searching = False
                         dead = False
                         break
 
                 # check if dead end and no more possible nodes to explore
-                if dead and step_history == []:
+                if dead and not step_history:
                     searching = False
 
                 # check if dead end but still valid nodes to explore
@@ -292,7 +261,7 @@ class ValidActions:
                         x_coord, y_coord = step_history[-1]
                     value += 1
 
-                if longest_way[direction] > value:
+                if longest_way[direction] >= value:
                     longest_way[direction] = value
 
         escape_direction_keys = []
@@ -311,7 +280,6 @@ class ValidActions:
         escape_path_value = [escape_path_value[i] for i in order]
         longest_way = dict(zip(escape_direction_keys,  escape_path_value))
 
-        # print("LongestWay:", longest_way)
         return invalid_actions, longest_way
 
     def _calculate_board(self, enemy_snakes: List[Snake]) -> np.ndarray:
@@ -337,13 +305,12 @@ class ValidActions:
             head = enemy.get_head()
 
             flood_queue = get_valid_neigbours(head.x, head.y, self.valid_board)
-            # visited = [(pos.x, pos.y) for pos in enemy.body]
             visited = [(head.x, head.y)]
 
             # build new flood for each depth level
             for step in range(1, self.depth + 1):
-                # self._calculate_enemy_square(step, head, action_plan)
-                flood_queue, visited, action_plan = self._enemy_flood_fill(flood_queue, step, visited, action_plan)
+                flood_queue, visited, action_plan = self._action_flood_fill(flood_queue, step, visited, action_plan,
+                                                                            enemy=True)
 
         return action_plan
 
@@ -354,24 +321,26 @@ class ValidActions:
         # mark snakes on the board
         self._mark_snakes(help_board)
 
-        # calculate new square for each depth level
-        for step in range(1, self.depth + 1):
-            self._calculate_my_square(step, head, help_board)
+        # calculate new wave for each depth level from queue
+        flood_queue = get_valid_neigbours(head.x, head.y, self.valid_board)
+        visited = [(head.x, head.y)]
 
-        if self.hungry:
-            invalid_actions, self.direction_depth = self._expand(head)
-        else:
-            old_board = self.valid_board.copy()
+        for step in range(1, self.depth + 1):
+            flood_queue, visited, _ = self._action_flood_fill(flood_queue, step, visited, None, enemy=False)
+
+        if not self.hungry:
             for food_pos in self.board.food:
                 self.valid_board[food_pos.x][food_pos.y] = 1
+            # old_board = self.valid_board.copy()
 
+        invalid_actions, self.direction_depth = self._expand(head)
+
+        """
+        if len(invalid_actions) == len(self.valid_actions):
+            self.valid_board = old_board
             invalid_actions, self.direction_depth = self._expand(head)
+        """
 
-            if len(invalid_actions) == len(self.valid_actions):
-                self.valid_board = old_board
-                invalid_actions, self.direction_depth = self._expand(head)
-
-        print(self.valid_board)
         print("Invalids: ", invalid_actions)
         return invalid_actions
 
@@ -423,7 +392,8 @@ class ValidActions:
                 if v < longest_path+2:
                     self.valid_actions.append(k)
 
-            # print("Valid Actions:", self.valid_actions)
+        print("Valid Actions:", self.valid_actions)
+        print(self.valid_board)
 
         return self.valid_actions, action_plan
 

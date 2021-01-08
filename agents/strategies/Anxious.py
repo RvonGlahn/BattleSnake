@@ -12,6 +12,10 @@ from agents.gametree.ActionPlan import ActionPlan
 from agents.heuristics.ValidActions import ValidActions
 from agents.heuristics.FloodFill import FloodFill
 
+# TODO:
+#  - im early game an hungrige Schlangen halten
+#  - falls wenig food auf dem board früher essen und näher an Food orientieren
+
 
 class Anxious:
 
@@ -46,6 +50,7 @@ class Anxious:
         for action in valid_actions:
             next_position = my_head.advanced(action)
 
+            """
             if next_position.x == 0 or next_position.y == 0 or next_position.x == grid_map.width-1 \
                     or next_position.y == grid_map.height-1:
                 cost.append(-99999)
@@ -62,6 +67,7 @@ class Anxious:
             if next_position.y == grid_map.height-2 and my_head.x != grid_map.height-1:
                 cost.append(-9999)
                 continue
+            """
 
             escape_value = escape_cost_dict[action]
 
@@ -81,7 +87,7 @@ class Anxious:
                 enemy_id = [snake.snake_id for snake in board.snakes if snake.snake_id != my_snake.snake_id][0]
                 flood_fill_value = FloodFill.get_fill_stats(board, next_position, my_snake.snake_id)
 
-                distance = omega * flood_fill_value[my_snake.snake_id] - distance_snakes - omega * flood_fill_value[enemy_id]
+                distance = - distance_snakes - omega * flood_fill_value[enemy_id]
 
             cost.append(distance)
 
