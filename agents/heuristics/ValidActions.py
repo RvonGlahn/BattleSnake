@@ -318,7 +318,7 @@ class ValidActions:
             flood_queue, visited, _ = self._action_flood_fill(flood_queue, step, visited, None, enemy=False)
 
         safe_neighbours = [field for field in get_valid_neighbour_values(head.x, head.y, self.valid_board)
-                           if field == -1]
+                           if field > -3]
 
         if not self.hungry and len(safe_neighbours) > 2:
             for food_pos in self.board.food:
