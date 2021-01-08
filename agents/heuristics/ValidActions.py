@@ -146,23 +146,18 @@ class ValidActions:
 
                 if step < self.valid_board[x][y] < 10 or self.valid_board[x][y] == 0:
                     self.valid_board[x][y] = -step
-
-                """
-                # aktionsradius der eigenen Schlange beschreiben
-                if self.valid_board[x, y] == -step + 1 or self.valid_board[x, y] == 0 or step < self.valid_board[x, y]:
-                    if self.valid_board[x, y] < 10 and -(step - 1) in neighbour_values:
-                        self.valid_board[x][y] = -step
                 
                 # eigenenes Schwanzende berücksichtigen
                 if 10 < self.valid_board[x, y] < 20 and self.valid_board[x, y] % 10 <= step \
                         and -(step - 1) in neighbour_values:
                     self.valid_board[x][y] = -step
-
+                """
                 # feindliche Schwanzenden berücksichtigen
-                if 30 < self.valid_board[x, y] < 30 and self.valid_board[x, y] % 10 <= step \
+                if 20 < self.valid_board[x, y] < 40 and self.valid_board[x, y] % 20 <= step \
                         and -(step - 1) in neighbour_values:
                     self.valid_board[x][y] = -step
                 """
+
             visited.append((x, y))
 
             # add next steps to queue
