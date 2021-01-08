@@ -144,23 +144,21 @@ class ValidActions:
 
                 neighbour_values = get_valid_neighbour_values(x, y, self.valid_board)
 
-                # aktionsradius der Schlange beschreiben
+                # aktionsradius der eigenen Schlange beschreiben
                 if self.valid_board[x, y] == -step + 1 or self.valid_board[x, y] == 0 or step < self.valid_board[x, y]:
-                    if self.valid_board[x, y] < 10 and step == 1 and self.valid_board[x, y] != 1:
-                        self.valid_board[x][y] = -step
                     if self.valid_board[x, y] < 10 and -(step - 1) in neighbour_values:
                         self.valid_board[x][y] = -step
-
+                """
                 # eigenenes Schwanzende berücksichtigen
                 if 10 < self.valid_board[x, y] < 20 and self.valid_board[x, y] % 10 <= step \
                         and -(step - 1) in neighbour_values:
                     self.valid_board[x][y] = -step
 
                 # feindliche Schwanzenden berücksichtigen
-                if 20 < self.valid_board[x, y] < 30 and self.valid_board[x, y] % 10 <= step \
+                if 30 < self.valid_board[x, y] < 30 and self.valid_board[x, y] % 10 <= step \
                         and -(step - 1) in neighbour_values:
                     self.valid_board[x][y] = -step
-
+                """
             visited.append((x, y))
 
             # add next steps to queue
