@@ -25,7 +25,8 @@ class Anxious:
 
         if not valid_actions:
             possible_actions = my_snake.possible_actions()
-            valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, my_snake, grid_map)
+            valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, my_snake,
+                                                           grid_map, False)
 
         my_head = my_snake.get_head()
         enemy_heads = [snake.get_head() for snake in board.snakes if snake.snake_id != my_snake.snake_id]

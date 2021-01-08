@@ -55,6 +55,7 @@ class FloodFill:
 
     @staticmethod
     def get_fill_stats(board: BoardState, next_position: Position, my_id: str) -> Dict:
+        # TODO: Food in der Gewichtung des boards einbeziehen
 
         flood_queue = []
         fill_stats = {}
