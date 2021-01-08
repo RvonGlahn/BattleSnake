@@ -316,7 +316,7 @@ class ValidActions:
 
         if not self.hungry:
             for food_pos in self.board.food:
-                if Distance.manhattan_dist(head, food_pos) > 2:
+                if Distance.manhattan_dist(head, food_pos) > 3:
                     self.valid_board[food_pos.x][food_pos.y] = 1
             # old_board = self.valid_board.copy()
 
