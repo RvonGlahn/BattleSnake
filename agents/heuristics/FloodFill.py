@@ -8,6 +8,13 @@ from environment.Battlesnake.model.Position import Position
 class FloodFill:
 
     @staticmethod
+    def flood_kill():
+        pass
+
+    @staticmethod
+    def closed_in():
+
+    @staticmethod
     def calcuate_step(fill_board, queue, snake_index, visited) -> int:
         x_size, y_size = fill_board.shape
         count = 0

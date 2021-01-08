@@ -371,10 +371,11 @@ class ValidActions:
         if not self.valid_actions and self.direction_depth:
             longest_path = list(self.direction_depth.values())[0]
             for k, v in self.direction_depth.items():
-                if v < longest_path+2:
+                if v < -2:
                     self.valid_actions.append(k)
 
-        print("Valid Actions:", self.direction_depth)
+        print("Valid Actions:", self.valid_actions)
+        print("Direction Depth: ", self.direction_depth)
         print(self.valid_board)
 
         return self.valid_actions, action_plan
