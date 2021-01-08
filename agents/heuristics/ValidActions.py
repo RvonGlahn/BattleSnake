@@ -344,7 +344,7 @@ class ValidActions:
 
         print("Multi-Valid Actions:", self.valid_actions)
 
-        if not self.valid_actions and self.direction_depth:
+        if len(self.valid_actions) < 2 and self.direction_depth:
             longest_path = list(self.direction_depth.values())[0]
             for k, v in self.direction_depth.items():
                 if v < -2:
