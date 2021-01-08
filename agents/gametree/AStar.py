@@ -5,6 +5,7 @@ from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.grid_map import GridMap
+from environment.Battlesnake.model.Occupant import Occupant
 from util.kl_priority_queue import KLPriorityQueue
 
 
@@ -44,7 +45,8 @@ class AStar:
             # append cost for each unvisited valid direction
             for direction in Direction:
                 next_position = current_position.advanced(direction)
-                if grid_map.is_valid_at(next_position.x, next_position.y):
+                if grid_map.is_valid_at(next_position.x, next_position.y) \
+                        and grid_map.grid_cache[next_position.x][next_position.y] != Occupant.Snake:
 
                     # check if state wasnt visited or cost of visited state is lower
                     if (str(next_position) not in cost_so_far.keys()) \

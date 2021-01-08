@@ -9,13 +9,13 @@ class FloodFill:
 
     @staticmethod
     def flood_kill():
-        # mögliche Züge des Gegners durch Floodfill berechnen und wenn er nur eine Wahl hat durch Astar anpeilen
-        # und abschneiden
+        # TODO: mögliche Züge des Gegners durch Floodfill berechnen und wenn er nur eine Wahl hat durch Astar anpeilen
+        #   und abschneiden
         pass
 
     @staticmethod
     def closed_in():
-        # checken ob schlange eingeschlossen ist
+        # TODO: checken ob schlange eingeschlossen ist
         pass
 
     @staticmethod

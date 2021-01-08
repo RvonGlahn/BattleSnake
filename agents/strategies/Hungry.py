@@ -42,7 +42,7 @@ class Hungry:
                valid_actions: List[Direction]) -> Tuple[Direction, List[Position]]:
 
         possible_actions = snake.possible_actions()
-        back_up_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, snake, grid_map)
+        back_up_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, snake, grid_map, False)
 
         if valid_actions:
             action = np.random.choice(valid_actions)

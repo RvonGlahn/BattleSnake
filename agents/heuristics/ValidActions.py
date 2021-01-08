@@ -14,7 +14,6 @@ from environment.Battlesnake.model.Occupant import Occupant
 
 
 # TODO:
-#  A-Star korrigieren für Hindernisse
 #  besser food chasen -> Anzahl des foods auf boards berücksichitgen -> früher essen?
 
 
@@ -71,7 +70,8 @@ class ValidActions:
                           possible_actions: List[Direction],
                           snakes: List[Snake],
                           my_snake: Snake,
-                          grid_map: GridMap[Occupant]) -> List[Direction]:
+                          grid_map: GridMap[Occupant],
+                          avoid_food: bool) -> List[Direction]:
 
         my_head = my_snake.get_head()
         snake_tails = []
@@ -91,7 +91,7 @@ class ValidActions:
             next_position = my_head.advanced(direction)
 
             # avoid eating
-            if my_snake.health > Params_ValidActions.FOOD_BOUNDARY:
+            if my_snake.health > Params_ValidActions.FOOD_BOUNDARY and avoid_food:
                 if grid_map.get_value_at_position(next_position) is Occupant.Food:
                     continue
 
@@ -108,7 +108,7 @@ class ValidActions:
 
             val_actions.append(direction)
 
-        if len(val_actions) < 2:
+        if not val_actions:
             for direction in possible_actions:
                 next_position = my_head.advanced(direction)
                 # eat if its the only possible valid action
@@ -326,26 +326,7 @@ class ValidActions:
         print("Invalids: ", invalid_actions)
         return invalid_actions
 
-    def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray]:
-
-        action_plan = None
-        possible_actions = self.my_snake.possible_actions()
-        self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
-                                                    self.my_snake, self.grid_map)
-
-        if self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
-            self.hungry = True
-            self.depth = 5
-        else:
-            self.hungry = False
-            self.depth = Params_ValidActions.DEPTH
-
-        enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id]
-
-        start_time = time.time()
-        # calculate enemy snakes board
-        # while time.time() - start_time < 0.06 and self.depth < 10:
-        action_plan = self._calculate_board(enemy_snakes)
+    def valid_check(self, enemy_snakes):
 
         if enemy_snakes:
             # calculate range of my snake and find valid actions
@@ -372,6 +353,37 @@ class ValidActions:
         print("Valid Actions:", self.valid_actions)
         print("Direction Depth: ", self.direction_depth)
         print(self.valid_board)
+
+    def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray]:
+
+        start_time = time.time()
+        action_plan = None
+        possible_actions = self.my_snake.possible_actions()
+        self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
+                                                    self.my_snake, self.grid_map, True)
+
+        if self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
+            self.hungry = True
+            self.depth = 5
+        else:
+            self.hungry = False
+            self.depth = Params_ValidActions.DEPTH
+
+        enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id]
+
+        # calculate enemy snakes board
+        action_plan = self._calculate_board(enemy_snakes)
+
+        # calculate valid actions
+        self.valid_check(enemy_snakes)
+
+        if not self.valid_actions and not self.hungry:
+            # calculate valid_actions and allow snake to eat
+            self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
+                                                        self.my_snake, self.grid_map, True)
+            self.valid_check(enemy_snakes)
+
+        print("DAUER", time.time() - start_time)
 
         return self.valid_actions, action_plan
 
