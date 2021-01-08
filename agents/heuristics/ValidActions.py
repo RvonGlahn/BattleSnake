@@ -328,7 +328,10 @@ class ValidActions:
         for step in range(1, self.depth + 1):
             flood_queue, visited, _ = self._action_flood_fill(flood_queue, step, visited, None, enemy=False)
 
-        if not self.hungry:
+        safe_neighbours = [field for field in get_valid_neighbour_values(head.x, head.y, self.valid_board)
+                           if field == -1]
+
+        if not self.hungry and len(safe_neighbours) > 2:
             for food_pos in self.board.food:
                 self.valid_board[food_pos.x][food_pos.y] = 1
             # old_board = self.valid_board.copy()
@@ -375,7 +378,7 @@ class ValidActions:
                 self.valid_actions = [valid_action for valid_action in self.valid_actions
                                       if valid_action not in invalid_actions]
 
-            if not self.valid_actions or self.my_snake.health < 20:
+            if not self.valid_actions or self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
                 break
 
             self.depth += 1
