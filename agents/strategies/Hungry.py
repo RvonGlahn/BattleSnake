@@ -41,9 +41,13 @@ class Hungry:
     def hunger(snake: Snake, board: BoardState, grid_map: GridMap, food_path: List[Position],
                valid_actions: List[Direction]) -> Tuple[Direction, List[Position]]:
 
-        action = np.random.choice(valid_actions)
         possible_actions = snake.possible_actions()
         back_up_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, snake, grid_map)
+
+        if valid_actions:
+            action = np.random.choice(valid_actions)
+        else:
+            action = np.random.choice(back_up_actions)
 
         if not food_path:
             food_path = Hungry.follow_food(snake, board, grid_map)
