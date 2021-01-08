@@ -71,6 +71,7 @@ class Anxious:
 
             distance_mid = Distance.manhattan_dist(next_position, middle)
 
+            # TODO: bestes Food raussuchen und direkt anpeilen
             distance_food = sum([Distance.manhattan_dist(next_position, food) for food in board.food])
 
             if len(board.snakes) > 2:

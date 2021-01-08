@@ -20,9 +20,11 @@ import time
 
 ###################
 # TODO:
-# - time_limit in strategien / ActionPlan einbauen
-# - MovementProfile mit der Zeit verbessern
-# - update behaviour
+#  - time_limit in strategien / ActionPlan einbauen
+#  - MovementProfile mit der Zeit verbessern
+#  - update behaviour
+#  - wenn kein food in der Nähe auf anxious wechseln aber food mehr priorisieren
+
 ###################
 
 

@@ -14,14 +14,8 @@ from environment.Battlesnake.model.Occupant import Occupant
 
 
 # TODO:
-#  Felder im toten Winkel berücksichtigen -> Flood Fill bei my square und überschreiben von enemy actions
-#  Chase Tail für Gegner Body berücksichtigen
-#  Food ausschluss in anxious mit ermöglichen. In valid actions Food mit einbeziehen als option
-#  Wenn keine validen Actions dann head to head
 #  A-Star korrigieren für Hindernisse
 #  besser food chasen -> Anzahl des foods auf boards berücksichitgen -> früher essen?
-#  invalids_werden nicht richtig gesetzt -> expand falsch?
-#
 
 
 def get_valid_neighbour_values(x: int, y: int, square: np.ndarray) -> List[int]:
@@ -114,7 +108,7 @@ class ValidActions:
 
             val_actions.append(direction)
 
-        if not val_actions:
+        if len(val_actions) < 2:
             for direction in possible_actions:
                 next_position = my_head.advanced(direction)
                 # eat if its the only possible valid action
@@ -287,7 +281,6 @@ class ValidActions:
         # build movement area around all enemy snakes near us
         for enemy in enemy_snakes:
 
-            enemy_depth = enemy.get_length() if self.depth > enemy.get_length() else self.depth
             head = enemy.get_head()
 
             flood_queue = get_valid_neigbours(head.x, head.y, self.valid_board)
@@ -298,6 +291,8 @@ class ValidActions:
                 flood_queue, visited, action_plan = self._action_flood_fill(flood_queue, step, visited, action_plan,
                                                                             enemy=True)
 
+            if len(enemy.body) == 4:
+                pass
         return action_plan
 
     def _find_invalid_actions(self) -> List[Direction]:
