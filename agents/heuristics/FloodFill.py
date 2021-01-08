@@ -13,6 +13,7 @@ class FloodFill:
 
     @staticmethod
     def closed_in():
+        pass
 
     @staticmethod
     def calcuate_step(fill_board, queue, snake_index, visited) -> int:
