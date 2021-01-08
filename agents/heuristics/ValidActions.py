@@ -350,25 +350,24 @@ class ValidActions:
 
         start_time = time.time()
         # calculate enemy snakes board
-        while time.time() - start_time < 0.06 and self.depth < 10:
-            action_plan = self._calculate_board(enemy_snakes)
+        # while time.time() - start_time < 0.06 and self.depth < 10:
+        action_plan = self._calculate_board(enemy_snakes)
 
-            if enemy_snakes:
-                # calculate range of my snake and find valid actions
-                invalid_actions = self._find_invalid_actions()
+        if enemy_snakes:
+            # calculate range of my snake and find valid actions
+            invalid_actions = self._find_invalid_actions()
 
-                if not invalid_actions:
-                    invalid_actions = self._find_invalid_actions()
+            self.valid_actions = [valid_action for valid_action in self.valid_actions
+                                  if valid_action not in invalid_actions]
 
-                self.valid_actions = [valid_action for valid_action in self.valid_actions
-                                      if valid_action not in invalid_actions]
+        """
+        if not self.valid_actions or self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
+            break
 
-            if not self.valid_actions or self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
-                break
+        self.depth += 1
+        """
 
-            self.depth += 1
-
-        # print("Multi-Valid Actions:", self.valid_actions)
+        print("Multi-Valid Actions:", self.valid_actions)
 
         if not self.valid_actions and self.direction_depth:
             longest_path = list(self.direction_depth.values())[0]
@@ -376,7 +375,7 @@ class ValidActions:
                 if v < longest_path+2:
                     self.valid_actions.append(k)
 
-        print("Valid Actions:", self.valid_actions)
+        print("Valid Actions:", self.direction_depth)
         print(self.valid_board)
 
         return self.valid_actions, action_plan
