@@ -51,18 +51,17 @@ class Anxious:
             next_position = my_head.advanced(action)
             distance_no_border = 0
 
-            if len(board.snakes) > 2:
-                if next_position.x == 0 or next_position.y == 0 or next_position.x == grid_map.width-1 \
-                        or next_position.y == grid_map.height-1:
-                    distance_no_border = -99999
-                if next_position.x == 1 and my_head.x != 0:
-                    distance_no_border = -9999
-                if next_position.y == 1 and my_head.y != 0:
-                    distance_no_border = -9999
-                if next_position.x == grid_map.width-2 and my_head.x != grid_map.width-1:
-                    distance_no_border = -9999
-                if next_position.y == grid_map.height-2 and my_head.x != grid_map.height-1:
-                    distance_no_border = -9999
+            if next_position.x == 0 or next_position.y == 0 or next_position.x == grid_map.width-1 \
+                    or next_position.y == grid_map.height-1:
+                distance_no_border = -99999
+            if next_position.x == 1 and my_head.x != 0:
+                distance_no_border = -9999
+            if next_position.y == 1 and my_head.y != 0:
+                distance_no_border = -9999
+            if next_position.x == grid_map.width-2 and my_head.x != grid_map.width-1:
+                distance_no_border = -9999
+            if next_position.y == grid_map.height-2 and my_head.x != grid_map.height-1:
+                distance_no_border = -9999
 
             escape_value = escape_cost_dict[action]
 
