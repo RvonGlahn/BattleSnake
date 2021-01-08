@@ -2,6 +2,7 @@ from typing import List
 import numpy as np
 from agents.BaseAgent import BaseAgent
 from agents.Decision import Decision
+from agents.heuristics.ValidActions import ValidActions
 
 from environment.Battlesnake.model.GameInfo import GameInfo
 from environment.Battlesnake.model.MoveResult import MoveResult
@@ -36,7 +37,9 @@ class KILabAgent(BaseAgent):
         next_action = self.Decision.decide(you, board, grid_map)
 
         if next_action is None:
-            next_action = np.random.choice(you.possible_actions())
+            next_action = ValidActions.get_valid_actions(board, you.possible_actions(), board.snakes, you, grid_map)
+            if next_action is None:
+                next_action = np.random.choice(you.possible_actions())
 
         return MoveResult(direction=next_action)
 

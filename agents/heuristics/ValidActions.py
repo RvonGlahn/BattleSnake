@@ -109,8 +109,8 @@ class ValidActions:
             if grid_map.get_value_at_position(next_position) is Occupant.Snake and next_position not in snake_tails:
                 continue
 
-            if next_position in forbidden_fields:
-                continue
+            # if next_position in forbidden_fields:
+            #    continue
 
             val_actions.append(direction)
 
@@ -122,17 +122,6 @@ class ValidActions:
                     val_actions.append(direction)
 
         return val_actions
-
-    def _get_square(self, head: Position, valid_board: np.ndarray, step: int) -> Tuple[np.ndarray, Tuple[int, int]]:
-        width = self.board.width
-        height = self.board.height
-
-        x_low = head.x - step if head.x - step > 0 else 0
-        x_high = head.x + step + 1 if head.x + step + 1 < width else width
-        y_low = head.y - step if head.y - step > 0 else 0
-        y_high = head.y + step + 1 if head.y + step + 1 < height else height
-
-        return valid_board[x_low: x_high, y_low: y_high], (x_low, y_low)
 
     def _action_flood_fill(self, flood_queue: List, step: int, visited: List, action_plan: np.ndarray, enemy: bool):
         x_size, y_size = (self.board.width, self.board.height)
