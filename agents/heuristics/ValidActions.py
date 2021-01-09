@@ -120,7 +120,6 @@ class ValidActions:
     def _action_flood_fill(self, flood_queue: List, step: int, visited: List, action_plan: np.ndarray, enemy: bool):
         x_size, y_size = (self.board.width, self.board.height)
         new_queue = []
-
         for (x, y) in flood_queue:
 
             if (x, y) in visited:
@@ -145,6 +144,13 @@ class ValidActions:
                 if 10 < self.valid_board[x, y] < 20 and self.valid_board[x, y] % 10 <= step:
                     # and -(step - 1) in neighbour_values:
                     self.valid_board[x][y] = -step
+
+                # Schwanzanfang berücksichtigen
+                if step == 1:
+                    for snake in self.board.snakes:
+                        tail = snake.get_tail()
+                        if snake.health != 100 and (x, y) == (tail.x, tail.y):
+                            self.valid_board[x][y] = -step
                 """
                 # feindliche Schwanzenden berücksichtigen
                 if 20 < self.valid_board[x, y] < 40 and self.valid_board[x, y] % 20 <= step \
@@ -326,29 +332,23 @@ class ValidActions:
         print("Invalids: ", invalid_actions)
         return invalid_actions
 
-    def valid_check(self, enemy_snakes):
+    def _valid_check(self, enemy_snakes):
 
-        if enemy_snakes:
-            # calculate range of my snake and find valid actions
-            invalid_actions = self._find_invalid_actions()
+        # calculate range of my snake and find valid actions
+        invalid_actions = self._find_invalid_actions()
 
-            self.valid_actions = [valid_action for valid_action in self.valid_actions
-                                  if valid_action not in invalid_actions]
-
-        """
-        if not self.valid_actions or self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
-            break
-
-        self.depth += 1
-        """
+        self.valid_actions = [valid_action for valid_action in self.valid_actions
+                              if valid_action not in invalid_actions]
 
         print("Multi-Valid Actions:", self.valid_actions)
 
-        if len(self.valid_actions) < 2 and self.direction_depth:
+        if self.direction_depth and len(self.valid_actions) < 2:
             longest_path = list(self.direction_depth.values())[0]
-            for k, v in self.direction_depth.items():
-                if v < -2:
-                    self.valid_actions.append(k)
+
+            if len(self.board.snakes) > 2 and not self.hungry:
+                self.valid_actions = [k for k, v in self.direction_depth.items() if v < -4]
+            if len(self.board.snakes) == 2:
+                self.valid_actions = [k for k, v in self.direction_depth.items() if v < -2]
 
         print("Valid Actions:", self.valid_actions)
         print("Direction Depth: ", self.direction_depth)
@@ -375,13 +375,13 @@ class ValidActions:
         action_plan = self._calculate_board(enemy_snakes)
 
         # calculate valid actions
-        self.valid_check(enemy_snakes)
+        self._valid_check(enemy_snakes)
 
         if not self.valid_actions and not self.hungry:
             # calculate valid_actions and allow snake to eat
             self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
                                                         self.my_snake, self.grid_map, False)
-            self.valid_check(enemy_snakes)
+            self._valid_check(enemy_snakes)
 
         print("DAUER", time.time() - start_time)
 
