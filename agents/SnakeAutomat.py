@@ -87,11 +87,13 @@ class SnakeAutomat:
 
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
+        food_reachable = True  # Funktion aufrufen die prüft ob Food in Floodfill reichweite
+
         # TODO: schlaue Regelung ob Anxious oder Hungry -> Relevant Food hier reinbringen? 
-        if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY and statistics.mean(self.food_history) < 4:
+        if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY and food_reachable:
             self.state = States.HUNGRY
             return
-        if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
+        if self.snake.health < 50 and statistics.mean(self.food_history) < 4 and food_reachable:
             self.state = States.HUNGRY
             return
         else:

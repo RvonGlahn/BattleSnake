@@ -151,12 +151,6 @@ class ValidActions:
                         tail = snake.get_tail()
                         if snake.health != 100 and (x, y) == (tail.x, tail.y):
                             self.valid_board[x][y] = -step
-                """
-                # feindliche Schwanzenden berücksichtigen
-                if 20 < self.valid_board[x, y] < 40 and self.valid_board[x, y] % 20 <= step \
-                        and -(step - 1) in neighbour_values:
-                    self.valid_board[x][y] = -step
-                """
 
             visited.append((x, y))
 
@@ -211,7 +205,6 @@ class ValidActions:
                 for x, y in positions:
 
                     # check if next value is valid and no dead end
-                    # TODO teilweise noch kein korrektes backtracking bzw ausbreiten bis zum letzten node -> 0 als Ziel?
                     if self.valid_board[x][y] == value-1 and (x, y) not in dead_ends.keys():
                         dead = False
                         step_history.append((x, y))
@@ -317,17 +310,10 @@ class ValidActions:
 
         if not self.hungry:
             for food_pos in self.board.food:
-                if Distance.manhattan_dist(head, food_pos) > 3:
+                if Distance.manhattan_dist(head, food_pos) > 4:
                     self.valid_board[food_pos.x][food_pos.y] = 1
-            # old_board = self.valid_board.copy()
 
         invalid_actions, self.direction_depth = self._expand(head)
-
-        """
-        if len(invalid_actions) == len(self.valid_actions):
-            self.valid_board = old_board
-            invalid_actions, self.direction_depth = self._expand(head)
-        """
 
         print("Invalids: ", invalid_actions)
         return invalid_actions
@@ -367,7 +353,7 @@ class ValidActions:
 
         if self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
             self.hungry = True
-            self.depth = 5
+            self.depth = 7
         else:
             self.hungry = False
             self.depth = Params_ValidActions.DEPTH
