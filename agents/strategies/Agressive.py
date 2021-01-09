@@ -3,6 +3,7 @@ import numpy as np
 
 from agents.heuristics.Distance import Distance
 from agents.gametree.AStar import AStar
+from agents.Hyperparameters import Params_ValidActions
 
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
@@ -15,11 +16,13 @@ from environment.Battlesnake.model.grid_map import GridMap
 class Agressive:
 
     @staticmethod
-    def flood_kill(kill_board: np.ndarray, enemy_snakes, my_snake):
+    def flood_kill(kill_board: np.ndarray, enemy_snakes, my_head):
         # TODO: mögliche Züge des Gegners durch Floodfill berechnen und wenn er nur eine Wahl hat durch Astar anpeilen
         #   und abschneiden
         if len(enemy_snakes) > 3:
-            relevant_snakes = [snake for snake in enemy_snakes if ]
+            relevant_snakes = [snake for snake in enemy_snakes
+                               if Distance.manhattan_dist(snake.get_head(), my_head) > Params_ValidActions.DEPTH-1]
+
 
 
 
