@@ -14,7 +14,7 @@ from environment.Battlesnake.model.Occupant import Occupant
 
 
 # TODO:
-#  besser food chasen -> Anzahl des foods auf boards berücksichitgen -> früher essen?
+#  besser food chasen -> valide Actions auf Food anpassen
 
 
 def get_valid_neighbour_values(x: int, y: int, square: np.ndarray) -> List[int]:
