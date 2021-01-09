@@ -342,13 +342,16 @@ class ValidActions:
 
         print("Multi-Valid Actions:", self.valid_actions)
 
-        if self.direction_depth and len(self.valid_actions) < 2:
-            longest_path = list(self.direction_depth.values())[0]
-
+        # if less than 2 valid_actions decide to look deeper in direction_depth
+        threshold = - self.depth + 1
+        while self.direction_depth and len(self.valid_actions) < 2:
+            self.valid_actions = [k for k, v in self.direction_depth.items() if v < threshold]
+            threshold += 1
+            if threshold == -2:
+                break
             if len(self.board.snakes) > 2 and not self.hungry:
-                self.valid_actions = [k for k, v in self.direction_depth.items() if v < -4]
-            if len(self.board.snakes) == 2:
-                self.valid_actions = [k for k, v in self.direction_depth.items() if v < -2]
+                if threshold < -5 and len(self.valid_actions) > 0:
+                    break
 
         print("Valid Actions:", self.valid_actions)
         print("Direction Depth: ", self.direction_depth)
