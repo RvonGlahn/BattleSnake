@@ -8,14 +8,20 @@ from environment.Battlesnake.model.Position import Position
 class FloodFill:
 
     @staticmethod
-    def flood_kill():
+    def flood_kill(board: BoardState):
         # TODO: mögliche Züge des Gegners durch Floodfill berechnen und wenn er nur eine Wahl hat durch Astar anpeilen
         #   und abschneiden
-        pass
+        flood_queue = []
+        kill_board = np.full((board.width, board.height), 30)
+        visited = []
 
     @staticmethod
     def closed_in():
-        # TODO: checken ob schlange eingeschlossen ist
+        pass
+
+    @staticmethod
+    def flood_food():
+        # TODO: checken ob food erreichbar
         pass
 
     @staticmethod
@@ -62,7 +68,6 @@ class FloodFill:
         fill_board = np.full((board.width, board.height), 10)
         visited = []
 
-        # snake_heads = {snake.snake_id: snake.get_head() for snake in board.snakes}
         snake_length = [snake.get_length() for snake in board.snakes]
         snake_ids = [snake.snake_id for snake in board.snakes]
         order = np.argsort(snake_length)
@@ -70,6 +75,7 @@ class FloodFill:
         copy_snakes = board.snakes.copy()
         snakes = [copy_snakes[i] for i in order]
 
+        snake_marker = -99
         for snake in snakes:
             if snake.snake_id == my_id:
                 flood_queue.append([(next_position.x, next_position.y)])
@@ -78,10 +84,11 @@ class FloodFill:
             for pos in snake.body:
                 if snake.snake_id == my_id and pos == snake.body[-1]:
                     continue
-                fill_board[pos.x][pos.y] = -99
+                fill_board[pos.x][pos.y] = snake_marker
                 if pos is not snake.get_head():
                     visited.append((pos.x, pos.y))
 
+            snake_marker += 1
             fill_stats[snake.snake_id] = 0
 
         # iterativ Bewegungsbereich erschließen
