@@ -14,8 +14,8 @@ from agents.heuristics.FloodFill import FloodFill
 
 # TODO:
 #  - im early game an hungrige Schlangen halten
-#  - falls wenig food auf dem board früher essen und näher an Food orientieren
 #  - wenn gegnerische Schlange low health hat dann food blockieren
+#  - Chase your Tail in Desperate State wenn eingeschlossen
 
 
 class Anxious:

@@ -15,6 +15,7 @@ from environment.Battlesnake.model.Snake import Snake
 
 ###########################
 # TODO: update Behaviour
+#  - Chase your Tail in Desperate State wenn eingeschlossen
 ###########################
 
 
