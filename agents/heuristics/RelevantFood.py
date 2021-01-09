@@ -27,3 +27,7 @@ class RelevantFood:
                 my_close_food.append(food)
 
         return my_close_food
+
+    @staticmethod
+    def check_relevant_food(valid_board, food, my_head):
+        pass

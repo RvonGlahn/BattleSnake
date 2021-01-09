@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Tuple, List
 import numpy as np
 
 from environment.Battlesnake.model.board_state import BoardState
@@ -12,9 +12,14 @@ class FloodFill:
         pass
 
     @staticmethod
-    def flood_food():
-        # TODO: checken ob food erreichbar
-        pass
+    def flood_food(fill_board, foods):
+        reachable_food = []
+        for food in foods:
+            if fill_board[food.x][food.y] == -50:
+                reachable_food.append(food)
+
+        return reachable_food
+
 
     @staticmethod
     def calcuate_step(fill_board, queue, snake_index, visited) -> int:
@@ -52,7 +57,7 @@ class FloodFill:
         return count
 
     @staticmethod
-    def get_fill_stats(board: BoardState, next_position: Position, my_id: str) -> Dict:
+    def get_fill_stats(board: BoardState, next_position: Position, my_id: str) -> Tuple[Dict, List[Position]]:
         # TODO: Food in der Gewichtung des boards einbeziehen
 
         flood_queue = []
@@ -71,6 +76,7 @@ class FloodFill:
         for snake in snakes:
             if snake.snake_id == my_id:
                 flood_queue.append([(next_position.x, next_position.y)])
+                snake_marker = -50
             else:
                 flood_queue.append([(snake.get_head().x, snake.get_head().y)])
             for pos in snake.body:
@@ -93,6 +99,9 @@ class FloodFill:
                 fill_stats[snake_id] += filled_fields_count
 
                 snake_index += 1
+
+        reachable_food = FloodFill.flood_food(fill_board, board.food)
+
         print(fill_board)
         # calculate fill stats
-        return fill_stats
+        return fill_stats, reachable_food

@@ -6,6 +6,7 @@ from agents.States import States
 from agents.heuristics.Distance import Distance
 from agents.Hyperparameters import Params_Automat, Params_Agressive
 from agents.strategies.Agressive import Agressive
+from agents.heuristics.RelevantFood import RelevantFood
 
 from environment.Battlesnake.model.board_state import GridMap
 from environment.Battlesnake.model.board_state import BoardState
@@ -79,7 +80,7 @@ class SnakeAutomat:
 
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
-        food_reachable = True  # Funktion aufrufen die prüft ob Food in Floodfill reichweite
+        food_reachable = True  # Funktion aufrufen die prüft ob Food in Floodfill reichweite -> Food in valid_board?
         """
         kill_chance, kill_path = Agressive.flood_kill(valid_board, snakes, self.snake)
 

@@ -32,6 +32,7 @@ class Hungry:
                 food = relevant_food
         if not food:
             return []
+        print("best food:", food)
         cost, path = AStar.a_star_search(my_head, food, board, grid_map)
         path_array = path
 
@@ -52,13 +53,12 @@ class Hungry:
         if not food_path:
             food_path = Hungry.follow_food(snake, board, grid_map)
         if food_path:
-            print(food_path)
+            print("Food_Path: ", food_path)
             if food_path[0][1] in valid_actions:
                 print("Läuft")
                 action = food_path[0][1]
                 food_path.pop(0)
             elif snake.health < 10 and food_path[0][1] in back_up_actions:
-                print("Backup Actions")
                 action = food_path[0][1]
                 food_path.pop(0)
         else:
