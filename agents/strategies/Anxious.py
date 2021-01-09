@@ -99,6 +99,5 @@ class Anxious:
                 for snake in board.snakes:
                     if next_position in snake.get_tail() and snake.health != 100:
                         best_action = action
-            best_action = np.random.choice(possible_actions)
 
         return best_action
