@@ -93,12 +93,13 @@ class SnakeAutomat:
         """
         if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY and food_reachable:
             self.state = States.HUNGRY
+            Params_Anxious.GAMMA_DISTANCE_FOOD -= 0.5
             return
         elif self.snake.health < 50 and statistics.mean(self.food_history) < 4 and food_reachable:
             self.state = States.HUNGRY
             return
         else:
-            Params_Anxious.GAMMA_DISTANCE_FOOD += 2
+            Params_Anxious.GAMMA_DISTANCE_FOOD += 0.5
             self.state = States.ANXIOUS
 
         # check if game is in early stage and how many enemies are left
