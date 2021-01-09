@@ -112,7 +112,7 @@ class Decision:
                 # automat.update_behaviour()
 
         # update my snake state
-        self.automats[self.my_snake_id].update_my_state(board.snakes, self._get_snake_states(), self.game_round,
+        self.automats[self.my_snake_id].update_my_state(board, self._get_snake_states(), self.game_round,
                                                         valid_board)
 
     def _delete_dead_snake(self, dead_snakes: List[Snake]) -> None:

@@ -29,5 +29,11 @@ class RelevantFood:
         return my_close_food
 
     @staticmethod
-    def check_relevant_food(valid_board, food, my_head):
-        pass
+    def check_relevant_food(valid_board, foods, my_head):
+        # TODO: Checken ob das reicht oder mit Floodfill und dem Head ausweiten
+        reachable = False
+        for food in foods:
+            if valid_board[food.x][food.y] < 0:
+                reachable = True
+
+        return reachable

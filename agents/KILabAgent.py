@@ -36,10 +36,15 @@ class KILabAgent(BaseAgent):
         self.Decision.set_round(turn)
         next_action = self.Decision.decide(you, board, grid_map)
 
-        if next_action is None:
-            next_action = ValidActions.get_valid_actions(board, you.possible_actions(), board.snakes, you, grid_map)
-            if next_action is None:
-                next_action = np.random.choice(you.possible_actions())
+        if not next_action:
+            possible_actions = you.possible_actions()
+            for action in possible_actions:
+                next_position = you.get_head().advanced(action)
+                for snake in board.snakes:
+                    if next_position in snake.get_tail() and snake.health != 100:
+                        next_action = action
+            if not next_action:
+                next_action = np.random.choice(possible_actions)
 
         return MoveResult(direction=next_action)
 

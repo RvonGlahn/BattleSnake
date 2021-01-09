@@ -4,7 +4,7 @@ import statistics
 from agents.heuristics.MovementProfile import MovementProfile
 from agents.States import States
 from agents.heuristics.Distance import Distance
-from agents.Hyperparameters import Params_Automat, Params_Agressive
+from agents.Hyperparameters import Params_Automat, Params_Agressive, Params_Anxious
 from agents.strategies.Agressive import Agressive
 from agents.heuristics.RelevantFood import RelevantFood
 
@@ -77,11 +77,12 @@ class SnakeAutomat:
     def get_state(self) -> States:
         return self.state
 
-    def update_my_state(self, snakes: List[Snake], states: Dict, round_number: int, valid_board) -> None:
+    def update_my_state(self, board: BoardState, states: Dict, round_number: int, valid_board) -> None:
 
+        snakes = board.snakes
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
-        food_reachable = True  # Funktion aufrufen die prüft ob Food in Floodfill reichweite -> Food in valid_board?
+        food_reachable = RelevantFood.check_relevant_food(valid_board, board.food, self.snake.get_head())
         """
         kill_chance, kill_path = Agressive.flood_kill(valid_board, snakes, self.snake)
 
@@ -90,14 +91,14 @@ class SnakeAutomat:
             Params_Agressive.KILL_PATH = kill_path
             return
         """
-        # TODO: schlaue Regelung ob Anxious oder Hungry -> Relevant Food hier reinbringen? 
         if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY and food_reachable:
             self.state = States.HUNGRY
             return
-        if self.snake.health < 30 and statistics.mean(self.food_history) < 4 and food_reachable:
+        elif self.snake.health < 50 and statistics.mean(self.food_history) < 4 and food_reachable:
             self.state = States.HUNGRY
             return
         else:
+            Params_Anxious.GAMMA_DISTANCE_FOOD += 2
             self.state = States.ANXIOUS
 
         # check if game is in early stage and how many enemies are left

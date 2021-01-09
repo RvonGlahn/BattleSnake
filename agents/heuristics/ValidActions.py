@@ -213,13 +213,14 @@ class ValidActions:
                     else:
                         dead = True
 
+                    """
                     # break if food was found
                     if self.valid_board[x][y] == -99:
                         longest_way[direction] = -99
                         searching = False
                         dead = False
                         break
-
+                    """
                     # break if a valid endnode was found
                     if self.valid_board[x][y] == 0:   # or self.valid_board[x][y] == -Params_ValidActions.DEPTH
                         searching = False

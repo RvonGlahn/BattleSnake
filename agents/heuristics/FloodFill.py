@@ -32,7 +32,7 @@ class FloodFill:
             if (x, y) in visited:
                 continue
 
-            if fill_board[x][y] != 10 and fill_board[x][y] != -99:
+            if fill_board[x][y] != 10 and fill_board[x][y] > -40:
                 continue
 
             fill_board[x][y] = snake_index
@@ -72,6 +72,7 @@ class FloodFill:
         copy_snakes = board.snakes.copy()
         snakes = [copy_snakes[i] for i in order]
 
+        # TODO: Body Überprüfen für meine Schlange
         snake_marker = -99
         for snake in snakes:
             if snake.snake_id == my_id:

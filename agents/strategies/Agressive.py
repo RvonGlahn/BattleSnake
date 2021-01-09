@@ -23,20 +23,6 @@ class Agressive:
             relevant_snakes = [snake for snake in enemy_snakes
                                if Distance.manhattan_dist(snake.get_head(), my_head) > Params_ValidActions.DEPTH-1]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     # follow head of enemies that are smaller than Jürgen
     @staticmethod
     def attack(snakes: List[Snake], board: BoardState, grid_map: GridMap, you: Snake) -> List[Tuple[Position, Direction]]:
