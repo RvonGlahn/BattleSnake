@@ -14,7 +14,7 @@ from environment.Battlesnake.model.Occupant import Occupant
 
 
 # TODO:
-#  besser food chasen -> valide Actions auf Food anpassen
+#  besser food chasen und akzeptieren -> valide Actions auf Food anpassen
 
 
 def get_valid_neighbour_values(x: int, y: int, square: np.ndarray) -> List[int]:
@@ -91,7 +91,7 @@ class ValidActions:
             next_position = my_head.advanced(direction)
 
             # avoid eating
-            if my_snake.health > Params_ValidActions.FOOD_BOUNDARY and avoid_food:
+            if my_snake.health > Params_ValidActions.FOOD_BOUNDARY and avoid_food and my_snake.get_length() > 5:
                 if grid_map.get_value_at_position(next_position) is Occupant.Food:
                     continue
 
@@ -134,8 +134,6 @@ class ValidActions:
                 action_plan[x][y] = Params_ValidActions.AREA_VALUE
 
             if not enemy:
-
-                neighbour_values = get_valid_neighbour_values(x, y, self.valid_board)
 
                 if step < self.valid_board[x][y] < 10 or self.valid_board[x][y] == 0:
                     self.valid_board[x][y] = -step
@@ -261,13 +259,13 @@ class ValidActions:
 
         return invalid_actions, longest_way
 
-    def _calculate_board(self, enemy_snakes: List[Snake]) -> np.ndarray:
+    def _calculate_board(self) -> np.ndarray:
         #########################
         #
         # Idee: Für jede Schlange board einzeln berechnen und dann mit minimalen Werten überlagern
         #
         #########################
-
+        enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id]
         action_plan = np.zeros((self.board.width, self.board.height))
 
         # add enemy snakes to board -> ( better with all snakes? )
@@ -308,7 +306,7 @@ class ValidActions:
         for step in range(1, self.depth + 1):
             flood_queue, visited, _ = self._action_flood_fill(flood_queue, step, visited, None, enemy=False)
 
-        if not self.hungry:
+        if not self.hungry and self.my_snake.get_length() > 4:
             for food_pos in self.board.food:
                 if Distance.manhattan_dist(head, food_pos) > 4:
                     self.valid_board[food_pos.x][food_pos.y] = 1
@@ -318,7 +316,7 @@ class ValidActions:
         print("Invalids: ", invalid_actions)
         return invalid_actions
 
-    def _valid_check(self, enemy_snakes):
+    def _valid_check(self):
 
         # calculate range of my snake and find valid actions
         invalid_actions = self._find_invalid_actions()
@@ -346,7 +344,6 @@ class ValidActions:
     def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray, np.ndarray]:
 
         start_time = time.time()
-        action_plan = None
         possible_actions = self.my_snake.possible_actions()
         self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
                                                     self.my_snake, self.grid_map, True)
@@ -358,19 +355,17 @@ class ValidActions:
             self.hungry = False
             self.depth = Params_ValidActions.DEPTH
 
-        enemy_snakes = [snake for snake in self.snakes if snake.snake_id != self.my_snake.snake_id]
-
         # calculate enemy snakes board
-        action_plan = self._calculate_board(enemy_snakes)
+        action_plan = self._calculate_board()
 
         # calculate valid actions
-        self._valid_check(enemy_snakes)
+        self._valid_check()
 
         if not self.valid_actions and not self.hungry:
             # calculate valid_actions and allow snake to eat
             self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
                                                         self.my_snake, self.grid_map, False)
-            self._valid_check(enemy_snakes)
+            self._valid_check()
 
         print("DAUER", time.time() - start_time)
 
