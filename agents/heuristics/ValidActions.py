@@ -331,6 +331,8 @@ class ValidActions:
         while self.direction_depth and len(self.valid_actions) < 2:
             self.valid_actions = [k for k, v in self.direction_depth.items() if v < threshold]
             threshold += 1
+            if threshold < -3 and len(self.valid_actions) == 1:
+                break
             if threshold == -1:
                 break
             if len(self.board.snakes) > 2 and not self.hungry:
