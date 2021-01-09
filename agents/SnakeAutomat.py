@@ -80,13 +80,14 @@ class SnakeAutomat:
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
         food_reachable = True  # Funktion aufrufen die prüft ob Food in Floodfill reichweite
+        """
         kill_chance, kill_path = Agressive.flood_kill(valid_board, snakes, self.snake)
 
         if kill_chance:
             self.state = States.AGRESSIVE
             Params_Agressive.KILL_PATH = kill_path
             return
-
+        """
         # TODO: schlaue Regelung ob Anxious oder Hungry -> Relevant Food hier reinbringen? 
         if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY and food_reachable:
             self.state = States.HUNGRY

@@ -40,7 +40,7 @@ class Anxious:
 
         alpha = Params_Anxious.ALPHA_DISTANCE_SNAKE
         beta = Params_Anxious.BETA_DISTANCE_CORNERS
-        gamma = Params_Anxious.GAMMA_DISTANCE_FOOD
+        gamma = Params_Anxious.GAMMA_DISTANCE_FOOD * 20 / my_snake.health
         theta = Params_Anxious.THETA_DISTANCE_MID
         phi = Params_Anxious.PHI_ESCAPE_DIRECTION
         omega = Params_Anxious.OMEGA_FLOOD_FILL
