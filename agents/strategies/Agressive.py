@@ -12,7 +12,6 @@ from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.grid_map import GridMap
 
 
-
 class Agressive:
 
     @staticmethod

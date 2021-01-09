@@ -67,7 +67,7 @@ class FloodFill:
 
         snake_length = [snake.get_length() for snake in board.snakes]
         snake_ids = [snake.snake_id for snake in board.snakes]
-        order = np.argsort(snake_length)
+        order = np.argsort(snake_length)[::-1]
 
         copy_snakes = board.snakes.copy()
         snakes = [copy_snakes[i] for i in order]
