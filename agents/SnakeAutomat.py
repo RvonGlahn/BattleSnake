@@ -93,7 +93,7 @@ class SnakeAutomat:
         if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY and food_reachable:
             self.state = States.HUNGRY
             return
-        if self.snake.health < 50 and statistics.mean(self.food_history) < 4 and food_reachable:
+        if self.snake.health < 30 and statistics.mean(self.food_history) < 4 and food_reachable:
             self.state = States.HUNGRY
             return
         else:
