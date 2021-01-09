@@ -4,7 +4,8 @@ import statistics
 from agents.heuristics.MovementProfile import MovementProfile
 from agents.States import States
 from agents.heuristics.Distance import Distance
-from agents.Hyperparameters import Params_Automat
+from agents.Hyperparameters import Params_Automat, Params_Agressive
+from agents.strategies.Agressive import Agressive
 
 from environment.Battlesnake.model.board_state import GridMap
 from environment.Battlesnake.model.board_state import BoardState
@@ -71,23 +72,20 @@ class SnakeAutomat:
         if len(self.previous_positions) > Params_Automat.MONITOR_DISTANCE:
             self.previous_positions.pop(0)
 
-    def reset_positions(self) -> None:
-        self.previous_positions = []
-
-    def reset_state(self, enemy: bool) -> None:
-        if enemy:
-            self.state = States.AGRESSIVE
-        else:
-            self.state = States.ANXIOUS
-
     def get_state(self) -> States:
         return self.state
 
-    def update_my_state(self, snakes: List[Snake], states: Dict, round_number: int) -> None:
+    def update_my_state(self, snakes: List[Snake], states: Dict, round_number: int, valid_board) -> None:
 
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
         food_reachable = True  # Funktion aufrufen die prüft ob Food in Floodfill reichweite
+        kill_chance, kill_path = Agressive.flood_kill(valid_board, snakes, self.snake)
+
+        if kill_chance:
+            self.state = States.AGRESSIVE
+            Params_Agressive.KILL_PATH = kill_path
+            return
 
         # TODO: schlaue Regelung ob Anxious oder Hungry -> Relevant Food hier reinbringen? 
         if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY and food_reachable:

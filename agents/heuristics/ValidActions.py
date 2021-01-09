@@ -343,7 +343,7 @@ class ValidActions:
         print("Direction Depth: ", self.direction_depth)
         print(self.valid_board)
 
-    def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray]:
+    def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray, np.ndarray]:
 
         start_time = time.time()
         action_plan = None
@@ -374,7 +374,7 @@ class ValidActions:
 
         print("DAUER", time.time() - start_time)
 
-        return self.valid_actions, action_plan
+        return self.valid_actions, action_plan, self.valid_board
 
 
 """

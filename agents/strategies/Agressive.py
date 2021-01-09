@@ -1,15 +1,39 @@
 from typing import Tuple, List
+import numpy as np
+
 from agents.heuristics.Distance import Distance
+from agents.gametree.AStar import AStar
 
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.grid_map import GridMap
-from agents.gametree.AStar import AStar
+
 
 
 class Agressive:
+
+    @staticmethod
+    def flood_kill(kill_board: np.ndarray, enemy_snakes, my_snake):
+        # TODO: mögliche Züge des Gegners durch Floodfill berechnen und wenn er nur eine Wahl hat durch Astar anpeilen
+        #   und abschneiden
+        if len(enemy_snakes) > 3:
+            relevant_snakes = [snake for snake in enemy_snakes if ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     # follow head of enemies that are smaller than Jürgen
     @staticmethod
     def attack(snakes: List[Snake], board: BoardState, grid_map: GridMap, you: Snake) -> List[Tuple[Position, Direction]]:

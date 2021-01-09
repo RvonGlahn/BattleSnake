@@ -84,7 +84,7 @@ class Anxious:
                 enemy_id = [snake.snake_id for snake in board.snakes if snake.snake_id != my_snake.snake_id][0]
                 flood_fill_value = FloodFill.get_fill_stats(board, next_position, my_snake.snake_id)
 
-                distance = omega * flood_fill_value[my_snake.snake_id] - distance_snakes - omega * flood_fill_value[enemy_id] + distance_no_border - gamma * distance_food
+                distance = omega * flood_fill_value[my_snake.snake_id] - omega * flood_fill_value[enemy_id] - gamma * distance_food
 
             cost.append(distance)
 

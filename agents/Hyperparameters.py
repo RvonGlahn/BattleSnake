@@ -44,6 +44,10 @@ class Params_Anxious:
     OMEGA_FLOOD_FILL = 15
 
 
+class Params_Agressive:
+    KILL_PATH = []
+
+
 class Params_ActionPlan:
 
     SNAKE_RADIUS = 5
@@ -57,3 +61,4 @@ class Params_ValidActions:
     HEAD_VALUE = 50
     AREA_VALUE = 5
     FOOD_BOUNDARY = 30
+

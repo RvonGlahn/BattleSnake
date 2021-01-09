@@ -8,14 +8,6 @@ from environment.Battlesnake.model.Position import Position
 class FloodFill:
 
     @staticmethod
-    def flood_kill(board: BoardState):
-        # TODO: mögliche Züge des Gegners durch Floodfill berechnen und wenn er nur eine Wahl hat durch Astar anpeilen
-        #   und abschneiden
-        flood_queue = []
-        kill_board = np.full((board.width, board.height), 30)
-        visited = []
-
-    @staticmethod
     def closed_in():
         pass
 

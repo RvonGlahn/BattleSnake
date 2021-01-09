@@ -52,6 +52,7 @@ class Hungry:
         if not food_path:
             food_path = Hungry.follow_food(snake, board, grid_map)
         if food_path:
+            print(food_path)
             if food_path[0][1] in valid_actions:
                 print("Läuft")
                 action = food_path[0][1]
