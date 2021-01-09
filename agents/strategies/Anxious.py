@@ -77,15 +77,15 @@ class Anxious:
             # TODO: bestes Food raussuchen und direkt anpeilen
 
             distance_food = len([Distance.manhattan_dist(next_position, food) for food in relevant_food])
-
+            print("Distanz Food: ", distance_food)
             if len(board.snakes) > 2:
                 distance = omega * flood_fill_value[my_snake.snake_id] + alpha * distance_snakes - gamma * distance_food - theta * distance_mid + distance_no_border
             else:
                 # enemy dist to food minimieren
                 enemy_id = [snake.snake_id for snake in board.snakes if snake.snake_id != my_snake.snake_id][0]
-                if flood_fill_value[enemy_id] < 5:
-                    flood_fill_value[enemy_id] = (5 - flood_fill_value[enemy_id]) * -1000
-                distance = omega * flood_fill_value[my_snake.snake_id] - omega * flood_fill_value[enemy_id] - gamma * distance_food
+                if flood_fill_value[enemy_id] < 6:
+                    flood_fill_value[enemy_id] = (6 - flood_fill_value[enemy_id]) * -20000
+                distance = flood_fill_value[my_snake.snake_id] - omega * flood_fill_value[enemy_id] - gamma * distance_food + distance_no_border
 
             cost.append(distance)
 

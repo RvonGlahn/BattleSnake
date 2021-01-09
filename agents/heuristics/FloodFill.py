@@ -32,7 +32,7 @@ class FloodFill:
             if (x, y) in visited:
                 continue
 
-            if fill_board[x][y] != 10 and fill_board[x][y] > -40:
+            if fill_board[x][y] != 10 and fill_board[x][y] not in [-99, -98, -97, -50, -49, -48, -47]:
                 continue
 
             fill_board[x][y] = snake_index
@@ -67,10 +67,11 @@ class FloodFill:
 
         snake_length = [snake.get_length() for snake in board.snakes]
         snake_ids = [snake.snake_id for snake in board.snakes]
-        order = np.argsort(snake_length)[::-1]
+        order = np.argsort(snake_length)
 
         copy_snakes = board.snakes.copy()
-        snakes = [copy_snakes[i] for i in order]
+        snakes = [copy_snakes[i] for i in order][::-1]
+        snake_ids = [snake_ids[i] for i in order][::-1]
 
         # TODO: Body Überprüfen für meine Schlange
         snake_marker = -99
