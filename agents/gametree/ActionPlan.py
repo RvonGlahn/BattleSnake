@@ -88,7 +88,7 @@ class ActionPlan:
         pass
 
     @staticmethod
-    def punish_border_fields(next_position: Position, my_head: Position, width: int, height: int):
+    def punish_border_fields(next_position: Position, my_head: Position, width: int, height: int) -> int:
         distance_no_border = 0
 
         if next_position.x == 0 or next_position.y == 0 or next_position.x == width - 1 \
@@ -102,4 +102,6 @@ class ActionPlan:
             distance_no_border = -9999
         if next_position.y == height - 2 and my_head.x != height - 1:
             distance_no_border = -9999
+
+        return distance_no_border
 
