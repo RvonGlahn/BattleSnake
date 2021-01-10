@@ -91,11 +91,11 @@ class SnakeAutomat:
             Params_Agressive.KILL_PATH = kill_path
             return
         """
-        # TODO Test ob PArams ändern sinnvoll ist
+        # TODO Test ob Params ändern sinnvoll ist
         if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY and food_reachable:
             self.state = States.HUNGRY
             return
-        elif self.snake.health < 50 and statistics.mean(self.food_history) < 4 and food_reachable:
+        elif self.snake.health < 50 and statistics.mean(self.food_history) < 3 and food_reachable:
             self.state = States.HUNGRY
             return
         else:

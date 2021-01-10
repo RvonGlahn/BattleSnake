@@ -12,14 +12,13 @@ class FloodFill:
         pass
 
     @staticmethod
-    def flood_food(fill_board, foods):
+    def flood_food(fill_board, foods, index):
         reachable_food = []
         for food in foods:
-            if fill_board[food.x][food.y] == -50:
+            if fill_board[food.x][food.y] == index:
                 reachable_food.append(food)
 
         return reachable_food
-
 
     @staticmethod
     def calcuate_step(fill_board, queue, snake_index, visited) -> int:
@@ -92,6 +91,7 @@ class FloodFill:
             fill_stats[snake.snake_id] = 0
 
         # iterativ Bewegungsbereich erschließen
+        my_index = 0
         while any(flood_queue):
             # größte Schlange zuerst
             snake_index = 0
@@ -100,10 +100,10 @@ class FloodFill:
 
                 fill_stats[snake_id] += filled_fields_count
 
+                if snake_id == my_id:
+                    my_index = snake_index
                 snake_index += 1
 
-        reachable_food = FloodFill.flood_food(fill_board, board.food)
+        reachable_food = FloodFill.flood_food(fill_board, board.food, my_index)
 
-        print(fill_board)
-        # calculate fill stats
         return fill_stats, reachable_food

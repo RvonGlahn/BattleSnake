@@ -38,6 +38,7 @@ class Anxious:
 
         escape_cost_dict, escape_direction = action_plan.escape_lane(my_head, valid_actions)
 
+        # TODO: Unterscheidung der Params in Late game und early game abhängig von anzahl der Schlangen
         alpha = Params_Anxious.ALPHA_DISTANCE_SNAKE
         beta = Params_Anxious.BETA_DISTANCE_CORNERS
         gamma = Params_Anxious.GAMMA_DISTANCE_FOOD * 20 / my_snake.health
@@ -47,25 +48,12 @@ class Anxious:
 
         cost = []
 
-        # TODO: remove border action from valid_actions
-
         for action in valid_actions:
             next_position = my_head.advanced(action)
-            distance_no_border = 0
-
-            if next_position.x == 0 or next_position.y == 0 or next_position.x == grid_map.width-1 \
-                    or next_position.y == grid_map.height-1:
-                distance_no_border = -99999
-            if next_position.x == 1 and my_head.x != 0:
-                distance_no_border = -9999
-            if next_position.y == 1 and my_head.y != 0:
-                distance_no_border = -9999
-            if next_position.x == grid_map.width-2 and my_head.x != grid_map.width-1:
-                distance_no_border = -9999
-            if next_position.y == grid_map.height-2 and my_head.x != grid_map.height-1:
-                distance_no_border = -9999
 
             escape_value = escape_cost_dict[action]
+
+            no_border = ActionPlan.punish_border_fields(next_position, my_head, grid_map.width, grid_map.height)
 
             distance_snakes = sum([Distance.manhattan_dist(next_position, enemy_head) for enemy_head in enemy_heads])
 
@@ -74,18 +62,18 @@ class Anxious:
             distance_mid = Distance.manhattan_dist(next_position, middle)
 
             flood_fill_value, relevant_food = FloodFill.get_fill_stats(board, next_position, my_snake.snake_id)
-            # TODO: bestes Food raussuchen und direkt anpeilen
 
-            distance_food = len([Distance.manhattan_dist(next_position, food) for food in relevant_food])
-            print("Distanz Food: ", distance_food)
+            distance_food = len(relevant_food)
+
             if len(board.snakes) > 2:
-                distance = omega * flood_fill_value[my_snake.snake_id] + alpha * distance_snakes - gamma * distance_food - theta * distance_mid + distance_no_border
+                distance = omega * flood_fill_value[my_snake.snake_id] + alpha * distance_snakes - \
+                           gamma * distance_food - theta * distance_mid + no_border
             else:
                 # enemy dist to food minimieren
                 enemy_id = [snake.snake_id for snake in board.snakes if snake.snake_id != my_snake.snake_id][0]
                 if flood_fill_value[enemy_id] < 6:
-                    flood_fill_value[enemy_id] = (6 - flood_fill_value[enemy_id]) * -20000
-                distance = - omega * flood_fill_value[enemy_id] - gamma * distance_food + distance_no_border
+                    flood_fill_value[enemy_id] = (6 - flood_fill_value[enemy_id]) * -1000
+                distance = omega * flood_fill_value[my_snake.snake_id] - omega * flood_fill_value[enemy_id] - gamma * distance_food
 
             cost.append(distance)
 
