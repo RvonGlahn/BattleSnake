@@ -41,7 +41,8 @@ class Params_Anxious:
     THETA_DISTANCE_MID = 7
     PHI_ESCAPE_DIRECTION = 1
     PSI_BORDER_VALUE = 1
-    OMEGA_FLOOD_FILL = 15
+    OMEGA_FLOOD_FILL_MAX = 10
+    OMEGA_FLOOD_FILL_MIN = 15
 
 
 class Params_Agressive:

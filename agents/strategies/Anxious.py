@@ -44,7 +44,8 @@ class Anxious:
         gamma = Params_Anxious.GAMMA_DISTANCE_FOOD * 20 / my_snake.health
         theta = Params_Anxious.THETA_DISTANCE_MID
         phi = Params_Anxious.PHI_ESCAPE_DIRECTION
-        omega = Params_Anxious.OMEGA_FLOOD_FILL
+        omega_max = Params_Anxious.OMEGA_FLOOD_FILL_MAX
+        omega_min = Params_Anxious.OMEGA_FLOOD_FILL_MIN
 
         cost = []
 
@@ -66,14 +67,14 @@ class Anxious:
             distance_food = len(relevant_food)
 
             if len(board.snakes) > 2:
-                distance = omega * flood_fill_value[my_snake.snake_id] + alpha * distance_snakes - \
+                distance = omega_max * flood_fill_value[my_snake.snake_id] + alpha * distance_snakes - \
                            gamma * distance_food - theta * distance_mid + no_border
             else:
                 # enemy dist to food minimieren
                 enemy_id = [snake.snake_id for snake in board.snakes if snake.snake_id != my_snake.snake_id][0]
                 if flood_fill_value[enemy_id] < 6:
                     flood_fill_value[enemy_id] = (6 - flood_fill_value[enemy_id]) * -1000
-                distance = omega * flood_fill_value[my_snake.snake_id] - omega * flood_fill_value[enemy_id] - gamma * distance_food
+                distance = omega_max * flood_fill_value[my_snake.snake_id] - omega_min * flood_fill_value[enemy_id] - gamma * distance_food
 
             cost.append(distance)
 
