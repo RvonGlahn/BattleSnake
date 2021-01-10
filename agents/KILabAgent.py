@@ -41,7 +41,7 @@ class KILabAgent(BaseAgent):
             for action in possible_actions:
                 next_position = you.get_head().advanced(action)
                 for snake in board.snakes:
-                    if next_position in snake.get_tail() and snake.health != 100:
+                    if next_position == snake.get_tail() and snake.health != 100:
                         next_action = action
             if not next_action:
                 next_action = np.random.choice(possible_actions)
