@@ -336,7 +336,7 @@ class ValidActions:
             if threshold == -1:
                 break
             if len(self.board.snakes) > 2 and not self.hungry:
-                if threshold < -5 and len(self.valid_actions) == 1:
+                if threshold <= -5 and len(self.valid_actions) == 1:
                     break
             threshold += 1
 
