@@ -15,7 +15,7 @@ from environment.Battlesnake.model.Occupant import Occupant
 
 # TODO:
 #  besser food chasen und akzeptieren -> valide Actions auf Food anpassen
-
+#  für jede Richtung einzeln Floodfill und dann überlagern
 
 def get_valid_neighbour_values(x: int, y: int, square: np.ndarray) -> List[int]:
     neighbour_fields = []
@@ -330,15 +330,15 @@ class ValidActions:
         # if less than 2 valid_actions decide to look deeper in direction_depth
         threshold = - self.depth + 1
         while self.direction_depth and len(self.valid_actions) < 2:
-            self.valid_actions = [k for k, v in self.direction_depth.items() if v < threshold]
-            threshold += 1
-            if threshold < -3 and len(self.valid_actions) == 1:
+            self.valid_actions = [k for k, v in self.direction_depth.items() if v <= threshold]
+            if threshold < -3 and len(self.valid_actions) > 1:
                 break
             if threshold == -1:
                 break
             if len(self.board.snakes) > 2 and not self.hungry:
                 if threshold < -5 and len(self.valid_actions) == 1:
                     break
+            threshold += 1
 
         print("Valid Actions:", self.valid_actions)
         print("Direction Depth: ", self.direction_depth)
