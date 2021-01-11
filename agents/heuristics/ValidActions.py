@@ -113,7 +113,7 @@ class ValidActions:
                     self.valid_board[x][y] = -step
                 
                 # eigenenes Schwanzende berücksichtigen
-                if 10 < self.valid_board[x, y] < 20 and self.valid_board[x, y] % 10 <= step:
+                if 10 < self.valid_board[x, y] < 20 and self.valid_board[x, y] % 10 < step:
                     # and -(step - 1) in neighbour_values:
                     self.valid_board[x][y] = -step
 
@@ -187,14 +187,6 @@ class ValidActions:
                     else:
                         dead = True
 
-                    """
-                    # break if food was found
-                    if self.valid_board[x][y] == -99:
-                        longest_way[direction] = -99
-                        searching = False
-                        dead = False
-                        break
-                    """
                     # break if a valid endnode was found
                     if self.valid_board[x][y] == 0:   # or self.valid_board[x][y] == -Params_ValidActions.DEPTH
                         searching = False
@@ -205,6 +197,10 @@ class ValidActions:
                 if dead and not step_history:
                     searching = False
 
+                # update range for each direction
+                if longest_way[direction] >= value:
+                    longest_way[direction] = value
+
                 # check if dead end but still valid nodes to explore
                 if dead and step_history:
                     dead_ends[(x_coord, y_coord)] = value
@@ -212,9 +208,6 @@ class ValidActions:
                     if step_history:
                         x_coord, y_coord = step_history[-1]
                     value += 1
-
-                if longest_way[direction] >= value:
-                    longest_way[direction] = value
 
         escape_direction_keys = []
         escape_path_value = []
