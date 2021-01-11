@@ -300,7 +300,7 @@ class ValidActions:
         threshold = - self.depth + 1
         while self.direction_depth and len(self.valid_actions) < 2:
             self.valid_actions = [k for k, v in self.direction_depth.items() if v <= threshold]
-            if threshold < -3 and len(self.valid_actions) > 1:
+            if threshold < -3 and len(self.valid_actions) >= 1:
                 break
             if threshold == -1:
                 break
@@ -330,7 +330,8 @@ class ValidActions:
         # calculate valid actions
         self._valid_check()
 
-        deepest = min(list(self.direction_depth.values()))
+        if self.direction_depth:
+            deepest = min(list(self.direction_depth.values()))
 
         if not self.valid_actions or deepest > -5 and self.state != States.HUNGRY:
             # calculate valid_actions and allow snake to eat
