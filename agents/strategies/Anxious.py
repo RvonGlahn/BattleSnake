@@ -77,13 +77,13 @@ class Anxious:
                                    and Distance.manhattan_dist(snake.get_head(), my_head)])
 
                 distance = omega_max * flood_fill_value[my_snake.snake_id] + alpha * distance_snakes - \
-                           gamma * distance_food - theta * distance_mid + no_border + path_length_value
+                           gamma * distance_food - theta * distance_mid + no_border + enemy_flood
             else:
                 # enemy dist to food minimieren
                 enemy_id = [snake.snake_id for snake in board.snakes if snake.snake_id != my_snake.snake_id][0]
                 if flood_fill_value[enemy_id] < 15:
                     flood_fill_value[enemy_id] = (15 - flood_fill_value[enemy_id]) * -2000
-                distance = - omega_min * flood_fill_value[enemy_id] - gamma * distance_food + path_length_value + no_border
+                distance = - omega_min * flood_fill_value[enemy_id] - gamma * distance_food + no_border
 
             cost.append(distance)
 
