@@ -74,7 +74,7 @@ class Anxious:
                 enemy_id = [snake.snake_id for snake in board.snakes if snake.snake_id != my_snake.snake_id][0]
                 if flood_fill_value[enemy_id] < 6:
                     flood_fill_value[enemy_id] = (6 - flood_fill_value[enemy_id]) * -1000
-                distance = omega_max * flood_fill_value[my_snake.snake_id] - omega_min * flood_fill_value[enemy_id] - gamma * distance_food
+                distance = - omega_min * flood_fill_value[enemy_id] - gamma * distance_food
 
             cost.append(distance)
 
