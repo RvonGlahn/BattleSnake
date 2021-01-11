@@ -54,6 +54,8 @@ class Anxious:
         for action in valid_actions:
             next_position = my_head.advanced(action)
 
+            path_length_value = direction_depth[action] * -10
+
             escape_value = escape_cost_dict[action]
 
             no_border = ActionPlan.punish_border_fields(next_position, my_head, grid_map.width, grid_map.height)
@@ -70,13 +72,13 @@ class Anxious:
 
             if len(board.snakes) > 2:
                 distance = omega_max * flood_fill_value[my_snake.snake_id] + alpha * distance_snakes - \
-                           gamma * distance_food - theta * distance_mid + no_border
+                           gamma * distance_food - theta * distance_mid + no_border + path_length_value
             else:
                 # enemy dist to food minimieren
                 enemy_id = [snake.snake_id for snake in board.snakes if snake.snake_id != my_snake.snake_id][0]
                 if flood_fill_value[enemy_id] < 15:
                     flood_fill_value[enemy_id] = (15 - flood_fill_value[enemy_id]) * -1000
-                distance = - omega_min * flood_fill_value[enemy_id] - gamma * distance_food
+                distance = - omega_min * flood_fill_value[enemy_id] - gamma * distance_food + path_length_value
 
             cost.append(distance)
 
