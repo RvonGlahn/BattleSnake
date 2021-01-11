@@ -1,9 +1,8 @@
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.Position import Position
-
 from environment.Battlesnake.model.grid_map import GridMap
 from agents.heuristics.Distance import Distance
 from agents.gametree.AStar import AStar
@@ -15,26 +14,22 @@ class SoloSurvival:
     def next_step(snake: Snake, board: BoardState, grid_map: GridMap) -> Direction:
 
         head = snake.get_head()
-        health = snake.get_health()
-
         middle = Position(board.height // 2, board.width // 2)
-        corners = [Position(0, 0), Position(0, board.width), Position(board.height, 0), Position(board.height,
-                                                                                                 board.width)]
+
         if middle in snake.get_body():
-            if SoloSurvival.needFood(snake, board):
-                #find cheapest way to eat
-                pass
+            need, food_dir = SoloSurvival.need_food(snake, board)
+            if need:
+                return food_dir
             else:
-                next_step = SoloSurvival.tailGate(snake, board)
+                next_step = SoloSurvival.tail_gate(snake, board)
                 return next_step
         else:
             _, path = AStar.a_star_search_wofood(head, middle, board, grid_map)
             _, next_direction = path[0]
             return next_direction
 
-
     @staticmethod
-    def needFood(snake: Snake, board: BoardState) -> Tuple[bool, Position]:
+    def need_food(snake: Snake, board: BoardState) -> Tuple[bool, Optional[Direction]]:
 
         health = snake.get_health()
         food_around = SoloSurvival.food_all_around_body(snake, board)
@@ -42,20 +37,23 @@ class SoloSurvival:
             if food_around:
                 if health == 1:
                     _, food_pos = SoloSurvival.best_food_around_body(snake, board)
-                    return True, food_pos
+                    food_dir = SoloSurvival.direction_to_food(snake, food_pos)
+                    return True, food_dir
             else:
                 dist, food_pos = SoloSurvival.best_food_around_body(snake, board)
                 if (health - dist) == 0:
-                    return True, food_pos
+                    food_dir = SoloSurvival.direction_to_food(snake, food_pos)
+                    return True, food_dir
                 else:
                     dist, food_pos = SoloSurvival.find_next_food(snake, board)
                     if dist <= health:
-                        return True, food_pos
+                        food_dir = SoloSurvival.direction_to_food(snake, food_pos)
+                        return True, food_dir
         else:
-            return False, snake.get_head()
+            return False, None
 
     @staticmethod
-    def tailGate(snake: Snake, board: BoardState) -> Direction:
+    def tail_gate(snake: Snake, board: BoardState) -> Direction:
 
         head = snake.get_head()
         tail = snake.get_tail()
@@ -112,7 +110,7 @@ class SoloSurvival:
         return best_dist, best_food
 
     @staticmethod
-    def find_next_food(snake: Snake, board: BoardState) -> Tuple[int, Position]:
+    def find_next_food(snake: Snake, board: BoardState) -> Optional[Tuple[int, Position]]:
 
         head = snake.get_head()
         health = snake.get_health()
@@ -131,3 +129,12 @@ class SoloSurvival:
                     best_dist = diff
                     best_food = food
         return best_dist, best_food
+
+    @staticmethod
+    def direction_to_food(snake: Snake, food: Position) -> Optional[Direction]:
+
+        head = snake.get_head()
+        for direction in Direction:
+            if head.advanced(direction) == food:
+                return direction
+        return None
