@@ -55,11 +55,16 @@ class SoloSurvival:
                     food_dir = SoloSurvival.direction_to_food(snake, food_pos)
                     return True, food_dir
             else:
+                print("hungry health: ", health)
                 dist, food_pos = SoloSurvival.best_food_around_body(snake, board)
-                if (health - dist) == 0:
+                if food_pos is None:
+                    dist, food_pos = SoloSurvival.find_next_food(snake, board)
+                if (health - dist) <= 1:
+                    print("get the perfect food")
                     food_dir = SoloSurvival.direction_to_food(snake, food_pos)
                     return True, food_dir
                 else:
+                    print("anderes food nehmen")
                     dist, food_pos = SoloSurvival.find_next_food(snake, board)
                     if dist <= health:
                         food_dir = SoloSurvival.direction_to_food(snake, food_pos)
@@ -72,16 +77,23 @@ class SoloSurvival:
 
         head = snake.get_head()
         tail = snake.get_tail()
+        body = snake.get_body()
         distance = Distance.manhattan_dist(head, tail)
         if distance == 1:
             for direction in Direction:
                 if head.advanced(direction) == tail:
                     return direction
         else:
-            cost, path = AStar.a_star_search_wofood(head, tail, board, grid_map)
-            print("astar cost ", cost)
-            _, next_direction = path[0]
-            print("next direction: ", next_direction)
+            dist = 9999
+            next_direction = None
+            for direction in Direction:
+                advanced_head = head.advanced(direction)
+                d = Distance.manhattan_dist(advanced_head, tail)
+                if advanced_head not in body:
+                    if d < dist:
+                        dist = d
+                        next_direction = direction
+
             return next_direction
 
     @staticmethod
@@ -102,29 +114,36 @@ class SoloSurvival:
             return False
 
     @staticmethod
-    def best_food_around_body(snake: Snake, board: BoardState) -> Tuple[int, Position]:
+    def best_food_around_body(snake: Snake, board: BoardState) -> Tuple[int, Optional[Position]]:
 
         length = snake.get_length()
         health = snake.get_health()
         body = snake.get_body()
-        foods = List[Tuple[int, Position]]
+        foods = [] #Tuple[int, Position]
         position = 0
+        any_f = False
         for part in body:
             for direction in Direction:
                 if board.is_occupied_by_food(part.advanced(direction)):
-                    foods.append((length - position), part)
+                    diff = length - position
+                    add = diff, part
+                    foods.append(add)
+                    any_f = True
             position += 1
         best_dist = 999999
         best_food = None
-        for dist, food in foods:
-            if (dist == snake.get_length()) and (health <= 1):
-                return 1, food
-            if dist < best_dist and dist <= health:
-                if dist == health:
-                    return dist, food
-                best_dist = dist
-                best_food = food
-        return best_dist, best_food
+        if any_f:
+            for dist, food in foods:
+                if (dist == snake.get_length()) and (health <= 1):
+                    return 1, food
+                if dist < best_dist and dist <= health:
+                    if dist == health:
+                        return dist, food
+                    best_dist = dist
+                    best_food = food
+            return best_dist, best_food
+        else:
+            return 0, None
 
     @staticmethod
     def find_next_food(snake: Snake, board: BoardState) -> Optional[Tuple[int, Position]]:
