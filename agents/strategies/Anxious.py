@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List
+from typing import List, Dict
 from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.board_state import BoardState
@@ -16,13 +16,15 @@ from agents.heuristics.FloodFill import FloodFill
 #  - im early game an hungrige Schlangen halten
 #  - wenn gegnerische Schlange low health hat dann food blockieren
 #  - Chase your Tail in Desperate State wenn eingeschlossen
+#  - valid_boards für alle Richtungen addieren und schwerpunkt berechnen
+#  - Länge der Pfade in Distanz wert mit einbeziehen
 
 
 class Anxious:
 
     @staticmethod
     def avoid_enemy(my_snake: Snake, board: BoardState, grid_map: GridMap, valid_actions: List[Direction],
-                    action_plan: ActionPlan) -> Direction:
+                    action_plan: ActionPlan, direction_depth: Dict) -> Direction:
 
         if not valid_actions:
             possible_actions = my_snake.possible_actions()

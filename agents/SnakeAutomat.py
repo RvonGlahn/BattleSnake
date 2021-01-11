@@ -79,7 +79,7 @@ class SnakeAutomat:
     def get_state(self) -> States:
         return self.state
 
-    def update_my_state(self, board: BoardState, states: Dict, round_number: int, valid_board) -> None:
+    def update_my_state(self, board: BoardState, states: Dict, round_number: int) -> None:
 
         snakes = board.snakes
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]

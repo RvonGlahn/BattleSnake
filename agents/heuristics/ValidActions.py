@@ -109,7 +109,6 @@ class ValidActions:
 
             if not enemy:
                 # TODO: Fix es werden zu viele Felder markiert
-
                 if step < self.valid_board[x][y] < 10 or self.valid_board[x][y] == 0:
                     self.valid_board[x][y] = -step
                 
@@ -140,6 +139,7 @@ class ValidActions:
         return new_queue, visited, action_plan
 
     def _mark_snakes(self, help_board: np.ndarray) -> None:
+        # TODO: add info of enemy step to snake body -> List ?
         # mark enemy snakes
         for snake in self.board.snakes:
             if snake.snake_id != self.my_snake.snake_id:
@@ -152,81 +152,60 @@ class ValidActions:
             self.valid_board[position.x][position.y] = (index + 11)
             help_board[position.x][position.y] = (index + 11)
 
-    def _expand(self, my_head: Position) -> Tuple[List[Direction], Dict]:
-        invalid_actions = []
-        longest_way = {}
+    def expand(self, next_position: Position) -> int:
 
-        for direction in self.valid_actions:
+        step_history = []
+        dead_ends = {}
+        searching = True
+        value = -1
+        dead = False
+        longest_way = 0
 
-            step_history = []
-            dead_ends = {}
-            searching = True
-            value = -1
-            dead = False
-            longest_way[direction] = 0
+        # get first field of Direction and check if valid
+        if self.valid_board[next_position.x][next_position.y] != value:
+            return 0
+        step_history.append((next_position.x, next_position.y))
+        x_coord, y_coord = next_position.x, next_position.y
 
-            # get first field of Direction and check if valid
-            next_position = my_head.advanced(direction)
-            if self.valid_board[next_position.x][next_position.y] != value:
-                continue
-            step_history.append((next_position.x, next_position.y))
-            x_coord, y_coord = next_position.x, next_position.y
+        while searching:
+            positions = get_valid_neigbours(x_coord, y_coord, self.valid_board)
 
-            while searching:
-                positions = get_valid_neigbours(x_coord, y_coord, self.valid_board)
+            for x, y in positions:
 
-                for x, y in positions:
+                # check if next value is valid and no dead end
+                if self.valid_board[x][y] == value-1 and (x, y) not in dead_ends.keys():
+                    dead = False
+                    step_history.append((x, y))
+                    x_coord, y_coord = x, y
+                    value -= 1
+                    break
+                # mark dead ends
+                else:
+                    dead = True
 
-                    # check if next value is valid and no dead end
-                    if self.valid_board[x][y] == value-1 and (x, y) not in dead_ends.keys():
-                        dead = False
-                        step_history.append((x, y))
-                        x_coord, y_coord = x, y
-                        value -= 1
-                        break
-                    # mark dead ends
-                    else:
-                        dead = True
-
-                    # break if a valid endnode was found
-                    if self.valid_board[x][y] == 0:   # or self.valid_board[x][y] == -Params_ValidActions.DEPTH
-                        searching = False
-                        dead = False
-                        break
-
-                # check if dead end and no more possible nodes to explore
-                if dead and not step_history:
+                # break if a valid endnode was found
+                if self.valid_board[x][y] == 0:   # or self.valid_board[x][y] == -Params_ValidActions.DEPTH
                     searching = False
+                    dead = False
+                    break
 
-                # update range for each direction
-                if longest_way[direction] >= value:
-                    longest_way[direction] = value
+            # check if dead end and no more possible nodes to explore
+            if dead and not step_history:
+                searching = False
 
-                # check if dead end but still valid nodes to explore
-                if dead and step_history:
-                    dead_ends[(x_coord, y_coord)] = value
-                    step_history.pop(-1)
-                    if step_history:
-                        x_coord, y_coord = step_history[-1]
-                    value += 1
+            # update range for each direction
+            if longest_way >= value:
+                longest_way = value
 
-        escape_direction_keys = []
-        escape_path_value = []
+            # check if dead end but still valid nodes to explore
+            if dead and step_history:
+                dead_ends[(x_coord, y_coord)] = value
+                step_history.pop(-1)
+                if step_history:
+                    x_coord, y_coord = step_history[-1]
+                value += 1
 
-        for k, v in longest_way.items():
-            if v > -Params_ValidActions.DEPTH:
-                invalid_actions.append(k)
-
-            escape_direction_keys.append(k)
-            escape_path_value.append(v)
-
-        # sort dict
-        order = np.argsort(escape_path_value)
-        escape_direction_keys = [escape_direction_keys[i] for i in order]
-        escape_path_value = [escape_path_value[i] for i in order]
-        longest_way = dict(zip(escape_direction_keys,  escape_path_value))
-
-        return invalid_actions, longest_way
+        return longest_way
 
     def _calculate_board(self) -> np.ndarray:
         #########################
@@ -261,27 +240,55 @@ class ValidActions:
                 pass
         return action_plan
 
+    def _order_directions(self):
+        invalid_actions = []
+        escape_direction_keys = []
+        escape_path_value = []
+
+        for k, v in self.direction_depth.items():
+            if v > -Params_ValidActions.DEPTH:
+                invalid_actions.append(k)
+
+            escape_direction_keys.append(k)
+            escape_path_value.append(v)
+
+        # sort dict
+        order = np.argsort(escape_path_value)
+        escape_direction_keys = [escape_direction_keys[i] for i in order]
+        escape_path_value = [escape_path_value[i] for i in order]
+        self.direction_depth = dict(zip(escape_direction_keys, escape_path_value))
+        return invalid_actions
+
     def _find_invalid_actions(self) -> List[Direction]:
         help_board = np.zeros((self.board.width, self.board.height))
         head = self.my_snake.get_head()
 
         # mark snakes on the board
         self._mark_snakes(help_board)
+        old_board = self.valid_board.copy()
 
         # calculate new wave for each depth level from queue
         # TODO: Nach und nach nur eine Position in queue: for schleife über valid_neighbours
-        flood_queue = get_valid_neigbours(head.x, head.y, self.valid_board)
-        visited = [(head.x, head.y)]
+        for direction in self.valid_actions:
+            next_position = head.advanced(direction)
+            flood_queue = [(next_position.x, next_position.y)]
+            visited = [(head.x, head.y)]
 
-        for step in range(1, self.depth + 1):
-            flood_queue, visited, _ = self._action_flood_fill(flood_queue, step, visited, None, enemy=False)
+            for step in range(1, self.depth + 1):
+                flood_queue, visited, _ = self._action_flood_fill(flood_queue, step, visited, None, enemy=False)
 
-        if self.state != States.HUNGRY and self.my_snake.get_length() > 4:
-            for food_pos in self.board.food:
-                if Distance.manhattan_dist(head, food_pos) > 4:
-                    self.valid_board[food_pos.x][food_pos.y] = 1
+            if self.state != States.HUNGRY and self.my_snake.get_length() > 4:
+                for food_pos in self.board.food:
+                    if Distance.manhattan_dist(head, food_pos) > 4:
+                        self.valid_board[food_pos.x][food_pos.y] = 1
 
-        invalid_actions, self.direction_depth = self._expand(head)
+            # expand for each direction
+            depth = self.expand(next_position)
+
+            self.direction_depth[direction] = depth
+            self.valid_board = old_board
+
+        invalid_actions = self._order_directions()
 
         print("Invalids: ", invalid_actions)
         return invalid_actions
@@ -312,7 +319,7 @@ class ValidActions:
         print("Valid Actions:", self.valid_actions)
         print("Direction Depth: ", self.direction_depth)
 
-    def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray, np.ndarray]:
+    def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray, Dict]:
 
         start_time = time.time()
         possible_actions = self.my_snake.possible_actions()
@@ -333,7 +340,7 @@ class ValidActions:
         if self.direction_depth:
             deepest = min(list(self.direction_depth.values()))
 
-        if not self.valid_actions or deepest > -5 and self.state != States.HUNGRY:
+        if (not self.valid_actions or deepest > -5) and self.state != States.HUNGRY:
             # calculate valid_actions and allow snake to eat
             self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
                                                         self.my_snake, self.grid_map, False)
@@ -342,7 +349,7 @@ class ValidActions:
         print(self.valid_board)
         print("DAUER", time.time() - start_time)
 
-        return self.valid_actions, action_plan, self.valid_board
+        return self.valid_actions, action_plan, self.direction_depth
 
 
 """
