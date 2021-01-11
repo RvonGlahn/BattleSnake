@@ -6,7 +6,8 @@ from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.grid_map import GridMap
 from agents.heuristics.Distance import Distance
 from agents.gametree.AStar import AStar
-
+from agents.heuristics.ValidActions import ValidActions
+import numpy as np
 
 class SoloSurvival:
 
@@ -15,18 +16,29 @@ class SoloSurvival:
 
         head = snake.get_head()
         middle = Position(board.height // 2, board.width // 2)
+        valid = []
+        for direction in Direction:
+            if not head.advanced(direction) in snake.get_body():
+                valid.append(direction)
 
         if middle in snake.get_body():
-            need, food_dir = SoloSurvival.need_food(snake, board)
+            print("schon in der mitte")
+            need, next_direction = SoloSurvival.need_food(snake, board)
             if need:
-                return food_dir
+                print("hunger")
             else:
-                next_step = SoloSurvival.tail_gate(snake, board)
-                return next_step
+                print("schwanz jagen")
+                next_direction = SoloSurvival.tail_gate(snake, board, grid_map)
+
         else:
             _, path = AStar.a_star_search_wofood(head, middle, board, grid_map)
             _, next_direction = path[0]
+            print("zur mitte")
+        if next_direction in valid:
             return next_direction
+        else:
+            print("random action nötig")
+            return np.random.choice(valid)
 
     @staticmethod
     def need_food(snake: Snake, board: BoardState) -> Tuple[bool, Optional[Direction]]:
@@ -53,7 +65,7 @@ class SoloSurvival:
             return False, None
 
     @staticmethod
-    def tail_gate(snake: Snake, board: BoardState) -> Direction:
+    def tail_gate(snake: Snake, board: BoardState, grid_map : GridMap) -> Direction:
 
         head = snake.get_head()
         tail = snake.get_tail()
@@ -63,7 +75,7 @@ class SoloSurvival:
                 if head.advanced(direction) == tail:
                     return direction
         else:
-            _, path = AStar.a_star_search_wofood(head, tail, board)
+            _, path = AStar.a_star_search_wofood(head, tail, board, grid_map)
             _, next_direction = path[0]
             return next_direction
 
