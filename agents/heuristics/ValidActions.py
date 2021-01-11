@@ -114,7 +114,7 @@ class ValidActions:
                     self.valid_board[x][y] = -step
                 
                 # eigenenes Schwanzende berücksichtigen
-                if 10 < self.valid_board[x, y] < 20 and self.valid_board[x, y] % 10 < step:
+                if 10 < self.valid_board[x, y] < 20 and self.valid_board[x, y] % 10 <= step:
                     # and -(step - 1) in neighbour_values:
                     self.valid_board[x][y] = -step
 
