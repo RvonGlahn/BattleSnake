@@ -55,7 +55,7 @@ class Anxious:
         for action in valid_actions:
             next_position = my_head.advanced(action)
 
-            path_length_value = direction_depth[action] * -2
+            path_length_value = direction_depth[action] * 0
 
             escape_value = escape_cost_dict[action]
 
