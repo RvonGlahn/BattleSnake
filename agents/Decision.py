@@ -148,7 +148,7 @@ class Decision:
         self.game_round = this_round
 
     def decide(self, you: Snake, board: BoardState, grid_map: GridMap) -> Direction:
-        #return SoloSurvival.next_step(you, board, grid_map)
+        
         ######SoloSurvival######
         snakes = board.snakes
         if len(snakes) == 1 and snakes[0].snake_id == you.snake_id:

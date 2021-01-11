@@ -22,22 +22,25 @@ class SoloSurvival:
                 valid.append(direction)
 
         if middle in snake.get_body():
-            print("schon in der mitte")
             need, next_direction = SoloSurvival.need_food(snake, board)
             if need:
-                print("hunger")
+                if next_direction in valid:
+                    return next_direction
+                else:
+                    return np.random.choice(valid)
             else:
-                print("schwanz jagen")
                 next_direction = SoloSurvival.tail_gate(snake, board, grid_map)
+                if next_direction in valid:
+                    return next_direction
+                else:
+                    return np.random.choice(valid)
 
         else:
             _, path = AStar.a_star_search_wofood(head, middle, board, grid_map)
             _, next_direction = path[0]
-            print("zur mitte")
         if next_direction in valid:
             return next_direction
         else:
-            print("random action nötig")
             return np.random.choice(valid)
 
     @staticmethod
@@ -75,8 +78,10 @@ class SoloSurvival:
                 if head.advanced(direction) == tail:
                     return direction
         else:
-            _, path = AStar.a_star_search_wofood(head, tail, board, grid_map)
+            cost, path = AStar.a_star_search_wofood(head, tail, board, grid_map)
+            print("astar cost ", cost)
             _, next_direction = path[0]
+            print("next direction: ", next_direction)
             return next_direction
 
     @staticmethod
