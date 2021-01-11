@@ -97,13 +97,19 @@ class SoloSurvival:
         for part in body:
             for direction in Direction:
                 if board.is_occupied_by_food(part.advanced(direction)):
-                    foods.append(position, part)
+                    foods.append((length - position), part)
             position += 1
-
-
-
-
-
+        best_dist = 999999
+        best_food = None
+        for dist, food in foods:
+            if (dist == snake.get_length()) and (health <= 1):
+                return 1, food
+            if dist < best_dist and dist <= health:
+                if dist == health:
+                    return dist, food
+                best_dist = dist
+                best_food = food
+        return best_dist, best_food
 
     @staticmethod
     def find_next_food(snake: Snake, board: BoardState) -> Tuple[int, Position]:
