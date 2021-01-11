@@ -98,6 +98,7 @@ class SnakeAutomat:
         # TODO Test ob Params ändern sinnvoll ist
         if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY and self.reachable_food:
             self.state = States.HUNGRY
+            Params_Automat.HUNGER_HEALTH_BOUNDARY = 30
             return
         elif self.snake.health < 50 and statistics.mean(self.food_history) < 3 and self.reachable_food:
             self.state = States.HUNGRY

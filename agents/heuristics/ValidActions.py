@@ -66,6 +66,7 @@ class ValidActions:
             # avoid eating
             if my_snake.health > Params_ValidActions.FOOD_BOUNDARY and avoid_food and my_snake.get_length() > 5:
                 if grid_map.get_value_at_position(next_position) is Occupant.Food:
+                    print("Nicht essen")
                     continue
 
             # outofbounds
@@ -319,7 +320,7 @@ class ValidActions:
                                                     self.my_snake, self.grid_map, True)
 
         if self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
-            self.depth = 5
+            self.depth = 7
         else:
             self.depth = Params_ValidActions.DEPTH
 
@@ -329,7 +330,9 @@ class ValidActions:
         # calculate valid actions
         self._valid_check()
 
-        if not self.valid_actions and self.state != States.HUNGRY:
+        deepest = min(list(self.direction_depth.values()))
+
+        if not self.valid_actions or deepest > -5 and self.state != States.HUNGRY:
             # calculate valid_actions and allow snake to eat
             self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
                                                         self.my_snake, self.grid_map, False)
