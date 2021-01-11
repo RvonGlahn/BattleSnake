@@ -93,15 +93,15 @@ class ActionPlan:
 
         if next_position.x == 0 or next_position.y == 0 or next_position.x == width - 1 \
                 or next_position.y == height - 1:
-            distance_no_border = -99999
+            distance_no_border = -9999
         if next_position.x == 1 and my_head.x != 0:
-            distance_no_border = -9999
+            distance_no_border = -999
         if next_position.y == 1 and my_head.y != 0:
-            distance_no_border = -9999
+            distance_no_border = -999
         if next_position.x == width - 2 and my_head.x != width - 1:
-            distance_no_border = -9999
+            distance_no_border = -999
         if next_position.y == height - 2 and my_head.x != height - 1:
-            distance_no_border = -9999
+            distance_no_border = -999
 
         return distance_no_border
 

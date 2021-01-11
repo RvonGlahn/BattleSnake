@@ -18,6 +18,7 @@ from agents.heuristics.FloodFill import FloodFill
 #  - Chase your Tail in Desperate State wenn eingeschlossen
 #  - valid_boards für alle Richtungen addieren und schwerpunkt berechnen
 #  - Länge der Pfade in Distanz wert mit einbeziehen
+#  - negativer Floodfill für nahe gegner
 
 
 class Anxious:
@@ -54,7 +55,7 @@ class Anxious:
         for action in valid_actions:
             next_position = my_head.advanced(action)
 
-            path_length_value = direction_depth[action] * 0
+            path_length_value = direction_depth[action] * -2
 
             escape_value = escape_cost_dict[action]
 
@@ -71,14 +72,18 @@ class Anxious:
             distance_food = len(relevant_food)
 
             if len(board.snakes) > 2:
+                enemy_flood = sum([flood_fill_value[snake.snake_id] for snake in board.snakes
+                                   if snake.snake_id != my_snake.snake_id
+                                   and Distance.manhattan_dist(snake.get_head(), my_head)])
+
                 distance = omega_max * flood_fill_value[my_snake.snake_id] + alpha * distance_snakes - \
                            gamma * distance_food - theta * distance_mid + no_border + path_length_value
             else:
                 # enemy dist to food minimieren
                 enemy_id = [snake.snake_id for snake in board.snakes if snake.snake_id != my_snake.snake_id][0]
                 if flood_fill_value[enemy_id] < 15:
-                    flood_fill_value[enemy_id] = (15 - flood_fill_value[enemy_id]) * -1000
-                distance = - omega_min * flood_fill_value[enemy_id] - gamma * distance_food + path_length_value
+                    flood_fill_value[enemy_id] = (15 - flood_fill_value[enemy_id]) * -2000
+                distance = - omega_min * flood_fill_value[enemy_id] - gamma * distance_food + path_length_value + no_border
 
             cost.append(distance)
 
