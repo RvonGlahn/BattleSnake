@@ -7,6 +7,7 @@ from agents.heuristics.Distance import Distance
 from agents.Hyperparameters import Params_Automat, Params_Agressive, Params_Anxious
 from agents.strategies.Agressive import Agressive
 from agents.heuristics.RelevantFood import RelevantFood
+from agents.heuristics.FloodFill import FloodFill
 
 from environment.Battlesnake.model.board_state import GridMap
 from environment.Battlesnake.model.board_state import BoardState
@@ -33,6 +34,7 @@ class SnakeAutomat:
         self.length_history: List[int] = []
         self.food_history = []
         self.distance_to_enemy_heads: List[int] = []
+        self.reachable_food = []
 
         self.move_profil = MovementProfile()
         self.move_profile_predictions: Dict = {
@@ -82,7 +84,9 @@ class SnakeAutomat:
         snakes = board.snakes
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
-        food_reachable = RelevantFood.check_relevant_food(valid_board, board.food, self.snake.get_head())
+        if self.snake.health < 50:
+            _, self.reachable_food = FloodFill.get_fill_stats(board, self.snake.get_head(), self.snake.snake_id)
+
         """
         kill_chance, kill_path = Agressive.flood_kill(valid_board, snakes, self.snake)
 
@@ -92,13 +96,15 @@ class SnakeAutomat:
             return
         """
         # TODO Test ob Params ändern sinnvoll ist
-        if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY and food_reachable:
+        if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY and self.reachable_food:
             self.state = States.HUNGRY
             return
-        elif self.snake.health < 50 and statistics.mean(self.food_history) < 3 and food_reachable:
+        elif self.snake.health < 50 and statistics.mean(self.food_history) < 3 and self.reachable_food:
             self.state = States.HUNGRY
+            Params_Automat.HUNGER_HEALTH_BOUNDARY = 50
             return
         else:
+            Params_Automat.HUNGER_HEALTH_BOUNDARY = 30
             self.state = States.ANXIOUS
 
         # check if game is in early stage and how many enemies are left

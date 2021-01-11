@@ -133,7 +133,8 @@ class Decision:
         action_plan = ActionPlan(base_board)
 
         if my_state == States.HUNGRY:
-            action, self.my_food_path = Hungry.hunger(you, board, grid_map, self.my_food_path, valid_actions)
+            action, self.my_food_path = Hungry.hunger(you, board, grid_map, self.my_food_path, valid_actions,
+                                                      self.automats[self.my_snake_id])
             return action
 
         if my_state == States.ANXIOUS:
@@ -152,7 +153,7 @@ class Decision:
             self._delete_dead_snake(board.dead_snakes)
 
         # init ValidActions object and get basic board for action_plan from multi_level
-        valid_action = ValidActions(board, grid_map, you)
+        valid_action = ValidActions(board, grid_map, you, self.states[self.my_snake_id])
         valid_actions, self.action_board, valid_board = valid_action.multi_level_valid_actions()
 
 
