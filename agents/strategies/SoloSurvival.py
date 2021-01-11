@@ -72,16 +72,26 @@ class SoloSurvival:
 
         head = snake.get_head()
         tail = snake.get_tail()
+        body = snake.get_body()
+        print("tail ",tail)
         distance = Distance.manhattan_dist(head, tail)
         if distance == 1:
             for direction in Direction:
                 if head.advanced(direction) == tail:
                     return direction
         else:
-            cost, path = AStar.a_star_search_wofood(head, tail, board, grid_map)
-            print("astar cost ", cost)
-            _, next_direction = path[0]
-            print("next direction: ", next_direction)
+            #cost, path = AStar.a_star_search_wofood(head, tail, board, grid_map)
+            #_, next_direction = path[0]
+            dist = 9999
+            next_direction = None
+            for direction in Direction:
+                advanced_head = head.advanced(direction)
+                d = Distance.manhattan_dist(advanced_head, tail)
+                if advanced_head not in body:
+                    if d < dist:
+                        dist = d
+                        next_direction = direction
+
             return next_direction
 
     @staticmethod
