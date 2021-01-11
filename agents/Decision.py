@@ -150,11 +150,11 @@ class Decision:
 
     def decide(self, you: Snake, board: BoardState, grid_map: GridMap) -> Direction:
         
-        ######SoloSurvival######
+        # SoloSurvival
         snakes = board.snakes
         if len(snakes) == 1 and snakes[0].snake_id == you.snake_id:
             return SoloSurvival.next_step(you, board, grid_map)
-        ######SoloSurvival######
+        # SoloSurvival
 
         if len(self.automats) != len(board.snakes):
             self._delete_dead_snake(board.dead_snakes)
@@ -162,7 +162,6 @@ class Decision:
         # init ValidActions object and get basic board for action_plan from multi_level
         valid_action = ValidActions(board, grid_map, you, self.states[self.my_snake_id])
         valid_actions, self.action_board, valid_board = valid_action.multi_level_valid_actions()
-
 
         # decide if we focus on monitoring enemies or on calculating our next move
         dist_to_closest_head = Distance.dist_to_closest_enemy_head(board.snakes, you)
