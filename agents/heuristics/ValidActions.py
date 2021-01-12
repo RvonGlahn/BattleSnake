@@ -342,7 +342,7 @@ class ValidActions:
         if self.direction_depth:
             deepest = min(list(self.direction_depth.values()))
 
-        if (not self.valid_actions or deepest < -4) and self.state != States.HUNGRY:
+        if (len(self.valid_actions) < 2 or deepest < -4) and self.state != States.HUNGRY:
             # calculate valid_actions and allow snake to eat
             self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
                                                         self.my_snake, self.grid_map, avoid_food=False)
