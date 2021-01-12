@@ -16,9 +16,10 @@ class Agressive:
 
     @staticmethod
     def flood_kill(kill_board: np.ndarray, enemy_snakes, my_head):
-        # TODO: mögliche Züge des Gegners durch Floodfill berechnen und wenn er nur eine Wahl hat durch Astar anpeilen
-        #   und abschneiden
-        #   PArameter snake_dead_in_rounds um mehrvalide actions zu erhalten
+        # TODO:
+        #   - mögliche Züge des Gegners durch Floodfill berechnen und wenn er nur eine Wahl hat durch Astar anpeilen
+        #     und abschneiden
+        #   - Parameter snake_dead_in_rounds um mehr valide actions zu erhalten
         if len(enemy_snakes) > 3:
             relevant_snakes = [snake for snake in enemy_snakes
                                if Distance.manhattan_dist(snake.get_head(), my_head) > Params_ValidActions.DEPTH-1]

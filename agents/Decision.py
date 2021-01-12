@@ -22,8 +22,6 @@ from environment.Battlesnake.model.Direction import Direction
 #  - time_limit in strategien / ActionPlan einbauen
 #  - MovementProfile mit der Zeit verbessern
 #  - update behaviour
-#  - wenn kein food in der Nähe auf anxious wechseln aber food mehr priorisieren
-
 ###################
 
 
@@ -140,7 +138,6 @@ class Decision:
 
         if my_state == States.PROVOCATIVE:
             return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan, direction_depth)
-            # return Provocative.provocate(you, board, grid_map, self.states, self.automats)
 
     def set_round(self, this_round) -> None:
         self.game_round = this_round

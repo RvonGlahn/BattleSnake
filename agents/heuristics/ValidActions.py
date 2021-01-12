@@ -16,6 +16,8 @@ from environment.Battlesnake.model.Occupant import Occupant
 
 # TODO:
 #  Wenn my_length > enemy_length in flood fill einbauen
+#  Food essen auf weg verringert die tiefe
+#  Ab todespunkt/zug x zukünftige tote gegner vom Board löschen
 
 
 class ValidActions:
@@ -107,7 +109,6 @@ class ValidActions:
                 action_plan[x][y] = Params_ValidActions.AREA_VALUE
 
             if not enemy:
-                # TODO: Fix es werden zu viele Felder markiert
                 if step < self.valid_board[x][y] < 10 or self.valid_board[x][y] == 0:
                     self.valid_board[x][y] = -step
                 
@@ -307,17 +308,16 @@ class ValidActions:
         threshold = - self.depth + 1
         while self.direction_depth and len(self.valid_actions) - borderfields < 2:
             self.valid_actions = [k for k, v in self.direction_depth.items() if v <= threshold]
-            if threshold < -3 and len(self.valid_actions) >= 1:
+            if threshold < -4 and len(self.valid_actions) >= 1:
                 break
             if len(self.board.snakes) > 2 and self.state != States.HUNGRY:
-                if threshold <= -5 and len(self.valid_actions) == 1:
+                if threshold <= -5 and len(self.valid_actions) >= 1:
                     break
             if threshold == -1:
                 break
             threshold += 1
         print("Direction Depth: ", self.direction_depth)
         print("Valid Actions:", self.valid_actions)
-
 
     def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray, Dict]:
 
@@ -392,6 +392,7 @@ def count_border_fields(my_head: Position, board: np.ndarray) -> int:
     for (x, y) in valid_neigbours:
         if x == 0 or y == 0 or x == width - 1 or y == height - 1:
             count += 1
+
     return count
 
 

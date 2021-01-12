@@ -53,7 +53,7 @@ class AStar:
                             or (cost_so_far[str(current_position)] < cost_so_far[str(next_position)]):
 
                         cost_so_far[str(next_position)] = cost_so_far[str(current_position)] + 1
-                        cost = Distance.euclidean_distance(search_field, next_position) + cost_so_far[str(next_position)]
+                        cost = Distance.euclidean_distance(search_field, next_position)
                         queue.put(cost, (next_position, direction))
 
             # Get best position from Priority Queue
@@ -78,7 +78,6 @@ class AStar:
         path = path[::-1]
 
         return cost, path
-
 
     @staticmethod
     def a_star_search_wofood(start_field: Position,
@@ -112,7 +111,7 @@ class AStar:
                             or (cost_so_far[str(current_position)] < cost_so_far[str(next_position)]):
 
                         cost_so_far[str(next_position)] = cost_so_far[str(current_position)] + 1
-                        cost = Distance.euclidean_distance(search_field, next_position) + cost_so_far[str(next_position)]
+                        cost = Distance.euclidean_distance(search_field, next_position)
                         queue.put(cost, (next_position, direction))
 
             # Get best position from Priority Queue
