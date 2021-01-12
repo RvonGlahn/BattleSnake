@@ -84,6 +84,7 @@ class AStar:
                       search_field: Position,
                       board: BoardState,
                       grid_map: GridMap) -> Tuple[int, List[Tuple[Position, Direction]]]:
+
         queue = KLPriorityQueue()
         came_from = {}  # current node ist key parent ist value
         cost_so_far = {str(start_field): 0}  # summierte Kosten
@@ -102,7 +103,7 @@ class AStar:
             for direction in Direction:
                 next_position = current_position.advanced(direction)
                 if grid_map.is_valid_at(next_position.x, next_position.y) \
-                        and grid_map.grid_cache[next_position.x][next_position.y] != Occupant.Snake \
+                        and grid_map.grid_cache[next_position.x][next_position.y] != Occupant.Snake\
                         and (not board.is_occupied_by_food(next_position) or (next_position == search_field)):
 
                     # check if state wasnt visited or cost of visited state is lower
@@ -135,3 +136,5 @@ class AStar:
         path = path[::-1]
 
         return cost, path
+
+
