@@ -280,7 +280,7 @@ class ValidActions:
 
             if self.state != States.HUNGRY and self.my_snake.get_length() > 5:
                 for food_pos in self.board.food:
-                    if Distance.manhattan_dist(head, food_pos) > 4:
+                    if Distance.manhattan_dist(head, food_pos) > 3:
                         self.valid_board[food_pos.x][food_pos.y] = 1
 
             # expand for each direction
@@ -391,7 +391,7 @@ def count_border_fields(my_head: Position, board: np.ndarray) -> int:
 
     for (x, y) in valid_neigbours:
         if x == 0 or y == 0 or x == width - 1 or y == height - 1:
-            count += 1
+            count = 1
 
     return count
 
