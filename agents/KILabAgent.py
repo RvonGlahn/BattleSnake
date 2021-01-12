@@ -31,8 +31,9 @@ class KILabAgent(BaseAgent):
 
     def move(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake) -> MoveResult:
         if you.latency:
+            pass
             # time_available = game_info.timeout/1000 - you.latency
-            print("Latency", you.latency)
+            #print("Latency", you.latency)
         start_time = time.time()
         grid_map: GridMap[Occupant] = board.generate_grid_map()
 
@@ -48,7 +49,7 @@ class KILabAgent(BaseAgent):
                         next_action = action
             if not next_action:
                 next_action = np.random.choice(possible_actions)
-        print("Move-DAUER: ", time.time() - start_time)
+        #print("Move-DAUER: ", time.time() - start_time)
         return MoveResult(direction=next_action)
 
     def end(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):
