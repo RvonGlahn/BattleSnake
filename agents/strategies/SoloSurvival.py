@@ -18,7 +18,7 @@ class SoloSurvival:
         middle = Position(board.height // 2, board.width // 2)
         valid = []
         for direction in Direction:
-            if not head.advanced(direction) in snake.get_body():
+            if not (head.advanced(direction) in snake.get_body() or board.is_out_of_bounds(head.advanced(direction))):
                 valid.append(direction)
 
         if middle in snake.get_body():
