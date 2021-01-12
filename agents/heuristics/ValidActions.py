@@ -389,9 +389,8 @@ def count_border_fields(my_head: Position, board: np.ndarray) -> int:
     width, height = board.shape
     valid_neigbours = get_valid_neigbours(my_head.x, my_head.y, board)
 
-    for neighbour in valid_neigbours:
-        if my_head.x == 0 or my_head.y == 0 or my_head.x == width - 1 \
-                or my_head.y == height - 1:
+    for (x, y) in valid_neigbours:
+        if x == 0 or y == 0 or x == width - 1 or y == height - 1:
             count += 1
     return count
 
