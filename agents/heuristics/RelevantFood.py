@@ -19,9 +19,10 @@ class RelevantFood:
 
             if food.x == 0 or food.y == 0 or food.x == width-1 or food.y == height-1:
                 enemy_dist_to_me = min([Distance.manhattan_dist(head, my_head) for head in enemy_heads])
+                enemy_dist_to_food = min([Distance.manhattan_dist(head, food) for head in enemy_heads])
                 if len(all_food) > 1:
                     continue
-                if enemy_dist_to_me < 3 and my_snake.health < 15:
+                if enemy_dist_to_me < 3 and my_snake.health < 15 and enemy_dist_to_food < 4:
                     continue
 
             my_close_food.append(food)
@@ -33,7 +34,6 @@ class RelevantFood:
 
     @staticmethod
     def check_relevant_food(valid_board, foods):
-        # TODO: Checken ob das reicht oder mit Floodfill und dem Head ausweiten
         reachable = False
         for food in foods:
             if valid_board[food.x][food.y] < 0:

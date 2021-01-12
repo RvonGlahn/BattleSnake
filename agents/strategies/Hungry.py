@@ -33,6 +33,7 @@ class Hungry:
             distance = Distance.manhattan_dist(my_head, relevant_food)
             if distance < start_distance:
                 food = relevant_food
+                start_distance = distance
         if not food:
             return []
         print("best food:", food)
@@ -68,5 +69,6 @@ class Hungry:
             """
         else:
             food_path = []
+        print(action)
 
         return action, food_path

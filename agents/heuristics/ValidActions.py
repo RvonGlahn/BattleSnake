@@ -257,6 +257,7 @@ class ValidActions:
         escape_direction_keys = [escape_direction_keys[i] for i in order]
         escape_path_value = [escape_path_value[i] for i in order]
         self.direction_depth = dict(zip(escape_direction_keys, escape_path_value))
+
         return invalid_actions
 
     def _find_invalid_actions(self) -> List[Direction]:
@@ -266,6 +267,7 @@ class ValidActions:
         # mark snakes on the board
         self._mark_snakes(help_board)
         old_board = self.valid_board.copy()
+        print(self.valid_board)
 
         # calculate new wave for each depth level from queue
         for direction in self.valid_actions:
@@ -285,7 +287,7 @@ class ValidActions:
             depth = self.expand(next_position)
 
             self.direction_depth[direction] = depth
-            self.valid_board = old_board
+            self.valid_board = old_board.copy()
 
         invalid_actions = self._order_directions()
 
@@ -305,13 +307,13 @@ class ValidActions:
         threshold = - self.depth + 1
         while self.direction_depth and len(self.valid_actions) < 2:
             self.valid_actions = [k for k, v in self.direction_depth.items() if v <= threshold]
-            if threshold < -4 and len(self.valid_actions) >= 1:
-                break
-            if threshold == -1:
+            if threshold < -3 and len(self.valid_actions) >= 1:
                 break
             if len(self.board.snakes) > 2 and self.state != States.HUNGRY:
                 if threshold <= -5 and len(self.valid_actions) == 1:
                     break
+            if threshold == -1:
+                break
             threshold += 1
 
         print("Valid Actions:", self.valid_actions)
@@ -324,7 +326,7 @@ class ValidActions:
 
         possible_actions = self.my_snake.possible_actions()
         self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
-                                                    self.my_snake, self.grid_map, True)
+                                                    self.my_snake, self.grid_map, avoid_food=True)
 
         if self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
             self.depth = 6
@@ -333,7 +335,6 @@ class ValidActions:
 
         # calculate enemy snakes board
         action_plan = self._calculate_board()
-        print(self.valid_board)
 
         # calculate valid actions
         self._valid_check()
@@ -341,11 +342,12 @@ class ValidActions:
         if self.direction_depth:
             deepest = min(list(self.direction_depth.values()))
 
-        if (not self.valid_actions or deepest > -5) and self.state != States.HUNGRY:
+        if (not self.valid_actions or deepest < -4) and self.state != States.HUNGRY:
             # calculate valid_actions and allow snake to eat
             self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
-                                                        self.my_snake, self.grid_map, False)
-            self._valid_check()
+                                                        self.my_snake, self.grid_map, avoid_food=False)
+            if self.valid_actions:
+                self._valid_check()
 
         print("DAUER", time.time() - start_time)
 

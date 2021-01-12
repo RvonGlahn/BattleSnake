@@ -67,7 +67,7 @@ class ActionPlan:
     def escape_lane(self, my_head: Position, valid_actions: List[Direction]) -> Tuple[Dict, Direction]:
         cost = 0
         cost_dict = {}
-        best_direction: Direction
+        best_direction: Direction = None
         x, y = my_head.x, my_head.y
         # add movement_profile
 
