@@ -30,6 +30,8 @@ class KILabAgent(BaseAgent):
         self.Decision.set_default_board(board.width, board.height)
 
     def move(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake) -> MoveResult:
+        time_available = game_info.timeout/1000 - you.latency
+        print(time_available)
         start_time = time.time()
         grid_map: GridMap[Occupant] = board.generate_grid_map()
 
