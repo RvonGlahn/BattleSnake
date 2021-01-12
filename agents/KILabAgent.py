@@ -1,8 +1,8 @@
 from typing import List
 import numpy as np
+import time
 from agents.BaseAgent import BaseAgent
 from agents.Decision import Decision
-from agents.heuristics.ValidActions import ValidActions
 
 from environment.Battlesnake.model.GameInfo import GameInfo
 from environment.Battlesnake.model.MoveResult import MoveResult
@@ -30,7 +30,7 @@ class KILabAgent(BaseAgent):
         self.Decision.set_default_board(board.width, board.height)
 
     def move(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake) -> MoveResult:
-
+        start_time = time.time()
         grid_map: GridMap[Occupant] = board.generate_grid_map()
 
         self.Decision.set_round(turn)
@@ -45,7 +45,7 @@ class KILabAgent(BaseAgent):
                         next_action = action
             if not next_action:
                 next_action = np.random.choice(possible_actions)
-
+        print("Move-DAUER: ", time.time() - start_time)
         return MoveResult(direction=next_action)
 
     def end(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):

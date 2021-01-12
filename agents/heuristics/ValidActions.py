@@ -315,9 +315,9 @@ class ValidActions:
             if threshold == -1:
                 break
             threshold += 1
-
-        print("Valid Actions:", self.valid_actions)
         print("Direction Depth: ", self.direction_depth)
+        print("Valid Actions:", self.valid_actions)
+
 
     def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray, Dict]:
 
@@ -349,7 +349,7 @@ class ValidActions:
             if self.valid_actions:
                 self._valid_check()
 
-        print("DAUER", time.time() - start_time)
+        print("ValidAction-DAUER: ", time.time() - start_time)
 
         return self.valid_actions, action_plan, self.direction_depth
 
