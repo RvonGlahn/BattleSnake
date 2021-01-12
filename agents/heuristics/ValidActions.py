@@ -289,7 +289,6 @@ class ValidActions:
 
         invalid_actions = self._order_directions()
 
-        print("Invalids: ", invalid_actions)
         return invalid_actions
 
     def _valid_check(self):
@@ -334,6 +333,7 @@ class ValidActions:
 
         # calculate enemy snakes board
         action_plan = self._calculate_board()
+        print(self.valid_board)
 
         # calculate valid actions
         self._valid_check()
@@ -347,7 +347,6 @@ class ValidActions:
                                                         self.my_snake, self.grid_map, False)
             self._valid_check()
 
-        print(self.valid_board)
         print("DAUER", time.time() - start_time)
 
         return self.valid_actions, action_plan, self.direction_depth
