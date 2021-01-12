@@ -14,7 +14,6 @@ class RelevantFood:
         enemy_heads = [snake.get_head() for snake in snakes if snake.get_head() is not my_head]
         my_close_food = []
 
-        # TODO: Richtiges Food fixen
         for food in all_food:
 
             if food.x == 0 or food.y == 0 or food.x == width-1 or food.y == height-1:
@@ -22,7 +21,7 @@ class RelevantFood:
                 enemy_dist_to_food = min([Distance.manhattan_dist(head, food) for head in enemy_heads])
                 if len(all_food) > 1:
                     continue
-                if enemy_dist_to_me < 3 and my_snake.health < 15 and enemy_dist_to_food < 4:
+                if enemy_dist_to_me < 3 and my_snake.health > 15 and enemy_dist_to_food < 4:
                     continue
 
             my_close_food.append(food)

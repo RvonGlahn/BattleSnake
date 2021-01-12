@@ -34,9 +34,9 @@ class Hungry:
             if distance < start_distance:
                 food = relevant_food
                 start_distance = distance
-        if not food:
-            return []
         print("best food:", food)
+        if not food or start_distance > 15:
+            return []
         cost, path = AStar.a_star_search(my_head, food, board, grid_map)
         path_array = path
 
