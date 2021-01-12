@@ -100,9 +100,9 @@ class SnakeAutomat:
             self.state = States.HUNGRY
             Params_Automat.HUNGER_HEALTH_BOUNDARY = 30
             return
-        elif self.snake.health < 50 and statistics.mean(self.food_history) < 3 and self.reachable_food:
+        elif self.snake.health < 60 and statistics.mean(self.food_history) < 3 and self.reachable_food:
             self.state = States.HUNGRY
-            Params_Automat.HUNGER_HEALTH_BOUNDARY = 50
+            Params_Automat.HUNGER_HEALTH_BOUNDARY = 60
             return
         else:
             Params_Automat.HUNGER_HEALTH_BOUNDARY = 30

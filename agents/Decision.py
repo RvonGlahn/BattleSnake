@@ -7,7 +7,6 @@ from agents.heuristics.Distance import Distance
 from agents.heuristics.ValidActions import ValidActions
 from agents.strategies.Anxious import Anxious
 from agents.strategies.Hungry import Hungry
-from agents.strategies.Provocative import Provocative
 from agents.SnakeAutomat import SnakeAutomat
 from agents.gametree.ActionPlan import ActionPlan
 from agents.strategies.SoloSurvival import SoloSurvival
@@ -17,7 +16,6 @@ from environment.Battlesnake.model.Snake import Snake
 from environment.Battlesnake.model.board_state import BoardState
 from environment.Battlesnake.model.grid_map import GridMap
 from environment.Battlesnake.model.Direction import Direction
-import time
 
 ###################
 # TODO:
@@ -86,7 +84,7 @@ class Decision:
     def _update_automats(self, board: BoardState) -> None:
 
         snake_heads = [snake.get_head() for snake in board.snakes]
-        longest_snake = max([snake.get_length() for snake in board.snakes])
+        # longest_snake = max([snake.get_length() for snake in board.snakes])
 
         for index, snake in enumerate(board.snakes):
             automat = self.automats[snake.snake_id]

@@ -268,7 +268,6 @@ class ValidActions:
         old_board = self.valid_board.copy()
 
         # calculate new wave for each depth level from queue
-        # TODO: Nach und nach nur eine Position in queue: for schleife über valid_neighbours
         for direction in self.valid_actions:
             next_position = head.advanced(direction)
             flood_queue = [(next_position.x, next_position.y)]
@@ -277,7 +276,7 @@ class ValidActions:
             for step in range(1, self.depth + 1):
                 flood_queue, visited, _ = self._action_flood_fill(flood_queue, step, visited, None, enemy=False)
 
-            if self.state != States.HUNGRY and self.my_snake.get_length() > 4:
+            if self.state != States.HUNGRY and self.my_snake.get_length() > 5:
                 for food_pos in self.board.food:
                     if Distance.manhattan_dist(head, food_pos) > 4:
                         self.valid_board[food_pos.x][food_pos.y] = 1
@@ -307,7 +306,7 @@ class ValidActions:
         threshold = - self.depth + 1
         while self.direction_depth and len(self.valid_actions) < 2:
             self.valid_actions = [k for k, v in self.direction_depth.items() if v <= threshold]
-            if threshold < -3 and len(self.valid_actions) >= 1:
+            if threshold < -4 and len(self.valid_actions) >= 1:
                 break
             if threshold == -1:
                 break
@@ -322,12 +321,14 @@ class ValidActions:
     def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray, Dict]:
 
         start_time = time.time()
+        deepest = 0
+
         possible_actions = self.my_snake.possible_actions()
         self.valid_actions = self.get_valid_actions(self.board, possible_actions, self.snakes,
                                                     self.my_snake, self.grid_map, True)
 
         if self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
-            self.depth = 7
+            self.depth = 6
         else:
             self.depth = Params_ValidActions.DEPTH
 
@@ -350,16 +351,6 @@ class ValidActions:
         print("DAUER", time.time() - start_time)
 
         return self.valid_actions, action_plan, self.direction_depth
-
-
-"""
-self.board.snakes[0].body = [Position(2,3),Position(2,4),Position(2,5),Position(2,6),Position(2,7),Position(2,8), Position(2,9),Position(3,9),Position(4,9),Position(5,9),Position(6,9)]
-self.board.snakes[2].body = [Position(0,6),Position(0,7),Position(0,8),Position(0,9),Position(0,10),Position(1,10), Position(2,10),Position(3,10),Position(4,10),Position(5,10)Position(6,10)Position(7,10)]
-self.board.snakes[1].body = [Position(0,0),Position(0,1),Position(0,2),Position(0,3)]
-self.board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(1,6)]
-self.board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(0,5)]
-self.board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(0,5),Position(0,6),Position(0,7),Position(0,8)]
-"""
 
 
 def get_valid_neighbour_values(x: int, y: int, square: np.ndarray) -> List[int]:
@@ -391,3 +382,15 @@ def get_valid_neigbours(x: int, y: int, square: np.ndarray) -> List[Tuple[int, i
 
     return neighbour_fields
 
+
+"""
+self.board.snakes[0].body = [Position(2,3),Position(2,4),Position(2,5),Position(2,6),Position(2,7),Position(2,8), 
+Position(2,9),Position(3,9),Position(4,9),Position(5,9),Position(6,9)]
+self.board.snakes[2].body = [Position(0,6),Position(0,7),Position(0,8),Position(0,9),Position(0,10),Position(1,10), 
+Position(2,10),Position(3,10),Position(4,10),Position(5,10)Position(6,10)Position(7,10)]
+self.board.snakes[1].body = [Position(0,0),Position(0,1),Position(0,2),Position(0,3)]
+self.board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(1,6)]
+self.board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(0,5)]
+self.board.snakes[1].body = [Position(1,3),Position(1,4),Position(1,5),Position(0,5),Position(0,6),
+Position(0,7),Position(0,8)]
+"""
