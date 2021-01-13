@@ -39,7 +39,7 @@ class Anxious:
         corners = [Position(0, 0), Position(0, board.width), Position(board.height, 0), Position(board.height,
                                                                                                  board.width)]
 
-        escape_cost_dict, escape_direction = action_plan.escape_lane(my_head, valid_actions)
+        escape_cost_dict = action_plan.escape_lane(my_head, valid_actions)
 
         # TODO: Unterscheidung der Params in Late game und early game abhängig von anzahl der Schlangen
         alpha = Params_Anxious.ALPHA_DISTANCE_SNAKE

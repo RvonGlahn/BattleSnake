@@ -106,7 +106,9 @@ class ValidActions:
 
                 if self.valid_board[x][y] == 0 or step <= abs(self.valid_board[x][y]):
                     self.valid_board[x][y] = step
-                action_plan[x][y] = Params_ValidActions.AREA_VALUE
+
+                if step < 4:
+                    action_plan[x][y] = Params_ValidActions.AREA_VALUE * (4 - step)
 
             if not enemy:
                 if step < self.valid_board[x][y] < 10 or self.valid_board[x][y] == 0:
@@ -225,14 +227,16 @@ class ValidActions:
 
         # build movement area around all enemy snakes near us
         for enemy in enemy_snakes:
-
+            start_value = 1
+            if enemy.get_length() < self.my_snake.get_length():
+                start_value = 2
             head = enemy.get_head()
 
             flood_queue = get_valid_neigbours(head.x, head.y, self.valid_board)
             visited = [(head.x, head.y)]
 
             # build new flood for each depth level
-            for step in range(1, self.depth + 1):
+            for step in range(start_value, self.depth + 1):
                 flood_queue, visited, action_plan = self._action_flood_fill(flood_queue, step, visited, action_plan,
                                                                             enemy=True)
 

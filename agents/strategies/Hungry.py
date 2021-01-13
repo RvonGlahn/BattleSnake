@@ -23,7 +23,6 @@ class Hungry:
         food = None
 
         relevant_foods = RelevantFood.get_relevant_food(snake, board.snakes, reachable_food, board.width, board.height)
-        print("Relevant Food:", food)
         if not relevant_foods:
             return []
 
@@ -59,14 +58,8 @@ class Hungry:
         if food_path:
             print("Food_Path: ", food_path)
             if food_path[0][1] in valid_actions:
-                print("Läuft")
                 action = food_path[0][1]
                 food_path.pop(0)
-            """
-            elif snake.health < 10 and food_path[0][1] in back_up_actions:
-                action = food_path[0][1]
-                food_path.pop(0)
-            """
         else:
             food_path = []
         print(action)
