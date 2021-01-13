@@ -20,7 +20,7 @@ class SoloSurvival:
         middle = Position(board.height // 2, board.width // 2)
         valid = []
         for direction in Direction:
-            if not head.advanced(direction) in snake.get_body():
+            if not (head.advanced(direction) in snake.get_body() or board.is_out_of_bounds(head.advanced(direction))):
                 valid.append(direction)
 
         if middle in snake.get_body():
@@ -29,6 +29,7 @@ class SoloSurvival:
                 if next_direction in valid:
                     return next_direction
                 else:
+                    print("not valid")
                     return np.random.choice(valid)
             else:
                 next_direction = SoloSurvival.tail_gate(snake, board, grid_map)
@@ -49,8 +50,9 @@ class SoloSurvival:
     def need_food(snake: Snake, board: BoardState, grid_map: GridMap, valid: List[Direction]) -> Tuple[bool, Optional[Direction]]:
 
         health = snake.get_health()
+        head = snake.get_head()
         food_around = SoloSurvival.food_all_around_body(snake, board)
-        if health < 10:
+        if health < 15:
             if food_around:
                 if health == 1:
                     _, food_pos = SoloSurvival.best_food_around_body(snake, board)
@@ -58,10 +60,14 @@ class SoloSurvival:
                     return True, food_dir
             else:
                 dist, food_pos = SoloSurvival.find_next_food(snake, board)
-                #path = Hungry.follow_food(snake, board, grid_map, food_pos)
-                direction, path = Hungry.hunger(snake, board, grid_map, [], valid, SnakeAutomat(snake, False))
-                #food_dir = SoloSurvival.direction_to_food(snake, direction)
-                return True, direction
+                #direction, path = Hungry.hunger(snake, board, grid_map, [], valid, SnakeAutomat(snake, False))
+                #food_dir = SoloSurvival.direction_to_food(snake, food_pos)
+                print("head: ", head, " food: ", food_pos)
+                _, path_ = AStar.a_star_search(head, food_pos, board, grid_map)
+                _, path = path_[0]
+                print("path: ",path)
+                #food_dir = SoloSurvival.direction_to_food(snake, path[0])
+                return True, path
                 print("hungry health: ", health)
                 dist, food_pos = SoloSurvival.best_food_around_body(snake, board)
                 if food_pos is None:
@@ -159,18 +165,23 @@ class SoloSurvival:
         health = snake.get_health()
         all_food = board.food
         if len(all_food) == 0:
+            print("KEIN FOOD")
             return None
         best_dist = 99999
         best_food = None
         for food in all_food:
             food_dist = Distance.manhattan_dist(head, food)
+            print("food_dist: ",food_dist)
             if food_dist == health:
+                print("1: ",food_dist,food)
                 return food_dist, food
             else:
-                diff = (food_dist - health)
+                diff = (health - food_dist)
+                print("diff: ",diff)
                 if (best_dist > diff) and diff > 0:
                     best_dist = diff
                     best_food = food
+        print("2: ",best_dist,best_food)
         return best_dist, best_food
 
     @staticmethod
