@@ -15,7 +15,7 @@ from environment.Battlesnake.model.Occupant import Occupant
 
 
 # TODO:
-#  Wenn my_length > enemy_length in flood fill einbauen
+#  Snake Markierungen erhöhen für tiefere Suche
 #  Food essen auf weg verringert die tiefe
 #  Ab todespunkt/zug x zukünftige tote gegner vom Board löschen
 
