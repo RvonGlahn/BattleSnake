@@ -31,7 +31,7 @@ class KILabAgent(BaseAgent):
 
     def move(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake) -> MoveResult:
         if you.latency:
-            print("Time Left:", 0.4 - you.latency)
+            print("Time Left:", 0.4 - float(you.latency))
         start_time = time.time()
         grid_map: GridMap[Occupant] = board.generate_grid_map()
 
