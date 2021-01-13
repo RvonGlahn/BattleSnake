@@ -8,6 +8,8 @@ from agents.heuristics.Distance import Distance
 from agents.gametree.AStar import AStar
 from agents.heuristics.ValidActions import ValidActions
 import numpy as np
+from agents.strategies.Hungry import Hungry
+from agents.SnakeAutomat import SnakeAutomat
 
 class SoloSurvival:
 
@@ -22,7 +24,7 @@ class SoloSurvival:
                 valid.append(direction)
 
         if middle in snake.get_body():
-            need, next_direction = SoloSurvival.need_food(snake, board)
+            need, next_direction = SoloSurvival.need_food(snake, board, grid_map, valid)
             if need:
                 if next_direction in valid:
                     return next_direction
@@ -44,7 +46,7 @@ class SoloSurvival:
             return np.random.choice(valid)
 
     @staticmethod
-    def need_food(snake: Snake, board: BoardState) -> Tuple[bool, Optional[Direction]]:
+    def need_food(snake: Snake, board: BoardState, grid_map: GridMap, valid: List[Direction]) -> Tuple[bool, Optional[Direction]]:
 
         health = snake.get_health()
         food_around = SoloSurvival.food_all_around_body(snake, board)
@@ -55,6 +57,11 @@ class SoloSurvival:
                     food_dir = SoloSurvival.direction_to_food(snake, food_pos)
                     return True, food_dir
             else:
+                dist, food_pos = SoloSurvival.find_next_food(snake, board)
+                #path = Hungry.follow_food(snake, board, grid_map, food_pos)
+                direction, path = Hungry.hunger(snake, board, grid_map, [], valid, SnakeAutomat(snake, False))
+                #food_dir = SoloSurvival.direction_to_food(snake, direction)
+                return True, direction
                 print("hungry health: ", health)
                 dist, food_pos = SoloSurvival.best_food_around_body(snake, board)
                 if food_pos is None:
