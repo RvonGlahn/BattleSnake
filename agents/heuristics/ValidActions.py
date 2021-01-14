@@ -67,7 +67,6 @@ class ValidActions:
             # avoid eating
             if my_snake.health > Params_ValidActions.FOOD_BOUNDARY and avoid_food and my_snake.get_length() > 5:
                 if grid_map.get_value_at_position(next_position) is Occupant.Food:
-                    print("Nicht essen")
                     continue
 
             # outofbounds
@@ -111,12 +110,11 @@ class ValidActions:
                     action_plan[x][y] = Params_ValidActions.AREA_VALUE * (4 - step)
 
             if not enemy:
-                if step < self.valid_board[x][y] < 10 or self.valid_board[x][y] == 0:
+                if step < self.valid_board[x][y] < 20 or self.valid_board[x][y] == 0:
                     self.valid_board[x][y] = -step
                 
                 # eigenenes Schwanzende berücksichtigen
-                if 10 < self.valid_board[x, y] < 20 and self.valid_board[x, y] % 10 <= step:
-                    # and -(step - 1) in neighbour_values:
+                if 20 < self.valid_board[x, y] < 40 and self.valid_board[x, y] % 20 <= step:
                     self.valid_board[x][y] = -step
 
                 # Schwanzanfang berücksichtigen
@@ -146,13 +144,13 @@ class ValidActions:
         for snake in self.board.snakes:
             if snake.snake_id != self.my_snake.snake_id:
                 for index, position in enumerate(snake.body[::-1]):
-                    self.valid_board[position.x][position.y] = (index + 21)
-                    help_board[position.x][position.y] = (index + 21)
+                    self.valid_board[position.x][position.y] = (index + 41)
+                    help_board[position.x][position.y] = (index + 41)
 
         # mark my snake on board
         for index, position in enumerate(self.my_snake.body[::-1]):
-            self.valid_board[position.x][position.y] = (index + 11)
-            help_board[position.x][position.y] = (index + 11)
+            self.valid_board[position.x][position.y] = (index + 21)
+            help_board[position.x][position.y] = (index + 21)
 
     def expand(self, next_position: Position) -> int:
 
@@ -291,6 +289,8 @@ class ValidActions:
             depth = self.expand(next_position)
 
             self.direction_depth[direction] = depth
+            print(self.valid_board)
+
             self.valid_board = old_board.copy()
 
         invalid_actions = self._order_directions()

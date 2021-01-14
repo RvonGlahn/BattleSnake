@@ -71,7 +71,7 @@ class ActionPlan:
     def _add_movement_prediction(self):
         pass
 
-    def escape_lane(self, my_head: Position, valid_actions: List[Direction]) -> Tuple[Dict, Direction]:
+    def escape_lane(self, my_head: Position, valid_actions: List[Direction]) -> Dict:
         cost = 0
         cost_dict = {}
         best_direction: Direction = None
@@ -91,15 +91,15 @@ class ActionPlan:
 
         if next_position.x == 0 or next_position.y == 0 or next_position.x == width - 1 \
                 or next_position.y == height - 1:
-            distance_no_border = -10000
+            distance_no_border = -1000
         if next_position.x == 1 and my_head.x != 0:
-            distance_no_border = -2500
+            distance_no_border = -250
         if next_position.y == 1 and my_head.y != 0:
-            distance_no_border = -2500
+            distance_no_border = -250
         if next_position.x == width - 2 and my_head.x != width - 1:
-            distance_no_border = -2500
+            distance_no_border = -250
         if next_position.y == height - 2 and my_head.x != height - 1:
-            distance_no_border = -2500
+            distance_no_border = -250
 
         return distance_no_border
 

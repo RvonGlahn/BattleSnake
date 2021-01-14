@@ -5,7 +5,7 @@ from agents.heuristics.MovementProfile import MovementProfile
 from agents.States import States
 from agents.heuristics.Distance import Distance
 from agents.Hyperparameters import Params_Automat, Params_Agressive, Params_Anxious
-from agents.strategies.Agressive import Agressive
+from agents.strategies.Aggressive import Agressive
 from agents.heuristics.RelevantFood import RelevantFood
 from agents.heuristics.FloodFill import FloodFill
 

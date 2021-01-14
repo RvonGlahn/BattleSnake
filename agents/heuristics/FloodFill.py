@@ -63,6 +63,7 @@ class FloodFill:
         fill_stats = {}
         fill_board = np.full((board.width, board.height), 10)
         visited = []
+        no_food = False if Position(next_position.x, next_position.y) in board.food else True
 
         snake_length = [snake.get_length() for snake in board.snakes]
         snake_ids = [snake.snake_id for snake in board.snakes]
@@ -72,17 +73,17 @@ class FloodFill:
         snakes = [copy_snakes[i] for i in order][::-1]
         snake_ids = [snake_ids[i] for i in order][::-1]
 
-        # TODO: Body Überprüfen für meine Schlange
         snake_marker = -99
         for snake in snakes:
             if snake.snake_id == my_id:
                 flood_queue.append([(next_position.x, next_position.y)])
+                snake.body.insert(0, next_position)
+                if no_food:
+                    del snake.body[-1]
                 snake_marker = -50
             else:
                 flood_queue.append([(snake.get_head().x, snake.get_head().y)])
             for pos in snake.body:
-                if snake.snake_id == my_id and pos == snake.body[-1]:
-                    continue
                 fill_board[pos.x][pos.y] = snake_marker
                 if pos is not snake.get_head():
                     visited.append((pos.x, pos.y))
@@ -92,9 +93,22 @@ class FloodFill:
 
         # iterativ Bewegungsbereich erschließen
         my_index = 0
+        count = 1
         while any(flood_queue):
-            # größte Schlange zuerst
+
             snake_index = 0
+
+            # Tail iterativ freigeben
+            idx = 0
+            for snakey in snakes:
+                if snakey.get_length() > count:
+                    fill_board[snakey.body[-count].x][snakey.body[-count].y] = 10
+                    if (snakey.body[-count].x, snakey.body[-count].y) in visited:
+                        visited.remove((snakey.body[-count].x, snakey.body[-count].y))
+                        # flood_queue[idx].append((snakey.body[-(count + 1)].x, snakey.body[-(count + 1)].y))
+                idx += 1
+
+            # größte Schlange zuerst
             for snake_id in snake_ids:
                 filled_fields_count = FloodFill.calcuate_step(fill_board, flood_queue, snake_index, visited)
 
@@ -103,6 +117,7 @@ class FloodFill:
                 if snake_id == my_id:
                     my_index = snake_index
                 snake_index += 1
+            count += 1
 
         reachable_food = FloodFill.flood_food(fill_board, board.food, my_index)
 
