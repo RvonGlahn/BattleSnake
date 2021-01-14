@@ -85,13 +85,13 @@ class SnakeAutomat:
         snakes = board.snakes
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
-        if Params_Aggressive.KILL_PATH:
-            self.state = States.AGRESSIVE
-            return
-
         if self.snake.health < 50 or len(enemy_snakes) == 1:
             cost, self.reachable_food = FloodFill.get_fill_stats(board, self.snake.get_head(), self.snake.snake_id,
                                                                  new_pos=False)
+
+            if Params_Aggressive.KILL_PATH and cost < 15:
+                self.state = States.AGRESSIVE
+                return
 
             for enmy in enemy_snakes:
                 if cost[enmy.snake_id] < 15:
