@@ -122,5 +122,4 @@ class FloodFill:
             count += 1
 
         reachable_food = FloodFill.flood_food(fill_board, board.food, my_index)
-        print(fill_board)
         return fill_stats, reachable_food
