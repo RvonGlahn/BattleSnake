@@ -79,7 +79,7 @@ class SnakeAutomat:
     def get_state(self) -> States:
         return self.state
 
-    def update_my_state(self, board: BoardState, kill_board: np.ndarray, grid_map) -> None:
+    def update_my_state(self, board: BoardState, kill_board: np.ndarray, grid_map: GridMap) -> None:
 
         kill_path = []
         snakes = board.snakes

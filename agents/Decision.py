@@ -1,7 +1,7 @@
 from typing import List, Dict
 import numpy as np
 
-from agents.Hyperparameters import Params_Decision
+from agents.Hyperparameters import Params_Decision, Params_Automat
 from agents.States import States
 from agents.heuristics.Distance import Distance
 from agents.heuristics.ValidActions import ValidActions
@@ -167,8 +167,11 @@ class Decision:
 
         self._update_automats(board, kill_board, grid_map)
 
+        if self.game_round < 75:
+            Params_Automat.ENEMY_HEALTH_BOUNDARY = 100
         next_action = self._call_strategy(you, board, grid_map, valid_actions, direction_depth)
-
+        if self.game_round < 70:
+            Params_Automat.ENEMY_HEALTH_BOUNDARY = 30
         print("MyState:", self.automats[self.my_snake_id].get_state())
 
         return next_action

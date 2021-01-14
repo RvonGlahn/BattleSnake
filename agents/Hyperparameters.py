@@ -36,7 +36,7 @@ class Params_MovementProfile:
 class Params_Anxious:
 
     ALPHA_DISTANCE_ENEMY_HEAD = [0, 0, 0]
-    BETA_DISTANCE_CORNERS = [5, 1, 1]
+    BETA_DISTANCE_CORNERS = [10, 1, 1]
     GAMMA_DISTANCE_FOOD = [-4, -3, -2]
     EPSILON_NO_BORDER = [5, 2, 1]
     THETA_DISTANCE_MID = [-1, -1, -1]
