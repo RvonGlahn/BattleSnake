@@ -7,6 +7,7 @@ from agents.heuristics.Distance import Distance
 from agents.heuristics.ValidActions import ValidActions
 from agents.strategies.Anxious import Anxious
 from agents.strategies.Hungry import Hungry
+from agents.strategies.Aggressive import Aggressive
 from agents.SnakeAutomat import SnakeAutomat
 from agents.gametree.ActionPlan import ActionPlan
 from agents.strategies.SoloSurvival import SoloSurvival
@@ -79,7 +80,7 @@ class Decision:
             self.automats[snake.snake_id] = SnakeAutomat(snake, enemy)
             self.states[snake.snake_id] = self.automats[snake.snake_id].state
 
-    def _update_automats(self, board: BoardState) -> None:
+    def _update_automats(self, board: BoardState, kill_board: np.ndarray, grid_map: GridMap) -> None:
 
         snake_heads = [snake.get_head() for snake in board.snakes]
         # longest_snake = max([snake.get_length() for snake in board.snakes])
@@ -109,7 +110,7 @@ class Decision:
                 # automat.update_behaviour()
 
         # update my snake state
-        self.automats[self.my_snake_id].update_my_state(board, self._get_snake_states(), self.game_round)
+        self.automats[self.my_snake_id].update_my_state(board, kill_board, grid_map)
 
     def _delete_dead_snake(self, dead_snakes: List[Snake]) -> None:
         for dead_snake in dead_snakes:
@@ -136,8 +137,8 @@ class Decision:
         if my_state == States.ANXIOUS:
             return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan, direction_depth)
 
-        if my_state == States.PROVOCATIVE:
-            return Anxious.avoid_enemy(you, board, grid_map, valid_actions, action_plan, direction_depth)
+        if my_state == States.AGRESSIVE:
+            return Aggressive.aggressive()
 
     def set_round(self, this_round) -> None:
         self.game_round = this_round
@@ -157,14 +158,14 @@ class Decision:
 
         # init ValidActions object and get basic board for action_plan from multi_level
         valid_action = ValidActions(board, grid_map, you, self.states[self.my_snake_id])
-        valid_actions, self.action_board, direction_depth = valid_action.multi_level_valid_actions()
+        valid_actions, self.action_board, direction_depth, kill_board = valid_action.multi_level_valid_actions()
 
         # decide if we focus on monitoring enemies or on calculating our next move
         dist_to_closest_head = Distance.dist_to_closest_enemy_head(board.snakes, you)
         if dist_to_closest_head < Params_Decision.CLOSEST_HEAD_BOUNDARY:
             self.monitoring_time = Params_Decision.REDUCED_MONITORING_TIME
 
-        self._update_automats(board)
+        self._update_automats(board, kill_board, grid_map)
 
         next_action = self._call_strategy(you, board, grid_map, valid_actions, direction_depth)
 

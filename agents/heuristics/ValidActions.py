@@ -36,6 +36,7 @@ class ValidActions:
         self.my_snake = me
         self.valid_board = np.zeros((self.board.width, self.board.height))
         self.valid_actions = []
+        self.kill_board = np.zeros((self.board.width, self.board.height))
         self.direction_depth = {}
         self.state = my_state
 
@@ -289,9 +290,10 @@ class ValidActions:
             depth = self.expand(next_position)
 
             self.direction_depth[direction] = depth
-            print(self.valid_board)
-
+            self.kill_board = np.add(self.kill_board, self.valid_board)
             self.valid_board = old_board.copy()
+
+        self.kill_board = np.subtract(self.kill_board, old_board*(len(self.valid_actions)-1))
 
         invalid_actions = self._order_directions()
 
@@ -323,7 +325,7 @@ class ValidActions:
         print("Direction Depth: ", self.direction_depth)
         print("Valid Actions:", self.valid_actions)
 
-    def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray, Dict]:
+    def multi_level_valid_actions(self) -> Tuple[List[Direction], np.ndarray, Dict,  np.ndarray]:
 
         start_time = time.time()
         deepest = 0
@@ -355,7 +357,7 @@ class ValidActions:
 
         print("ValidAction-DAUER: ", time.time() - start_time)
 
-        return self.valid_actions, action_plan, self.direction_depth
+        return self.valid_actions, action_plan, self.direction_depth, self.kill_board
 
 
 def get_valid_neighbour_values(x: int, y: int, square: np.ndarray) -> List[int]:

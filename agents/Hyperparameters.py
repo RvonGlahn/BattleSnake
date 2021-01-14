@@ -49,7 +49,7 @@ class Params_Anxious:
     TAU_PATH_LENGTH = [1, 1, 1]
 
 
-class Params_Agressive:
+class Params_Aggressive:
     KILL_PATH = []
 
 

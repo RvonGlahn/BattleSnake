@@ -2,8 +2,9 @@ from typing import Tuple, List
 import numpy as np
 
 from agents.heuristics.Distance import Distance
+from agents.heuristics.ValidActions import get_valid_neigbours
 from agents.gametree.AStar import AStar
-from agents.Hyperparameters import Params_ValidActions
+from agents.Hyperparameters import Params_Aggressive
 
 from environment.Battlesnake.model.Position import Position
 from environment.Battlesnake.model.Snake import Snake
@@ -12,53 +13,54 @@ from environment.Battlesnake.model.Direction import Direction
 from environment.Battlesnake.model.grid_map import GridMap
 
 
-class Agressive:
+class Aggressive:
 
     @staticmethod
-    def flood_kill(kill_board: np.ndarray, enemy_snakes, my_head):
-        # TODO:
-        #   - mögliche Züge des Gegners durch Floodfill berechnen und wenn er nur eine Wahl hat durch Astar anpeilen
-        #     und abschneiden
-        #   - Parameter snake_dead_in_rounds um mehr valide actions zu erhalten
-        if len(enemy_snakes) > 3:
-            relevant_snakes = [snake for snake in enemy_snakes
-                               if Distance.manhattan_dist(snake.get_head(), my_head) > Params_ValidActions.DEPTH-1]
+    def flood_kill(enemy: Snake, my_snake: Snake, kill_board: np.ndarray, board: BoardState, grid_map: GridMap):
+        # TODO: Parameter snake_dead_in_rounds um mehr valide actions zu erhalten
+        #  - breite des PFades auf 1 begrenzen
+        my_head = my_snake.get_head()
+        enemy_head = enemy.get_head()
+        kill_actions = []
+        search = False
 
-    # follow head of enemies that are smaller than Jürgen
+        for part in enemy.body:
+            kill_board[part.x][part.y] -= 1000
+        kill_board[my_head.x][my_head.y] -= 1000
+
+        idx = np.where(kill_board == np.amax(kill_board))
+        x, y = np.unravel_index(kill_board.argmax(), kill_board.shape)
+
+        for (pos_x, pos_y) in get_valid_neigbours(x, y, kill_board):
+            if kill_board[pos_x][pos_y] < 0:
+                x, y = pos_x, pos_y
+                search = True
+
+        enemy_dist = Distance.manhattan_dist(enemy_head, Position(x, y))
+        my_dist = Distance.manhattan_dist(my_head, Position(x, y))
+
+        if enemy_dist > my_dist and search:
+            cost, path = AStar.a_star_search(my_head, Position(x, y), board, grid_map)
+
+            count = 0
+            for pos, dir in path:
+                if kill_board[pos.x, pos.y] >= 0:
+                    return []
+
+                abort_count = 0
+                for (pos_x, pos_y) in get_valid_neigbours(x, y, kill_board):
+                    if kill_board[pos_x][pos_y] < 0:
+                        abort_count += 1
+                if abort_count > 2 and count < 4:
+                    return []
+                if abort_count > 1 and count < my_dist:
+                    return []
+                kill_actions.append(dir)
+                count += 1
+
+        return kill_actions
+
     @staticmethod
-    def attack(snakes: List[Snake], board: BoardState, grid_map: GridMap, you: Snake) -> List[Tuple[Position, Direction]]:
-        
-        head = you.get_head()
-        target = None
+    def aggressive():
+        return Params_Aggressive.KILL_PATH.pop(0)
 
-        # alle relevanten snakes = alle kleiner als Jürgen
-        relevant_snakes = []
-        # dangerous snakes = größer/gleich Jürgen
-        dangerous_snakes = []
-        for snake in snakes:
-            if snake.get_length < you.get_length:
-                relevant_snakes.append(snake)
-            else:
-                dangerous_snakes.append(snake)
-
-        best_distance = 0
-        # jagd auf relevant snakes, die möglichst weit weg von dangerous snakes sind
-        if len(dangerous_snakes) > 0:
-            for rel_snake in relevant_snakes:
-                distance = min([Distance.manhattan_dist(dan_snake.get_head(), rel_snake.get_head()) for dan_snake in dangerous_snakes])
-                if distance > best_distance:
-                    best_distance = distance
-                    target = rel_snake.get_head()
-        # sonst geringsten Abstand
-        else:
-            best_distance = 999999
-            for rel_snake in relevant_snakes:
-                distance = [Distance.manhattan_dist(head, rel_snake.get_head())]
-                if distance < best_distance:
-                    best_distance = distance
-                    target = rel_snake.get_head()
-
-        cost, path = AStar.a_star_search(head, target, board, grid_map)
-        
-        _, next_step = path.pop
-        return next_step

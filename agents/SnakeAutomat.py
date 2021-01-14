@@ -1,12 +1,12 @@
 from typing import List, Dict
 import statistics
+import numpy as np
 
 from agents.heuristics.MovementProfile import MovementProfile
 from agents.States import States
 from agents.heuristics.Distance import Distance
-from agents.Hyperparameters import Params_Automat, Params_Agressive, Params_Anxious
-from agents.strategies.Aggressive import Agressive
-from agents.heuristics.RelevantFood import RelevantFood
+from agents.Hyperparameters import Params_Automat, Params_Aggressive
+from agents.strategies.Aggressive import Aggressive
 from agents.heuristics.FloodFill import FloodFill
 
 from environment.Battlesnake.model.board_state import GridMap
@@ -79,23 +79,29 @@ class SnakeAutomat:
     def get_state(self) -> States:
         return self.state
 
-    def update_my_state(self, board: BoardState, states: Dict, round_number: int) -> None:
+    def update_my_state(self, board: BoardState, kill_board: np.ndarray, grid_map) -> None:
 
+        kill_path = []
         snakes = board.snakes
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
-        if self.snake.health < 50:
-            _, self.reachable_food = FloodFill.get_fill_stats(board, self.snake.get_head(), self.snake.snake_id)
-
-        """
-        kill_chance, kill_path = Agressive.flood_kill(valid_board, snakes, self.snake)
-
-        if kill_chance:
+        if Params_Aggressive.KILL_PATH:
             self.state = States.AGRESSIVE
-            Params_Agressive.KILL_PATH = kill_path
             return
-        """
-        # TODO Test ob Params ändern sinnvoll ist
+
+        if self.snake.health < 50 or len(enemy_snakes) == 1:
+            cost, self.reachable_food = FloodFill.get_fill_stats(board, self.snake.get_head(), self.snake.snake_id,
+                                                                 new_pos=False)
+
+            for enmy in enemy_snakes:
+                if cost[enmy.snake_id] < 15:
+                    kill_path = Aggressive.flood_kill(enmy, self.snake, kill_board, board, grid_map)
+
+        if kill_path:
+            self.state = States.AGRESSIVE
+            Params_Aggressive.KILL_PATH = kill_path
+            return
+
         if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY and self.reachable_food:
             self.state = States.HUNGRY
             Params_Automat.HUNGER_HEALTH_BOUNDARY = 30
@@ -108,18 +114,6 @@ class SnakeAutomat:
             Params_Automat.HUNGER_HEALTH_BOUNDARY = 30
             self.state = States.ANXIOUS
 
-        # check if game is in early stage and how many enemies are left
-        if round_number < Params_Automat.ROUND_NUMBER_BOUNDARY or len(enemy_snakes) >= Params_Automat.ENEMIES_ALIVE:
-
-            for enemy in enemy_snakes:
-                # check if we are shorter than near snakes and if snakes are agressive
-                if self.snake.get_length() < enemy.get_length() and states[enemy.snake_id] is States.AGRESSIVE:
-                    self.state = States.ANXIOUS
-                    return
-
-        # check if game lasts longer and we can provocate
-        else:
-            self.state = States.PROVOCATIVE
             return
 
     def make_movement_profile_prediction(self, enemy_snakes: List[Snake], enemy_heads: List[Position],

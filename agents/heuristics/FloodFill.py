@@ -56,7 +56,8 @@ class FloodFill:
         return count
 
     @staticmethod
-    def get_fill_stats(board: BoardState, next_position: Position, my_id: str) -> Tuple[Dict, List[Position]]:
+    def get_fill_stats(board: BoardState, next_position: Position, my_id: str, new_pos=True) -> Tuple[Dict,
+                                                                                                      List[Position]]:
         # TODO: Food in der Gewichtung des boards einbeziehen
 
         flood_queue = []
@@ -77,10 +78,11 @@ class FloodFill:
         for snake in snakes:
             if snake.snake_id == my_id:
                 flood_queue.append([(next_position.x, next_position.y)])
-                snake.body.insert(0, next_position)
-                if no_food:
-                    del snake.body[-1]
-                snake_marker = -50
+                if new_pos:
+                    snake.body.insert(0, next_position)
+                    if no_food:
+                        del snake.body[-1]
+                    snake_marker = -50
             else:
                 flood_queue.append([(snake.get_head().x, snake.get_head().y)])
             for pos in snake.body:
@@ -120,5 +122,5 @@ class FloodFill:
             count += 1
 
         reachable_food = FloodFill.flood_food(fill_board, board.food, my_index)
-
+        print(fill_board)
         return fill_stats, reachable_food
