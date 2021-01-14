@@ -270,7 +270,7 @@ class ValidActions:
         # mark snakes on the board
         self._mark_snakes(help_board)
         old_board = self.valid_board.copy()
-        print(self.valid_board)
+        # print(self.valid_board)
 
         # calculate new wave for each depth level from queue
         for direction in self.valid_actions:
@@ -288,6 +288,7 @@ class ValidActions:
 
             # expand for each direction
             depth = self.expand(next_position)
+            print(self.valid_board)
 
             self.direction_depth[direction] = depth
             self.kill_board = np.add(self.kill_board, self.valid_board)
@@ -336,7 +337,7 @@ class ValidActions:
 
         if self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
             self.depth = 6
-        if self.my_snake.health < 15:
+        if self.my_snake.health < 10:
             self.depth = 3
         else:
             self.depth = Params_ValidActions.DEPTH
