@@ -32,7 +32,7 @@ class Anxious:
             valid_actions = ValidActions.get_valid_actions(board, possible_actions, board.snakes, my_snake,
                                                            grid_map, avoid_food=False)
 
-        num_snakes = len(board.snakes) - 1
+        num_snakes = 4 - len(board.snakes)
         flood_dist = 12 if (num_snakes+1) > 2 else 99
 
         my_head = my_snake.get_head()
@@ -77,7 +77,7 @@ class Anxious:
             direction_cost[1] = escape_cost_dict[action] * p_corridor
 
             direction_cost[2] = ActionPlan.punish_border_fields(next_position, my_head, grid_map.width,
-                                                                      grid_map.height) * p_border
+                                                                grid_map.height) * p_border
 
             direction_cost[3] = sum([Distance.manhattan_dist(next_position, enemy_head)
                                      for enemy_head in enemy_heads]) * p_head
