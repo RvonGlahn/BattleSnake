@@ -336,6 +336,8 @@ class ValidActions:
 
         if self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
             self.depth = 6
+        if self.my_snake.health < 15:
+            self.depth = 3
         else:
             self.depth = Params_ValidActions.DEPTH
 
