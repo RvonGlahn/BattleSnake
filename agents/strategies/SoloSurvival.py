@@ -17,11 +17,19 @@ class SoloSurvival:
     def next_step(snake: Snake, board: BoardState, grid_map: GridMap) -> Direction:
 
         head = snake.get_head()
+        tail = snake.get_tail()
         middle = Position(board.height // 2, board.width // 2)
         valid = []
         for direction in Direction:
-            if not (head.advanced(direction) in snake.get_body() or board.is_out_of_bounds(head.advanced(direction))):
+            if not ((head.advanced(direction) in snake.get_body()) or board.is_out_of_bounds(head.advanced(direction))):
                 valid.append(direction)
+        if snake.get_length() > 10:
+            for action in valid:
+                _, path = AStar.a_star_search(head, tail, board, grid_map)
+                print(len(path))
+                end, pat = path[len(path)-1]
+                if not end == tail:
+                    valid.remove(action)
 
         if middle in snake.get_body():
             need, next_direction = SoloSurvival.need_food(snake, board, grid_map, valid)
@@ -29,7 +37,7 @@ class SoloSurvival:
                 if next_direction in valid:
                     return next_direction
                 else:
-                    print("not valid")
+                    #print("not valid")
                     return np.random.choice(valid)
             else:
                 next_direction = SoloSurvival.tail_gate(snake, board, grid_map)
@@ -39,8 +47,12 @@ class SoloSurvival:
                     return np.random.choice(valid)
 
         else:
-            _, path = AStar.a_star_search_wofood(head, middle, board, grid_map)
-            _, next_direction = path[0]
+            if SoloSurvival.food_around_head(head, board):
+                _, path = AStar.a_star_search(head, middle, board, grid_map)
+                _, next_direction = path[0]
+            else:
+                _, path = AStar.a_star_search_wofood(head, middle, board, grid_map)
+                _, next_direction = path[0]
         if next_direction in valid:
             return next_direction
         else:
@@ -62,22 +74,22 @@ class SoloSurvival:
                 dist, food_pos = SoloSurvival.find_next_food(snake, board)
                 #direction, path = Hungry.hunger(snake, board, grid_map, [], valid, SnakeAutomat(snake, False))
                 #food_dir = SoloSurvival.direction_to_food(snake, food_pos)
-                print("head: ", head, " food: ", food_pos)
+                #print("head: ", head, " food: ", food_pos)
                 _, path_ = AStar.a_star_search(head, food_pos, board, grid_map)
                 _, path = path_[0]
-                print("path: ",path)
+                #print("path: ",path)
                 #food_dir = SoloSurvival.direction_to_food(snake, path[0])
                 return True, path
-                print("hungry health: ", health)
+                #print("hungry health: ", health)
                 dist, food_pos = SoloSurvival.best_food_around_body(snake, board)
                 if food_pos is None:
                     dist, food_pos = SoloSurvival.find_next_food(snake, board)
                 if (health - dist) <= 1:
-                    print("get the perfect food")
+                    #print("get the perfect food")
                     food_dir = SoloSurvival.direction_to_food(snake, food_pos)
                     return True, food_dir
                 else:
-                    print("anderes food nehmen")
+                    #print("anderes food nehmen")
                     dist, food_pos = SoloSurvival.find_next_food(snake, board)
                     if dist <= health:
                         food_dir = SoloSurvival.direction_to_food(snake, food_pos)
@@ -171,17 +183,19 @@ class SoloSurvival:
         best_food = None
         for food in all_food:
             food_dist = Distance.manhattan_dist(head, food)
-            print("food_dist: ",food_dist)
+            if food_dist > health:
+                continue
+            #print("food_dist: ",food_dist, "health", health)
             if food_dist == health:
-                print("1: ",food_dist,food)
+            #    print("1: ", food_dist, food)
                 return food_dist, food
             else:
                 diff = (health - food_dist)
-                print("diff: ",diff)
+                #print("diff: ",diff)
                 if (best_dist > diff) and diff > 0:
                     best_dist = diff
                     best_food = food
-        print("2: ",best_dist,best_food)
+        #print("2: ", best_dist, best_food)
         return best_dist, best_food
 
     @staticmethod
@@ -192,3 +206,10 @@ class SoloSurvival:
             if head.advanced(direction) == food:
                 return direction
         return None
+
+    @staticmethod
+    def food_around_head(head: Position, board: BoardState) -> bool:
+        for direction in Direction:
+            if not board.is_occupied(head.advanced(direction)):
+                return False
+        return True
