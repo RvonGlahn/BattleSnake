@@ -49,14 +49,6 @@ class Aggressive:
                 if kill_board[pos.x][pos.y] >= 0:
                     return []
 
-                abort_count = 0
-                for (pos_x, pos_y) in get_valid_neigbours(x, y, kill_board):
-                    if kill_board[pos_x][pos_y] < 0:
-                        abort_count += 1
-                if abort_count > 2 and count < 4:
-                    return []
-                if abort_count > 1 and 3 < count < my_dist:
-                    return []
                 kill_actions.append(dir)
                 count += 1
 
