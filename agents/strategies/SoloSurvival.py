@@ -25,7 +25,7 @@ class SoloSurvival:
                 valid.append(direction)
         if snake.get_length() > 10:
             for action in valid:
-                _, path = AStar.a_star_search(head, tail, board, grid_map)
+                _, path = AStar.a_star_search(head.advanced(action), tail, board, grid_map)
                 print(len(path))
                 end, pat = path[len(path)-1]
                 if not end == tail:
@@ -51,7 +51,7 @@ class SoloSurvival:
                 _, path = AStar.a_star_search(head, middle, board, grid_map)
                 _, next_direction = path[0]
             else:
-                _, path = AStar.a_star_search_wofood(head, middle, board, grid_map)
+                _, path = AStar.a_star_search(head, middle, board, grid_map)
                 _, next_direction = path[0]
         if next_direction in valid:
             return next_direction
