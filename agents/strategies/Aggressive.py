@@ -33,7 +33,7 @@ class Aggressive:
         print(kill_board)
         print(Position(x, y))
         for (pos_x, pos_y) in get_valid_neigbours(x, y, kill_board):
-            if kill_board[pos_x][pos_y] < 0:
+            if 0 > kill_board[pos_x][pos_y] > -800:
                 x, y = pos_x, pos_y
                 search = True
                 break
