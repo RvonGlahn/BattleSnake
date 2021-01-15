@@ -19,7 +19,7 @@ class SoloSurvival:
         head = snake.get_head()
         #tail = snake.get_tail()
         middle = Position(board.height // 2, board.width // 2)
-        valid = ValidActions.get_valid_actions(board, snake.possible_actions(), [], snake, grid_map, False)
+        valid = ValidActions.get_valid_actions(board, snake.possible_actions(), [snake], snake, grid_map, False)
         #for direction in Direction:
         #    if not board.is_out_of_bounds(head.advanced(direction)):
         #        if not (head.advanced(direction) in snake.get_body()):
