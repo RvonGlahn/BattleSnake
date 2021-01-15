@@ -47,15 +47,15 @@ class Anxious:
         # TODO: Unterscheidung der Params in Late game und early game abhängig von anzahl der Schlangen
         p_head = Params_Anxious.ALPHA_DISTANCE_ENEMY_HEAD[num_snakes]
         p_corner = Params_Anxious.BETA_DISTANCE_CORNERS[num_snakes]
-        p_mid = Params_Anxious.THETA_DISTANCE_MID[num_snakes]
+        p_mid = Params_Anxious.THETA_DISTANCE_MID[num_snakes] * (-1)
         p_border = Params_Anxious.EPSILON_NO_BORDER[num_snakes]
 
-        p_food = Params_Anxious.GAMMA_DISTANCE_FOOD[num_snakes] * 20 / my_snake.health
-        p_flood_min = Params_Anxious.OMEGA_FLOOD_FILL_MIN[num_snakes]
+        p_food = (Params_Anxious.GAMMA_DISTANCE_FOOD[num_snakes] * 20 / my_snake.health) * (-1)
+        p_flood_min = Params_Anxious.OMEGA_FLOOD_FILL_MIN[num_snakes] * (-1)
         p_flood_max = Params_Anxious.OMEGA_FLOOD_FILL_MAX[num_snakes]
         p_flood_dead = Params_Anxious.OMEGA_FLOOD_DEAD[num_snakes]
 
-        p_corridor = Params_Anxious.RHO_ESCAPE_CORRIDOR[num_snakes]
+        p_corridor = Params_Anxious.RHO_ESCAPE_CORRIDOR[num_snakes] * (-1)
         p_length = Params_Anxious.TAU_PATH_LENGTH[num_snakes]
 
         total_cost = np.array([], dtype=np.float64)
