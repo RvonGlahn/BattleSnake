@@ -4,8 +4,8 @@ from agents.RandomAgent import RandomAgent
 from agents.KILabAgent import KILabAgent
 import time
 
-agents = [RandomAgent(), KILabAgent()]
-#agents = [KILabAgent()] 
+#agents = [RandomAgent(), KILabAgent()]
+agents = [KILabAgent()] 
 
 # remote_agent = RemoteAgent(url='130.75.31.206:8000')
 # agents.append(remote_agent)

@@ -17,19 +17,20 @@ class SoloSurvival:
     def next_step(snake: Snake, board: BoardState, grid_map: GridMap) -> Direction:
 
         head = snake.get_head()
-        tail = snake.get_tail()
+        #tail = snake.get_tail()
         middle = Position(board.height // 2, board.width // 2)
-        valid = []
-        for direction in Direction:
-            if not ((head.advanced(direction) in snake.get_body()) or board.is_out_of_bounds(head.advanced(direction))):
-                valid.append(direction)
-        if snake.get_length() > 10:
-            for action in valid:
-                _, path = AStar.a_star_search(head.advanced(action), tail, board, grid_map)
-                print(len(path))
-                end, pat = path[len(path)-1]
-                if not end == tail:
-                    valid.remove(action)
+        valid = ValidActions.get_valid_actions(board, snake.possible_actions(), [], snake, grid_map, False)
+        #for direction in Direction:
+        #    if not board.is_out_of_bounds(head.advanced(direction)):
+        #        if not (head.advanced(direction) in snake.get_body()):
+        #            valid.append(direction)
+        #if snake.get_length() > 10:
+        #    for action in valid:
+        #        _, path = AStar.a_star_search(head.advanced(action), tail, board, grid_map)
+        #       print(len(path))
+        #        end, pat = path[len(path)-1]
+        #        if not end == tail:
+        #            valid.remove(action)
 
         if middle in snake.get_body():
             need, next_direction = SoloSurvival.need_food(snake, board, grid_map, valid)

@@ -444,4 +444,4 @@ class StandardGame(AbstractGame):
             if s.is_alive():
                 num_snakes_remaining += 1
 
-        return num_snakes_remaining <= 1
+        return num_snakes_remaining <= 0
