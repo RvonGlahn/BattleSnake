@@ -95,6 +95,7 @@ class SnakeAutomat:
 
                 if cost[enmy.snake_id] < 15:
                     kill_path = Aggressive.flood_kill(enmy, self.snake, kill_board, board, grid_map)
+                    print(kill_path)
 
         if kill_path:
             self.state = States.AGRESSIVE

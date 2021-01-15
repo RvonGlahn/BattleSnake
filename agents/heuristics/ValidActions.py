@@ -15,7 +15,6 @@ from environment.Battlesnake.model.Occupant import Occupant
 
 
 # TODO:
-#  Snake Markierungen erhöhen für tiefere Suche
 #  Food essen auf weg verringert die tiefe
 #  Ab todespunkt/zug x zukünftige tote gegner vom Board löschen
 

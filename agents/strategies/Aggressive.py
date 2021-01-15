@@ -28,13 +28,15 @@ class Aggressive:
             kill_board[part.x][part.y] -= 1000
         kill_board[my_head.x][my_head.y] -= 1000
 
-        idx = np.where(kill_board == np.amax(kill_board))
         x, y = np.unravel_index(kill_board.argmax(), kill_board.shape)
 
+        print(kill_board)
+        print(Position(x, y))
         for (pos_x, pos_y) in get_valid_neigbours(x, y, kill_board):
             if kill_board[pos_x][pos_y] < 0:
                 x, y = pos_x, pos_y
                 search = True
+                break
 
         enemy_dist = Distance.manhattan_dist(enemy_head, Position(x, y))
         my_dist = Distance.manhattan_dist(my_head, Position(x, y))
@@ -44,7 +46,7 @@ class Aggressive:
 
             count = 0
             for pos, dir in path:
-                if kill_board[pos.x, pos.y] >= 0:
+                if kill_board[pos.x][pos.y] >= 0:
                     return []
 
                 abort_count = 0
@@ -53,7 +55,7 @@ class Aggressive:
                         abort_count += 1
                 if abort_count > 2 and count < 4:
                     return []
-                if abort_count > 1 and count < my_dist:
+                if abort_count > 1 and 3 < count < my_dist:
                     return []
                 kill_actions.append(dir)
                 count += 1
