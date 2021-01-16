@@ -37,12 +37,12 @@ class Params_Anxious:
 
     ALPHA_DISTANCE_ENEMY_HEAD = [5, 1, 0]
     BETA_DISTANCE_CORNERS = [5, 1, 1]
-    GAMMA_DISTANCE_FOOD = [4, 3, 2]
+    GAMMA_DISTANCE_FOOD = [5, 7, 2]
     EPSILON_NO_BORDER = [10, 5, 1]
     THETA_DISTANCE_MID = [1, 1, 1]
 
-    OMEGA_FLOOD_FILL_MAX = [10, 3, 0]
-    OMEGA_FLOOD_FILL_MIN = [1, 7, 10]
+    OMEGA_FLOOD_FILL_MAX = [10, 7, 0]
+    OMEGA_FLOOD_FILL_MIN = [1, 3, 10]
     OMEGA_FLOOD_DEAD = [3, 7, 10]
     RHO_ESCAPE_CORRIDOR = [10, 5, 1]
     TAU_PATH_LENGTH = [1, 1, 1]
@@ -59,7 +59,7 @@ class Params_ActionPlan:
 
 class Params_ValidActions:
 
-    DEPTH = 12
+    DEPTH = 15
     DIST_TO_ENEMY = 15
     BODY_VALUE = 10
     HEAD_VALUE = 50
