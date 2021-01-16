@@ -335,10 +335,12 @@ class ValidActions:
                                                     self.my_snake, self.grid_map, avoid_food=True)
 
         if self.my_snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY:
-            self.depth = 6
+            self.depth = 8
         if self.my_snake.health < 10:
-            self.depth = 3
+            self.depth = 4
         else:
+            self.depth = Params_ValidActions.DEPTH
+        if self.my_snake.health > 60:
             self.depth = Params_ValidActions.DEPTH
 
         # calculate enemy snakes board
