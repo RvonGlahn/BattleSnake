@@ -84,7 +84,7 @@ class Anxious:
 
             direction_cost[4] = sum([Distance.manhattan_dist(next_position, corner)
                                      for corner in corners
-                                     if Distance.manhattan_dist(next_position, corner) < 9] ) * p_corner
+                                     if Distance.manhattan_dist(next_position, corner) < 9]) * p_corner
 
             direction_cost[5] = Distance.manhattan_dist(next_position, middle) * p_mid
 

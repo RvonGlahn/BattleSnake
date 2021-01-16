@@ -121,7 +121,7 @@ class ValidActions:
                 if step == 1:
                     for snake in self.board.snakes:
                         tail = snake.get_tail()
-                        if snake.health != 100 and (x, y) == (tail.x, tail.y):
+                        if snake.health != 100 and (x, y) == (tail.x, tail.y) and self.valid_board[x, y] != 1:
                             self.valid_board[x][y] = -step
 
             visited.append((x, y))
