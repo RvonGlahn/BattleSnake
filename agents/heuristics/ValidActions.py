@@ -358,6 +358,9 @@ class ValidActions:
                                                         self.my_snake, self.grid_map, avoid_food=False)
             if self.valid_actions:
                 self._valid_check()
+            else:
+                self.valid_actions = self.my_snake.possible_actions()
+                self._valid_check()
 
         print("ValidAction-DAUER: ", time.time() - start_time)
 
