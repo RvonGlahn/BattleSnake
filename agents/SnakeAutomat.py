@@ -85,7 +85,7 @@ class SnakeAutomat:
         snakes = board.snakes
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
-        if self.snake.health < 50 or len(enemy_snakes) == 1:
+        if self.snake.health < 50 or len(enemy_snakes) == 1 or self.snake.get_length() < 6:
             cost, self.reachable_food = FloodFill.get_fill_stats(board, self.snake.get_head(), self.snake.snake_id,
                                                                  new_pos=False)
 
@@ -93,9 +93,15 @@ class SnakeAutomat:
                 kill_path = Aggressive.flood_kill(enemy_snakes[0], self.snake, kill_board, board, grid_map)
                 print(kill_path)
 
+        """
         if kill_path:
             self.state = States.AGRESSIVE
             Params_Aggressive.KILL_PATH = kill_path
+            # return
+        """
+
+        if self.snake.get_length() < 6 and self.reachable_food:
+            self.state = States.HUNGRY
             return
 
         if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY and self.reachable_food:
@@ -109,7 +115,6 @@ class SnakeAutomat:
         else:
             Params_Automat.HUNGER_HEALTH_BOUNDARY = 30
             self.state = States.ANXIOUS
-
             return
 
     def make_movement_profile_prediction(self, enemy_snakes: List[Snake], enemy_heads: List[Position],

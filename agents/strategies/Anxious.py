@@ -33,7 +33,7 @@ class Anxious:
                                                            grid_map, avoid_food=False)
 
         num_snakes = 4 - len(board.snakes)
-        flood_dist = 12 if (num_snakes+1) > 2 else 99
+        flood_dist = 6 if len(board.snakes) > 2 else 99
 
         my_head = my_snake.get_head()
         enemy_heads = [snake.get_head() for snake in board.snakes if snake.snake_id != my_snake.snake_id]

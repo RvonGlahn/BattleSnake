@@ -54,6 +54,7 @@ class Hungry:
             action = np.random.choice(back_up_actions)
 
         if not food_path:
+            print(my_automat.reachable_food)
             food_path = Hungry.follow_food(snake, board, grid_map, my_automat.reachable_food)
         if food_path:
             print("Food_Path: ", food_path)

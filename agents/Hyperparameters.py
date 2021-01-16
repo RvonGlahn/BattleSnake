@@ -41,10 +41,10 @@ class Params_Anxious:
     EPSILON_NO_BORDER = [10, 5, 1]
     THETA_DISTANCE_MID = [1, 1, 1]
 
-    OMEGA_FLOOD_FILL_MAX = [10, 5, 0]
-    OMEGA_FLOOD_FILL_MIN = [5, 10, 10]
-    OMEGA_FLOOD_DEAD = [10, 10, 10]
-    RHO_ESCAPE_CORRIDOR = [1, 1, 1]
+    OMEGA_FLOOD_FILL_MAX = [5, 3, 0]
+    OMEGA_FLOOD_FILL_MIN = [3, 7, 10]
+    OMEGA_FLOOD_DEAD = [3, 7, 10]
+    RHO_ESCAPE_CORRIDOR = [5, 1, 1]
     TAU_PATH_LENGTH = [1, 1, 1]
 
 
