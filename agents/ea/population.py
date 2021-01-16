@@ -66,6 +66,8 @@ class Population:
                         ind.genome[i] = self.low
 
     def evaluate(self):
+        # load yaml file with params
+        # start training with 2 snakes
 
         for i in self.individuals:
             # TODO:

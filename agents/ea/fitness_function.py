@@ -3,6 +3,7 @@ from agents.RemoteAgent import RemoteAgent
 from environment.battlesnake_environment import BattlesnakeEnvironment
 from agents.KILabAgent import KILabAgent
 import time
+import random
 
 
 class FitnessFunction:
@@ -18,15 +19,23 @@ class FitnessFunction:
     @staticmethod
     def run_game():
 
-        agents = [KILabAgent()]
+        possible_agents = [KILabAgent()]
         # agents = [KILabAgent()]
 
         remote_agent = RemoteAgent(url='130.75.31.206:8001')
-        agents.append(remote_agent)
+        possible_agents.append(remote_agent)
         remote_agent2 = RemoteAgent(url='130.75.31.206:8002')
-        agents.append(remote_agent2)
+        possible_agents.append(remote_agent2)
         remote_agent3 = RemoteAgent(url='130.75.31.206:8003')
-        agents.append(remote_agent3)
+        possible_agents.append(remote_agent3)
+        remote_agent4 = RemoteAgent(url='130.75.31.206:8004')
+        possible_agents.append(remote_agent4)
+        remote_agent5 = RemoteAgent(url='130.75.31.206:8005')
+        possible_agents.append(remote_agent5)
+        remote_agent6 = RemoteAgent(url='130.75.31.206:8008')
+        possible_agents.append(remote_agent6)
+
+        agents = random.choice(possible_agents)
 
         env = BattlesnakeEnvironment(
             width=11,
