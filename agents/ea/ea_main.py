@@ -1,10 +1,30 @@
 import numpy as np
+import yaml
 
 from agents.ea.population import Population
+from agents.Hyperparameters import Params_Anxious
+
+
+def set_params(data, idx):
+    Params_Anxious.ALPHA_DISTANCE_ENEMY_HEAD[idx] = data["HEAD"]
+    Params_Anxious.BETA_DISTANCE_CORNERS[idx] = data["CORNERS"]
+    Params_Anxious.GAMMA_DISTANCE_FOOD[idx] = data["FOOD"]
+    Params_Anxious.EPSILON_NO_BORDER[idx] = data["NO_BORDER"]
+    Params_Anxious.THETA_DISTANCE_MID[idx] = data["MID"]
+
+    Params_Anxious.OMEGA_FLOOD_FILL_MAX[idx] = data["FLOOD_FILL_MAX"]
+    Params_Anxious.OMEGA_FLOOD_FILL_MIN[idx] = data["FLOOD_FILL_MIN"]
+    Params_Anxious.OMEGA_FLOOD_DEAD[idx] = data["FLOOD_FILL_DEAD"]
+    Params_Anxious.RHO_ESCAPE_CORRIDOR[idx] = data["ESCAPE_CORRIDOR"]
+    Params_Anxious.TAU_PATH_LENGTH[idx] = data["PATH_LENGTH"]
 
 
 def main():
+    index = 0
     mutation_probability = 1.0
+    with open("params.yaml", 'r') as stream:
+        data = yaml.safe_load(stream)
+        set_params(data, index)
 
     population = Population(population_size=10, genome_size=10, low=0.0, high=10.0)
 
