@@ -1,5 +1,6 @@
 import numpy as np
 from agents.ea.individual import Individual
+from agents.ea.fitness_function import FitnessFunction
 from random import shuffle
 
 
@@ -64,10 +65,15 @@ class Population:
                     if ind.genome[i] < self.low:
                         ind.genome[i] = self.low
 
-    def evaluate(self, evaluator):
+    def evaluate(self):
 
         for i in self.individuals:
-            i.fitness = evaluator(i.genome)
+            # TODO:
+            #  - genom für alle 3 Stufen
+            #  - Params speichern
+            # self.individuals = Params...
+            FitnessFunction.run_game()
+            i.fitness = FitnessFunction.fitness_value(i.genome)
 
     def select(self):
 

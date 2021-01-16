@@ -19,7 +19,7 @@ class RelevantFood:
             if food.x == 0 or food.y == 0 or food.x == width-1 or food.y == height-1:
                 enemy_dist_to_me = min([Distance.manhattan_dist(head, my_head) for head in enemy_heads])
                 enemy_dist_to_food = min([Distance.manhattan_dist(head, food) for head in enemy_heads])
-                if len(all_food) > 3:
+                if len(all_food) > 4 and my_snake.health > 30:
                     continue
                 if enemy_dist_to_me < 2 and my_snake.health > 25 and enemy_dist_to_food < 2:
                     continue

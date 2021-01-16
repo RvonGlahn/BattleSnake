@@ -11,7 +11,7 @@ remote_agent = RemoteAgent(url='130.75.31.206:8001')
 agents.append(remote_agent)
 remote_agent2 = RemoteAgent(url='130.75.31.206:8002')
 agents.append(remote_agent2)
-remote_agent3 = RemoteAgent(url='130.75.31.206:8005')
+remote_agent3 = RemoteAgent(url='130.75.31.206:8003')
 agents.append(remote_agent3)
 
 env = BattlesnakeEnvironment(
