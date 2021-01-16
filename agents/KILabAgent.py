@@ -24,6 +24,7 @@ class KILabAgent(BaseAgent):
         return 'Jürgen'
 
     def start(self, game_info: GameInfo, turn: int, board: BoardState, you: Snake):
+        # read ea csv
         self.food_path: List[Position] = []
         self.Decision = Decision()
         self.Decision.set_up_automats(you, board.snakes)

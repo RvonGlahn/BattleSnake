@@ -35,16 +35,16 @@ class Params_MovementProfile:
 
 class Params_Anxious:
 
-    ALPHA_DISTANCE_ENEMY_HEAD = [5, 1, 0]
+    ALPHA_DISTANCE_ENEMY_HEAD = [5, 3, 1]
     BETA_DISTANCE_CORNERS = [5, 1, 0]
     GAMMA_DISTANCE_FOOD = [5, 7, 2]
     EPSILON_NO_BORDER = [10, 5, 5]
     THETA_DISTANCE_MID = [1, 1, 0]
 
-    OMEGA_FLOOD_FILL_MAX = [10, 7, 0]
-    OMEGA_FLOOD_FILL_MIN = [1, 3, 10]
+    OMEGA_FLOOD_FILL_MAX = [0, 0, 0]
+    OMEGA_FLOOD_FILL_MIN = [10, 10, 10]
     OMEGA_FLOOD_DEAD = [3, 7, 10]
-    RHO_ESCAPE_CORRIDOR = [10, 5, 0]
+    RHO_ESCAPE_CORRIDOR = [5, 3, 1]
     TAU_PATH_LENGTH = [1, 1, 0]
 
 

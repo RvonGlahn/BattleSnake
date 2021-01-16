@@ -21,7 +21,7 @@ class RelevantFood:
                 enemy_dist_to_food = min([Distance.manhattan_dist(head, food) for head in enemy_heads])
                 if len(all_food) > 3:
                     continue
-                if enemy_dist_to_me < 3 and my_snake.health > 15 and enemy_dist_to_food < 3:
+                if enemy_dist_to_me < 2 and my_snake.health > 25 and enemy_dist_to_food < 2:
                     continue
 
             my_close_food.append(food)

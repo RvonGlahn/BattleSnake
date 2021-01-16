@@ -1,7 +1,7 @@
 from typing import List, Dict
 import numpy as np
 
-from agents.Hyperparameters import Params_Decision, Params_Automat
+from agents.Hyperparameters import Params_Decision
 from agents.States import States
 from agents.heuristics.Distance import Distance
 from agents.heuristics.ValidActions import ValidActions

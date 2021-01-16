@@ -4,15 +4,19 @@ from agents.RandomAgent import RandomAgent
 from agents.KILabAgent import KILabAgent
 import time
 
-agents = [RandomAgent(), KILabAgent()]
-#agents = [KILabAgent()] 
+agents = [KILabAgent()]
+# agents = [KILabAgent()]
 
-# remote_agent = RemoteAgent(url='130.75.31.206:8000')
-# agents.append(remote_agent)
+remote_agent = RemoteAgent(url='130.75.31.206:8001')
+agents.append(remote_agent)
+remote_agent2 = RemoteAgent(url='130.75.31.206:8002')
+agents.append(remote_agent2)
+remote_agent3 = RemoteAgent(url='130.75.31.206:8005')
+agents.append(remote_agent3)
 
 env = BattlesnakeEnvironment(
-    width=15,
-    height=15,
+    width=11,
+    height=11,
     agents=agents,
     act_timeout=0.4,
     export_games=False

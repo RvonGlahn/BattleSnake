@@ -25,7 +25,8 @@ class Position:
         elif d == Direction.DOWN:
             return Position(self.x, self.y - 1)
         else:
-            raise ValueError("Invalid direction: {}".format(d))
+            pass
+            # raise ValueError("Invalid direction: {}".format(d))
 
     def is_position_equal_to(self, c: 'Position'):
         return self.x == c.x and self.y == c.y

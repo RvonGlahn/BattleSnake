@@ -100,7 +100,7 @@ class SnakeAutomat:
             # return
         """
 
-        if self.snake.get_length() < 6 and self.reachable_food:
+        if self.snake.get_length() < 5 and self.reachable_food:
             self.state = States.HUNGRY
             Params_Automat.HUNGER_HEALTH_BOUNDARY = 100
             return
