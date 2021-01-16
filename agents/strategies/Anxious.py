@@ -41,6 +41,7 @@ class Anxious:
         middle = Position(int(board.height / 2), int(board.width / 2))
         corners = [Position(0, 0), Position(0, board.width), Position(board.height, 0), Position(board.height,
                                                                                                  board.width)]
+        corner = corner for
 
         escape_cost_dict = action_plan.escape_lane(my_head, valid_actions)
 
@@ -83,7 +84,8 @@ class Anxious:
                                      for enemy_head in enemy_heads]) * p_head
 
             direction_cost[4] = sum([Distance.manhattan_dist(next_position, corner)
-                                     for corner in corners]) * p_corner
+                                     for corner in corners
+                                     if Distance.manhattan_dist(next_position, corner) < 9] ) * p_corner
 
             direction_cost[5] = Distance.manhattan_dist(next_position, middle) * p_mid
 
