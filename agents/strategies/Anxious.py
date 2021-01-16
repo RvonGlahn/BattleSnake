@@ -41,7 +41,6 @@ class Anxious:
         middle = Position(int(board.height / 2), int(board.width / 2))
         corners = [Position(0, 0), Position(0, board.width), Position(board.height, 0), Position(board.height,
                                                                                                  board.width)]
-        corner = corner for
 
         escape_cost_dict = action_plan.escape_lane(my_head, valid_actions)
 
