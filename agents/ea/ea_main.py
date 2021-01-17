@@ -20,8 +20,10 @@ def set_params(data, idx):
 
 
 def main():
-    index = 0
+    index = 2
     mutation_probability = 1.0
+    fitnesses = None
+
     with open("params.yaml", 'r') as stream:
         data = yaml.safe_load(stream)
         set_params(data, index)
@@ -46,6 +48,8 @@ def main():
                                                    f"max fitness {np.max(fitnesses):.3f}",
                                                    f"average fitness {avg_fitness:.3f}",
                                                    f"mutation probability {mutation_probability:.3f}"))
+
+    yaml.dump(fitnesses, explicit_start=True, default_flow_style=False)
 
 
 if __name__ == "__main__":

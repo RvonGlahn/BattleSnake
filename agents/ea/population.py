@@ -1,6 +1,8 @@
 import numpy as np
 from agents.ea.individual import Individual
 from agents.ea.fitness_function import FitnessFunction
+from agents.Hyperparameters import Params_Anxious
+
 from random import shuffle
 
 
@@ -66,16 +68,23 @@ class Population:
                         ind.genome[i] = self.low
 
     def evaluate(self):
-        # load yaml file with params
-        # start training with 2 snakes
-
         for i in self.individuals:
-            # TODO:
-            #  - genom für alle 3 Stufen
-            #  - Params speichern
-            # self.individuals = Params...
+            idx = 2
+
+            Params_Anxious.ALPHA_DISTANCE_ENEMY_HEAD[idx] = i.genome[0]
+            Params_Anxious.BETA_DISTANCE_CORNERS[idx] = i.genome[1]
+            Params_Anxious.GAMMA_DISTANCE_FOOD[idx] = i.genome[2]
+            Params_Anxious.EPSILON_NO_BORDER[idx] = i.genome[3]
+            Params_Anxious.THETA_DISTANCE_MID[idx] = i.genome[4]
+
+            Params_Anxious.OMEGA_FLOOD_FILL_MAX[idx] = i.genome[5]
+            Params_Anxious.OMEGA_FLOOD_FILL_MIN[idx] = i.genome[6]
+            Params_Anxious.OMEGA_FLOOD_DEAD[idx] = i.genome[7]
+            Params_Anxious.RHO_ESCAPE_CORRIDOR[idx] = i.genome[8]
+            Params_Anxious.TAU_PATH_LENGTH[idx] = i.genome[9]
+
             FitnessFunction.run_game()
-            i.fitness = FitnessFunction.fitness_value(i.genome)
+            i.fitness = FitnessFunction.fitness_value()
 
     def select(self):
 

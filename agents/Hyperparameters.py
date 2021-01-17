@@ -38,7 +38,7 @@ class Params_Anxious:
     ALPHA_DISTANCE_ENEMY_HEAD = [5, 3, 1]
     BETA_DISTANCE_CORNERS = [5, 1, 0]
     GAMMA_DISTANCE_FOOD = [5, 7, 2]
-    EPSILON_NO_BORDER = [15, 5, 5]
+    EPSILON_NO_BORDER = [10, 5, 5]
     THETA_DISTANCE_MID = [1, 1, 0]
 
     OMEGA_FLOOD_FILL_MAX = [0, 0, 0]
@@ -66,3 +66,8 @@ class Params_ValidActions:
     AREA_VALUE = 5
     FOOD_BOUNDARY = 30
 
+
+class Params_Fitness:
+    board = None
+    turn = 0
+    my_id = ""

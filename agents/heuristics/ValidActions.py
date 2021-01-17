@@ -38,6 +38,7 @@ class ValidActions:
         self.kill_board = np.zeros((self.board.width, self.board.height))
         self.direction_depth = {}
         self.state = my_state
+        self.food_on_path_count = {}
 
     @staticmethod
     def get_valid_actions(board: BoardState,
@@ -99,6 +100,9 @@ class ValidActions:
             if (x, y) in visited:
                 continue
 
+            if self.board.is_out_of_bounds(Position(x, y)):
+                continue
+
             if enemy:
                 if self.valid_board[x][y] + step < 0:
                     continue
@@ -139,7 +143,6 @@ class ValidActions:
         return new_queue, visited, action_plan
 
     def _mark_snakes(self, help_board: np.ndarray) -> None:
-        # TODO: add info of enemy step to snake body -> List ?
         # mark enemy snakes
         for snake in self.board.snakes:
             if snake.snake_id != self.my_snake.snake_id:
@@ -152,7 +155,7 @@ class ValidActions:
             self.valid_board[position.x][position.y] = (index + 21)
             help_board[position.x][position.y] = (index + 21)
 
-    def expand(self, next_position: Position) -> int:
+    def expand(self, next_position: Position, direction: Direction) -> int:
 
         step_history = []
         dead_ends = {}
@@ -160,6 +163,7 @@ class ValidActions:
         value = -1
         dead = False
         longest_way = 0
+        food_count = 0
 
         # get first field of Direction and check if valid
         if self.valid_board[next_position.x][next_position.y] != value:
@@ -174,6 +178,11 @@ class ValidActions:
 
                 # check if next value is valid and no dead end
                 if self.valid_board[x][y] == value-1 and (x, y) not in dead_ends.keys():
+                    if self.grid_map.grid_cache[x][y] == Occupant.Food:
+                        food_count += 1
+                    # TODO: Logik dass schlangen ende berücksichtigt wird
+                    if Position(x, y) == self.my_snake.get_tail() and food_count:
+                        longest_way -= 1
                     dead = False
                     step_history.append((x, y))
                     x_coord, y_coord = x, y
@@ -196,11 +205,16 @@ class ValidActions:
             # update range for each direction
             if longest_way >= value:
                 longest_way = value
+                self.food_on_path_count[direction] = food_count
 
             # check if dead end but still valid nodes to explore
             if dead and step_history:
                 dead_ends[(x_coord, y_coord)] = value
-                step_history.pop(-1)
+                (x_pos, y_pos) = step_history.pop(-1)
+
+                if self.grid_map.grid_cache[x_pos][y_pos] == Occupant.Food:
+                    food_count -= 1
+
                 if step_history:
                     x_coord, y_coord = step_history[-1]
                 value += 1
@@ -286,7 +300,7 @@ class ValidActions:
                         self.valid_board[food_pos.x][food_pos.y] = 1
 
             # expand for each direction
-            depth = self.expand(next_position)
+            depth = self.expand(next_position, direction)
             print(self.valid_board)
 
             self.direction_depth[direction] = depth

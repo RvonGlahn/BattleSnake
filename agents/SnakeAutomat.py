@@ -81,11 +81,12 @@ class SnakeAutomat:
 
     def update_my_state(self, board: BoardState, kill_board: np.ndarray, grid_map: GridMap) -> None:
 
+        # TODO: STATE HUNGRY wird nicht erreicht
         kill_path = []
         snakes = board.snakes
         enemy_snakes = [snake for snake in snakes if snake.snake_id is not self.snake.snake_id]
 
-        if self.snake.health < 50 or self.snake.get_length() < 6:  # or len(enemy_snakes) == 1
+        if self.snake.health < Params_Automat.HUNGER_HEALTH_BOUNDARY or self.snake.get_length() < 6:
             cost, self.reachable_food = FloodFill.get_fill_stats(board, self.snake.get_head(), self.snake.snake_id,
                                                                  new_pos=False)
             """
@@ -99,8 +100,9 @@ class SnakeAutomat:
             Params_Aggressive.KILL_PATH = kill_path
             # return
         """
+        print(self.reachable_food)
 
-        if self.snake.get_length() < 5 and self.reachable_food:
+        if self.snake.get_length() < 6 and self.reachable_food:
             self.state = States.HUNGRY
             Params_Automat.HUNGER_HEALTH_BOUNDARY = 100
             return

@@ -66,7 +66,8 @@ class Anxious:
             next_position = my_head.advanced(action)
 
             # calculate flood fill
-            flood_fill_value, relevant_food = FloodFill.get_fill_stats(board, next_position, my_snake.snake_id)
+            flood_fill_value, relevant_food = FloodFill.get_fill_stats(board, next_position, my_snake.snake_id,
+                                                                       new_pos=True)
             enemy_flood = sum([flood_fill_value[snake.snake_id] for snake in board.snakes
                                if snake.snake_id != my_snake.snake_id
                                and Distance.manhattan_dist(snake.get_head(), my_head) < flood_dist])
